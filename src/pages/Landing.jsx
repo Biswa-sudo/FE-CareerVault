@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Button from '../components/ui/Button'
+import LandingPage from './LandingPage'
 
 const features = [
   { title: '10 Professional Templates', desc: 'Choose from modern, minimal, or creative styles.' },
@@ -11,6 +12,8 @@ const features = [
 
 export default function Landing() {
   return (
+    <>
+    <LandingPage />
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="px-6 py-4 flex justify-between items-center border-b">
@@ -85,6 +88,8 @@ export default function Landing() {
       <footer className="py-6 text-center text-sm text-gray-400 border-t">
         © 2026 CV Builder Pro. All rights reserved.
       </footer>
+      
     </div>
+    </>
   )
 }

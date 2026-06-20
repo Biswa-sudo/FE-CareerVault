@@ -13,6 +13,7 @@ import Documents from './pages/Documents'
 import Account from './pages/Account'
 import DashboardLayout from './components/Layout/DashboardLayout'
 import ProtectedRoute from './routes/ProtectedRoute'
+import LandingPage from './pages/LandingPage'
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
             <Route path="/my-cvs" element={<MyCVs />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/landing-page" element={<LandingPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
