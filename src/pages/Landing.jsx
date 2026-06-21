@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Button from '../components/ui/Button'
 import LandingPage from './LandingPage'
+import Landing2 from './Landing2'
 
 const features = [
   { title: '10 Professional Templates', desc: 'Choose from modern, minimal, or creative styles.' },
@@ -90,6 +91,7 @@ export default function Landing() {
       </footer>
       
     </div>
+     <Landing2 />
     </>
   )
 }

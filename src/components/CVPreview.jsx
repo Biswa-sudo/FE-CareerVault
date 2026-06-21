@@ -1,6 +1,15 @@
 import { forwardRef } from 'react'
+import ClassicProfessional from './templates/ClassicProfessional/ClassicProfessional'
 
 const CVPreview = forwardRef(({ cvData, template }, ref) => {
+
+  if (template?.id === 'classic-professional') {
+    return (
+      <div ref={ref}>
+        <ClassicProfessional data={cvData} />
+      </div>
+    )
+  }
   const { personal, experiences, education, skills } = cvData || {}
   const t = template || {}
   const headerBg = t.headerBg || '#6366f1'

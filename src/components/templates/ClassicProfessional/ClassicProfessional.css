@@ -1,0 +1,116 @@
+.resume {
+  display: flex;
+  max-width: 1200px;
+  min-height: 1600px;
+  margin: auto;
+  background: #fff;
+  font-family: "Inter", sans-serif;
+}
+
+.sidebar {
+  width: 300px;
+  background: linear-gradient(
+    180deg,
+    #0b1b38 0%,
+    #102b56 100%
+  );
+  color: white;
+  padding: 40px 25px;
+}
+
+.profile-image {
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 40px;
+}
+
+.sidebar section {
+  margin-bottom: 35px;
+}
+
+.sidebar h3 {
+  font-size: 18px;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #4a8cff;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+.sidebar ul {
+  padding-left: 20px;
+}
+
+.sidebar li {
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.main-content {
+  flex: 1;
+  padding: 50px;
+}
+
+.main-content h1 {
+  font-size: 58px;
+  font-weight: 700;
+  margin: 0;
+  color: #222;
+}
+
+.main-content h2 {
+  color: #2e67d1;
+  font-size: 26px;
+  margin-top: 10px;
+  letter-spacing: 2px;
+}
+
+.summary {
+  margin: 30px 0;
+  line-height: 1.8;
+  color: #444;
+}
+
+.main-content section {
+  margin-top: 40px;
+}
+
+.main-content section h3 {
+  font-size: 24px;
+  margin-bottom: 25px;
+  color: #222;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 12px;
+}
+
+.job {
+  margin-bottom: 35px;
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.job-header h4 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.job-header span {
+  color: #666;
+}
+
+.job ul li {
+  margin-bottom: 8px;
+  line-height: 1.7;
+}
+
+.tech-grid p {
+  margin-bottom: 15px;
+  line-height: 1.8;
+}
