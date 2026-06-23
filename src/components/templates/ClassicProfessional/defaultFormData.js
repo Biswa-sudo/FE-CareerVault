@@ -94,6 +94,24 @@ const classicProfessionalDefaults = {
     cloud: "AWS, Docker, Kubernetes, GitLab CI, Terraform",
     tools: "VS Code, Git, Jira, Confluence, Postman",
   },
+
+  sectionHeadings: {
+    contact: "CONTACT",
+    skills: "SKILLS",
+    education: "EDUCATION",
+    certifications: "CERTIFICATIONS",
+    experience: "EXPERIENCE",
+    projects: "PROJECTS",
+    technicalSummary: "TECHNICAL SUMMARY",
+  },
+
+  technicalSummaryLabels: {
+    languages: "Languages",
+    frameworks: "Frameworks",
+    databases: "Databases",
+    cloud: "Cloud & DevOps",
+    tools: "Tools",
+  },
 }
 
 export default classicProfessionalDefaults

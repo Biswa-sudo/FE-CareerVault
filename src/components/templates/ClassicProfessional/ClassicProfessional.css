@@ -1,116 +1,173 @@
 .resume {
   display: flex;
-  max-width: 1200px;
-  min-height: 1600px;
-  margin: auto;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
   background: #fff;
+  box-sizing: border-box;
   font-family: "Inter", sans-serif;
 }
 
 .sidebar {
-  width: 300px;
+  width: 32%;
   background: linear-gradient(
     180deg,
     #0b1b38 0%,
     #102b56 100%
   );
   color: white;
-  padding: 40px 25px;
+  padding: 14mm 6mm;
+  box-sizing: border-box;
 }
 
 .profile-image {
-  width: 170px;
-  height: 170px;
+  width: 36mm;
+  height: 36mm;
   border-radius: 50%;
   object-fit: cover;
   display: block;
-  margin: 0 auto 40px;
+  margin: 0 auto 12mm;
+  border: 2px solid rgba(255, 255, 255, 0.25);
 }
 
 .sidebar section {
-  margin-bottom: 35px;
+  margin-bottom: 9mm;
 }
 
 .sidebar h3 {
-  font-size: 18px;
-  letter-spacing: 2px;
-  margin-bottom: 15px;
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  margin-bottom: 4mm;
   border-bottom: 2px solid #4a8cff;
   display: inline-block;
-  padding-bottom: 5px;
+  padding-bottom: 1.5mm;
+}
+
+.sidebar p {
+  margin: 0 0 2mm;
+  line-height: 1.35;
+  font-size: 11px;
+  overflow-wrap: anywhere;
 }
 
 .sidebar ul {
-  padding-left: 20px;
+  padding-left: 4mm;
+  margin: 0;
 }
 
 .sidebar li {
-  margin-bottom: 10px;
-  line-height: 1.4;
+  margin-bottom: 2.5mm;
+  line-height: 1.35;
+  font-size: 11px;
 }
 
 .main-content {
   flex: 1;
-  padding: 50px;
+  padding: 14mm 10mm;
+  box-sizing: border-box;
 }
 
 .main-content h1 {
-  font-size: 58px;
+  font-size: 36px;
   font-weight: 700;
   margin: 0;
-  color: #222;
+  color: #111827;
+  line-height: 1.05;
 }
 
 .main-content h2 {
   color: #2e67d1;
-  font-size: 26px;
-  margin-top: 10px;
-  letter-spacing: 2px;
+  font-size: 14px;
+  margin-top: 3mm;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .summary {
-  margin: 30px 0;
-  line-height: 1.8;
-  color: #444;
+  margin: 7mm 0 2mm;
+  line-height: 1.5;
+  color: #374151;
+  font-size: 12px;
 }
 
 .main-content section {
-  margin-top: 40px;
+  margin-top: 7mm;
 }
 
 .main-content section h3 {
-  font-size: 24px;
-  margin-bottom: 25px;
-  color: #222;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 12px;
+  font-size: 13px;
+  margin-bottom: 4mm;
+  color: #111827;
+  border-bottom: 1px solid #d1d5db;
+  padding-bottom: 2mm;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
 }
 
 .job {
-  margin-bottom: 35px;
+  margin-bottom: 5mm;
+  break-inside: avoid;
 }
 
 .job-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px;
+  gap: 8mm;
+  margin-bottom: 2mm;
+  align-items: flex-start;
 }
 
 .job-header h4 {
   margin: 0;
-  font-size: 22px;
+  font-size: 14px;
+  color: #1f2937;
 }
 
 .job-header span {
-  color: #666;
+  color: #4b5563;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.job ul {
+  margin: 0;
+  padding-left: 4mm;
 }
 
 .job ul li {
-  margin-bottom: 8px;
-  line-height: 1.7;
+  margin-bottom: 1.6mm;
+  line-height: 1.45;
+  font-size: 11.5px;
+  color: #374151;
+}
+
+.main-content section p {
+  margin: 0 0 2mm;
+  line-height: 1.45;
+  font-size: 11.5px;
+  color: #374151;
 }
 
 .tech-grid p {
-  margin-bottom: 15px;
-  line-height: 1.8;
+  margin-bottom: 2mm;
+  line-height: 1.45;
+}
+
+@media print {
+  .resume,
+  .sidebar {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Let content flow naturally across pages instead of forcing one full-height page. */
+  .resume {
+    min-height: auto;
+  }
+
+  .sidebar,
+  .main-content {
+    padding-top: 12mm;
+    padding-bottom: 12mm;
+  }
 }

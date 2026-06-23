@@ -9,7 +9,27 @@ const ClassicProfessional = ({ data }) => {
     experience,
     projects,
     technicalSummary,
+    sectionHeadings = {},
+    technicalSummaryLabels = {},
   } = data;
+
+  const tl = {
+    languages: technicalSummaryLabels.languages || 'Languages',
+    frameworks: technicalSummaryLabels.frameworks || 'Frameworks',
+    databases: technicalSummaryLabels.databases || 'Databases',
+    cloud: technicalSummaryLabels.cloud || 'Cloud & DevOps',
+    tools: technicalSummaryLabels.tools || 'Tools',
+  };
+
+  const h = {
+    contact: sectionHeadings.contact || 'CONTACT',
+    skills: sectionHeadings.skills || 'SKILLS',
+    education: sectionHeadings.education || 'EDUCATION',
+    certifications: sectionHeadings.certifications || 'CERTIFICATIONS',
+    experience: sectionHeadings.experience || 'EXPERIENCE',
+    projects: sectionHeadings.projects || 'PROJECTS',
+    technicalSummary: sectionHeadings.technicalSummary || 'TECHNICAL SUMMARY',
+  };
 
   return (
     <div className="resume">
@@ -21,7 +41,7 @@ const ClassicProfessional = ({ data }) => {
         />
 
         <section>
-          <h3>CONTACT</h3>
+          <h3>{h.contact}</h3>
 
           <p>{personalInfo.email}</p>
           <p>{personalInfo.phone}</p>
@@ -31,7 +51,7 @@ const ClassicProfessional = ({ data }) => {
         </section>
 
         <section>
-          <h3>SKILLS</h3>
+          <h3>{h.skills}</h3>
 
           <ul>
             {skills.map((skill, index) => (
@@ -41,7 +61,7 @@ const ClassicProfessional = ({ data }) => {
         </section>
 
         <section>
-          <h3>EDUCATION</h3>
+          <h3>{h.education}</h3>
 
           {education.map((item, index) => (
             <div key={index}>
@@ -53,7 +73,7 @@ const ClassicProfessional = ({ data }) => {
         </section>
 
         <section>
-          <h3>CERTIFICATIONS</h3>
+          <h3>{h.certifications}</h3>
 
           <ul>
             {certifications.map((cert, index) => (
@@ -71,7 +91,7 @@ const ClassicProfessional = ({ data }) => {
         <p className="summary">{personalInfo.summary}</p>
 
         <section>
-          <h3>EXPERIENCE</h3>
+          <h3>{h.experience}</h3>
 
           {experience.map((job, index) => (
             <div key={index} className="job">
@@ -97,7 +117,7 @@ const ClassicProfessional = ({ data }) => {
         </section>
 
         <section>
-          <h3>PROJECTS</h3>
+          <h3>{h.projects}</h3>
 
           {projects.map((project, index) => (
             <div key={index}>
@@ -108,27 +128,27 @@ const ClassicProfessional = ({ data }) => {
         </section>
 
         <section>
-          <h3>TECHNICAL SUMMARY</h3>
+          <h3>{h.technicalSummary}</h3>
 
           <div className="tech-grid">
             <p>
-              <strong>Languages:</strong> {technicalSummary.languages}
+              <strong>{tl.languages}:</strong> {technicalSummary.languages}
             </p>
 
             <p>
-              <strong>Frameworks:</strong> {technicalSummary.frameworks}
+              <strong>{tl.frameworks}:</strong> {technicalSummary.frameworks}
             </p>
 
             <p>
-              <strong>Databases:</strong> {technicalSummary.databases}
+              <strong>{tl.databases}:</strong> {technicalSummary.databases}
             </p>
 
             <p>
-              <strong>Cloud & DevOps:</strong> {technicalSummary.cloud}
+              <strong>{tl.cloud}:</strong> {technicalSummary.cloud}
             </p>
 
             <p>
-              <strong>Tools:</strong> {technicalSummary.tools}
+              <strong>{tl.tools}:</strong> {technicalSummary.tools}
             </p>
           </div>
         </section>

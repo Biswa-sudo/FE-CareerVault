@@ -20,7 +20,23 @@ const defaultValues = {
   certifications: [{ value: '' }],
   experience: [{ title: '', company: '', location: '', duration: '', achievementsText: '' }],
   projects: [{ title: '', description: '' }],
-  technicalSummary: { languages: '', frameworks: '', databases: '', cloud: '', tools: '' }
+  technicalSummary: { languages: '', frameworks: '', databases: '', cloud: '', tools: '' },
+  sectionHeadings: {
+    contact: 'CONTACT',
+    skills: 'SKILLS',
+    education: 'EDUCATION',
+    certifications: 'CERTIFICATIONS',
+    experience: 'EXPERIENCE',
+    projects: 'PROJECTS',
+    technicalSummary: 'TECHNICAL SUMMARY',
+  },
+  technicalSummaryLabels: {
+    languages: 'Languages',
+    frameworks: 'Frameworks',
+    databases: 'Databases',
+    cloud: 'Cloud & DevOps',
+    tools: 'Tools',
+  }
 }
 
 export default function Editor() {
@@ -30,6 +46,7 @@ export default function Editor() {
   const template = getTemplateById(templateId)
   const navigate = useNavigate()
   const printRef = useRef()
+  const didAutoPrint = useRef(false)
 
   const [cvName, setCvName] = useState('Untitled CV')
   const { register, control, reset, watch } = useForm({ defaultValues })
@@ -62,6 +79,18 @@ export default function Editor() {
     }
   }, [cvId, templateId, reset])
 
+  useEffect(() => {
+    const shouldPrint = searchParams.get('print') === 'true'
+    if (!shouldPrint || didAutoPrint.current || cvId === 'new') return
+
+    didAutoPrint.current = true
+    const timer = window.setTimeout(() => {
+      window.print()
+    }, 300)
+
+    return () => window.clearTimeout(timer)
+  }, [searchParams, cvId, formData])
+
   // Transform form data into the shape ClassicProfessional expects
   const previewData = useMemo(() => ({
     personalInfo: formData.personalInfo || {},
@@ -76,7 +105,9 @@ export default function Editor() {
       achievements: (e.achievementsText || '').split('\n').filter(Boolean)
     })),
     projects: formData.projects || [],
-    technicalSummary: formData.technicalSummary || {}
+    technicalSummary: formData.technicalSummary || {},
+    sectionHeadings: formData.sectionHeadings || {},
+    technicalSummaryLabels: formData.technicalSummaryLabels || {}
   }), [formData])
 
   const onSave = useCallback(() => {
@@ -229,6 +260,34 @@ export default function Editor() {
               <Input label="Databases" {...register('technicalSummary.databases')} />
               <Input label="Cloud & DevOps" {...register('technicalSummary.cloud')} />
               <Input label="Tools" {...register('technicalSummary.tools')} />
+            </div>
+          </section>
+
+          {/* Technical Summary Labels */}
+          <section>
+            <h3 className="font-semibold mb-2">Technical Summary Labels</h3>
+            <p className="text-xs text-gray-500 mb-3">Customize the field labels inside the Technical Summary section.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Languages label" {...register('technicalSummaryLabels.languages')} />
+              <Input label="Frameworks label" {...register('technicalSummaryLabels.frameworks')} />
+              <Input label="Databases label" {...register('technicalSummaryLabels.databases')} />
+              <Input label="Cloud & DevOps label" {...register('technicalSummaryLabels.cloud')} />
+              <Input label="Tools label" {...register('technicalSummaryLabels.tools')} />
+            </div>
+          </section>
+
+          {/* Section Headings */}
+          <section>
+            <h3 className="font-semibold mb-2">Section Headings</h3>
+            <p className="text-xs text-gray-500 mb-3">Customize the heading labels that appear on your resume.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Contact" {...register('sectionHeadings.contact')} />
+              <Input label="Skills" {...register('sectionHeadings.skills')} />
+              <Input label="Education" {...register('sectionHeadings.education')} />
+              <Input label="Certifications" {...register('sectionHeadings.certifications')} />
+              <Input label="Experience" {...register('sectionHeadings.experience')} />
+              <Input label="Projects" {...register('sectionHeadings.projects')} />
+              <Input label="Technical Summary" {...register('sectionHeadings.technicalSummary')} />
             </div>
           </section>
 

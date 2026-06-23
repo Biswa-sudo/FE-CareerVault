@@ -19,8 +19,7 @@ export default function MyCVs() {
   }
 
   const handleDownload = (cv) => {
-    // we can't easily trigger print for a specific CV from here without loading the editor
-    alert('Open the CV and use Download PDF from the editor.')
+    navigate(`/editor/${cv.id}?print=true`)
   }
 
   return (
@@ -44,10 +43,10 @@ export default function MyCVs() {
               </div>
               <p className="font-medium">{cv.name}</p>
               <p className="text-xs text-gray-400 mb-3">Updated {new Date(cv.updatedAt).toLocaleDateString()}</p>
-              <div className="flex gap-2">
-                <Button onClick={() => navigate(`/editor/${cv.id}`)} variant="primary">Edit</Button>
-                <Button onClick={handleDownload} variant="secondary">Download</Button>
-                <Button onClick={() => handleDelete(cv.id)} variant="danger">Delete</Button>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <Button className="w-full" onClick={() => navigate(`/editor/${cv.id}`)} variant="primary">Edit</Button>
+                <Button className="w-full" onClick={() => handleDownload(cv)} variant="secondary">Download</Button>
+                <Button className="w-full" onClick={() => handleDelete(cv.id)} variant="danger">Delete</Button>
               </div>
             </div>
           )

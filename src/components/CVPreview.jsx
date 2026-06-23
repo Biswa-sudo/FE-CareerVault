@@ -5,7 +5,7 @@ const CVPreview = forwardRef(({ cvData, template }, ref) => {
 
   if (template?.id === 'classic-professional') {
     return (
-      <div ref={ref}>
+      <div ref={ref} id="print-area">
         <ClassicProfessional data={cvData} />
       </div>
     )
