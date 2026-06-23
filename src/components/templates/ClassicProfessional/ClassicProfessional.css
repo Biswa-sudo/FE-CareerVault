@@ -37,10 +37,49 @@
 .sidebar h3 {
   font-size: 12px;
   letter-spacing: 1.2px;
-  margin-bottom: 4mm;
+  margin-bottom: 0;
   border-bottom: 2px solid #4a8cff;
   display: inline-block;
   padding-bottom: 1.5mm;
+}
+
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4mm;
+  gap: 8px;
+}
+
+.section-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.section-controls button {
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  border-radius: 6px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 12px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.section-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sidebar .section-controls button {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.55);
 }
 
 .sidebar p {
@@ -162,6 +201,10 @@
   .sidebar {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
   }
 
   /* Let content flow naturally across pages instead of forcing one full-height page. */

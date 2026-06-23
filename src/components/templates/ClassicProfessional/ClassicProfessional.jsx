@@ -1,16 +1,13 @@
 import "./ClassicProfessional.css";
 
-const ClassicProfessional = ({ data, showLeftSidebar = true }) => {
+const ClassicProfessional = ({ data, showLeftSidebar = true, onSectionAction }) => {
   const {
     personalInfo,
-    skills,
-    education,
-    certifications,
-    experience,
-    projects,
     technicalSummary = {},
     sectionHeadings = {},
     technicalSummaryLabels = {},
+    sectionLayout = { sidebar: [], main: [] },
+    sectionContent = {},
   } = data;
 
   const tl = {
@@ -31,83 +28,96 @@ const ClassicProfessional = ({ data, showLeftSidebar = true }) => {
     technicalSummary: sectionHeadings.technicalSummary || 'TECHNICAL SUMMARY',
   };
 
-  const summaryRows = [
-    { label: tl.languages, value: technicalSummary.languages || '' },
-    { label: tl.frameworks, value: technicalSummary.frameworks || '' },
-    { label: tl.databases, value: technicalSummary.databases || '' },
-    { label: tl.cloud, value: technicalSummary.cloud || '' },
-    { label: tl.tools, value: technicalSummary.tools || '' },
-    ...((technicalSummary.additional || [])
-      .filter(item => item && (item.label || item.value))
-      .map(item => ({
-        label: item.label || 'Additional',
-        value: item.value || '',
-      }))),
-  ];
+  const sectionTitles = {
+    contact: h.contact,
+    skills: h.skills,
+    education: h.education,
+    certifications: h.certifications,
+    experience: h.experience,
+    projects: h.projects,
+    technicalSummary: h.technicalSummary,
+  };
 
-  return (
-    <div className={`resume ${showLeftSidebar ? '' : 'resume-no-sidebar'}`}>
-      {showLeftSidebar && <aside className="sidebar">
-        <img
-          src={personalInfo.image}
-          alt={personalInfo.fullName}
-          className="profile-image"
-        />
+  const getSectionData = (entry) => {
+    const bucket = sectionContent[entry.type] || {}
+    if (entry.source === 'instance') {
+      const instances = bucket.instances || []
+      return instances[entry.instanceIndex] || bucket.base || {}
+    }
+    return bucket.base || {}
+  }
 
-        <section>
-          <h3>{h.contact}</h3>
+  const getTechnicalSummaryRows = (value) => {
+    const dataRow = value || {}
+    return [
+      { label: tl.languages, value: dataRow.languages || '' },
+      { label: tl.frameworks, value: dataRow.frameworks || '' },
+      { label: tl.databases, value: dataRow.databases || '' },
+      { label: tl.cloud, value: dataRow.cloud || '' },
+      { label: tl.tools, value: dataRow.tools || '' },
+      ...((dataRow.additional || [])
+        .filter(item => item && (item.label || item.value))
+        .map(item => ({
+          label: item.label || 'Additional',
+          value: item.value || '',
+        }))),
+    ]
+  }
 
-          <p>{personalInfo.email}</p>
-          <p>{personalInfo.phone}</p>
-          <p>{personalInfo.location}</p>
-          <p>{personalInfo.linkedin}</p>
-          <p>{personalInfo.github}</p>
-        </section>
+  const renderSectionBody = (entry) => {
+    const type = entry.type
+    const value = getSectionData(entry)
 
-        <section>
-          <h3>{h.skills}</h3>
+    if (type === "contact") {
+      return (
+        <>
+          <p>{value.email || ''}</p>
+          <p>{value.phone || ''}</p>
+          <p>{value.location || ''}</p>
+          <p>{value.linkedin || ''}</p>
+          <p>{value.github || ''}</p>
+        </>
+      );
+    }
 
-          <ul>
-            {skills.map((skill, index) => (
-              <li key={index}>{skill}</li>
-            ))}
-          </ul>
-        </section>
+    if (type === "skills") {
+      return (
+        <ul>
+          {(value.items || []).map((skill, index) => (
+            <li key={index}>{skill}</li>
+          ))}
+        </ul>
+      );
+    }
 
-        <section>
-          <h3>{h.education}</h3>
-
-          {education.map((item, index) => (
+    if (type === "education") {
+      return (
+        <>
+          {(value.items || []).map((item, index) => (
             <div key={index}>
               <strong>{item.degree}</strong>
               <p>{item.school}</p>
               <p>{item.year}</p>
             </div>
           ))}
-        </section>
+        </>
+      );
+    }
 
-        <section>
-          <h3>{h.certifications}</h3>
+    if (type === "certifications") {
+      return (
+        <ul>
+          {(value.items || []).map((cert, index) => (
+            <li key={index}>{cert}</li>
+          ))}
+        </ul>
+      );
+    }
 
-          <ul>
-            {certifications.map((cert, index) => (
-              <li key={index}>{cert}</li>
-            ))}
-          </ul>
-        </section>
-      </aside>}
-
-      <main className="main-content">
-        <h1>{personalInfo.fullName}</h1>
-
-        <h2>{personalInfo.title}</h2>
-
-        <p className="summary">{personalInfo.summary}</p>
-
-        <section>
-          <h3>{h.experience}</h3>
-
-          {experience.map((job, index) => (
+    if (type === "experience") {
+      return (
+        <>
+          {(value.items || []).map((job, index) => (
             <div key={index} className="job">
               <div className="job-header">
                 <div>
@@ -128,30 +138,118 @@ const ClassicProfessional = ({ data, showLeftSidebar = true }) => {
               </ul>
             </div>
           ))}
-        </section>
+        </>
+      );
+    }
 
-        <section>
-          <h3>{h.projects}</h3>
-
-          {projects.map((project, index) => (
+    if (type === "projects") {
+      return (
+        <>
+          {(value.items || []).map((project, index) => (
             <div key={index}>
               <h4>{project.title}</h4>
               <p>{project.description}</p>
             </div>
           ))}
-        </section>
+        </>
+      );
+    }
 
-        <section>
-          <h3>{h.technicalSummary}</h3>
+    if (type === "technicalSummary") {
+      const summaryRows = getTechnicalSummaryRows(value)
+      return (
+        <div className="tech-grid">
+          {summaryRows.map((row, index) => (
+            <p key={index}>
+              <strong>{row.label}:</strong> {row.value}
+            </p>
+          ))}
+        </div>
+      );
+    }
 
-          <div className="tech-grid">
-            {summaryRows.map((row, index) => (
-              <p key={index}>
-                <strong>{row.label}:</strong> {row.value}
-              </p>
-            ))}
-          </div>
-        </section>
+    return null;
+  };
+
+  const SectionControls = ({ region, index, total }) => (
+    <div className="section-controls no-print">
+      <button
+        type="button"
+        aria-label="Move section up"
+        onClick={() => onSectionAction?.(region, 'up', index)}
+        disabled={index === 0}
+      >
+        ↑
+      </button>
+      <button
+        type="button"
+        aria-label="Move section down"
+        onClick={() => onSectionAction?.(region, 'down', index)}
+        disabled={index === total - 1}
+      >
+        ↓
+      </button>
+      <button
+        type="button"
+        aria-label="Duplicate section"
+        onClick={() => onSectionAction?.(region, 'duplicate', index)}
+      >
+        ⎘
+      </button>
+      <button
+        type="button"
+        aria-label="Delete section"
+        onClick={() => onSectionAction?.(region, 'delete', index)}
+      >
+        🗑
+      </button>
+    </div>
+  );
+
+  return (
+    <div className={`resume ${showLeftSidebar ? '' : 'resume-no-sidebar'}`}>
+      {showLeftSidebar && <aside className="sidebar">
+        <img
+          src={personalInfo.image}
+          alt={personalInfo.fullName}
+          className="profile-image"
+        />
+
+        {(sectionLayout.sidebar || []).map((section, index) => (
+          <section key={section.id}>
+            <div className="section-title-row">
+              <h3>{sectionTitles[section.type]}</h3>
+              <SectionControls
+                region="sidebar"
+                index={index}
+                total={(sectionLayout.sidebar || []).length}
+              />
+            </div>
+            {renderSectionBody(section)}
+          </section>
+        ))}
+      </aside>}
+
+      <main className="main-content">
+        <h1>{personalInfo.fullName}</h1>
+
+        <h2>{personalInfo.title}</h2>
+
+        <p className="summary">{personalInfo.summary}</p>
+
+        {(sectionLayout.main || []).map((section, index) => (
+          <section key={section.id}>
+            <div className="section-title-row">
+              <h3>{sectionTitles[section.type]}</h3>
+              <SectionControls
+                region="main"
+                index={index}
+                total={(sectionLayout.main || []).length}
+              />
+            </div>
+            {renderSectionBody(section)}
+          </section>
+        ))}
       </main>
     </div>
   );
