@@ -1,12 +1,12 @@
 import { forwardRef } from 'react'
 import ClassicProfessional from './templates/ClassicProfessional/ClassicProfessional'
 
-const CVPreview = forwardRef(({ cvData, template }, ref) => {
+const CVPreview = forwardRef(({ cvData, template, showLeftSidebar = true }, ref) => {
 
   if (template?.id === 'classic-professional') {
     return (
       <div ref={ref} id="print-area">
-        <ClassicProfessional data={cvData} />
+        <ClassicProfessional data={cvData} showLeftSidebar={showLeftSidebar} />
       </div>
     )
   }

@@ -93,6 +93,12 @@ const classicProfessionalDefaults = {
     databases: "PostgreSQL, MongoDB, MySQL, Redis",
     cloud: "AWS, Docker, Kubernetes, GitLab CI, Terraform",
     tools: "VS Code, Git, Jira, Confluence, Postman",
+    additional: [
+      {
+        label: "Testing",
+        value: "Jest, Cypress, Playwright",
+      },
+    ],
   },
 
   sectionHeadings: {

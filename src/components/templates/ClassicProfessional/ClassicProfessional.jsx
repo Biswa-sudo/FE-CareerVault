@@ -1,6 +1,6 @@
 import "./ClassicProfessional.css";
 
-const ClassicProfessional = ({ data }) => {
+const ClassicProfessional = ({ data, showLeftSidebar = true }) => {
   const {
     personalInfo,
     skills,
@@ -8,7 +8,7 @@ const ClassicProfessional = ({ data }) => {
     certifications,
     experience,
     projects,
-    technicalSummary,
+    technicalSummary = {},
     sectionHeadings = {},
     technicalSummaryLabels = {},
   } = data;
@@ -31,9 +31,23 @@ const ClassicProfessional = ({ data }) => {
     technicalSummary: sectionHeadings.technicalSummary || 'TECHNICAL SUMMARY',
   };
 
+  const summaryRows = [
+    { label: tl.languages, value: technicalSummary.languages || '' },
+    { label: tl.frameworks, value: technicalSummary.frameworks || '' },
+    { label: tl.databases, value: technicalSummary.databases || '' },
+    { label: tl.cloud, value: technicalSummary.cloud || '' },
+    { label: tl.tools, value: technicalSummary.tools || '' },
+    ...((technicalSummary.additional || [])
+      .filter(item => item && (item.label || item.value))
+      .map(item => ({
+        label: item.label || 'Additional',
+        value: item.value || '',
+      }))),
+  ];
+
   return (
-    <div className="resume">
-      <aside className="sidebar">
+    <div className={`resume ${showLeftSidebar ? '' : 'resume-no-sidebar'}`}>
+      {showLeftSidebar && <aside className="sidebar">
         <img
           src={personalInfo.image}
           alt={personalInfo.fullName}
@@ -81,7 +95,7 @@ const ClassicProfessional = ({ data }) => {
             ))}
           </ul>
         </section>
-      </aside>
+      </aside>}
 
       <main className="main-content">
         <h1>{personalInfo.fullName}</h1>
@@ -131,25 +145,11 @@ const ClassicProfessional = ({ data }) => {
           <h3>{h.technicalSummary}</h3>
 
           <div className="tech-grid">
-            <p>
-              <strong>{tl.languages}:</strong> {technicalSummary.languages}
-            </p>
-
-            <p>
-              <strong>{tl.frameworks}:</strong> {technicalSummary.frameworks}
-            </p>
-
-            <p>
-              <strong>{tl.databases}:</strong> {technicalSummary.databases}
-            </p>
-
-            <p>
-              <strong>{tl.cloud}:</strong> {technicalSummary.cloud}
-            </p>
-
-            <p>
-              <strong>{tl.tools}:</strong> {technicalSummary.tools}
-            </p>
+            {summaryRows.map((row, index) => (
+              <p key={index}>
+                <strong>{row.label}:</strong> {row.value}
+              </p>
+            ))}
           </div>
         </section>
       </main>

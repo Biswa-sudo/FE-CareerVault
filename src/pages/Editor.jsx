@@ -20,7 +20,10 @@ const defaultValues = {
   certifications: [{ value: '' }],
   experience: [{ title: '', company: '', location: '', duration: '', achievementsText: '' }],
   projects: [{ title: '', description: '' }],
-  technicalSummary: { languages: '', frameworks: '', databases: '', cloud: '', tools: '' },
+  technicalSummary: {
+    languages: '', frameworks: '', databases: '', cloud: '', tools: '',
+    additional: []
+  },
   sectionHeadings: {
     contact: 'CONTACT',
     skills: 'SKILLS',
@@ -49,6 +52,7 @@ export default function Editor() {
   const didAutoPrint = useRef(false)
 
   const [cvName, setCvName] = useState('Untitled CV')
+  const [activePanel, setActivePanel] = useState('form')
   const { register, control, reset, watch } = useForm({ defaultValues })
 
   const { fields: skillFields, append: addSkill, remove: removeSkill } =
@@ -61,6 +65,8 @@ export default function Editor() {
     useFieldArray({ control, name: 'experience' })
   const { fields: projFields, append: addProj, remove: removeProj } =
     useFieldArray({ control, name: 'projects' })
+  const { fields: techAdditionalFields, append: addTechAdditional, remove: removeTechAdditional } =
+    useFieldArray({ control, name: 'technicalSummary.additional' })
 
   const formData = watch()
 
@@ -128,15 +134,35 @@ export default function Editor() {
           onChange={e => setCvName(e.target.value)}
           className="text-lg font-semibold bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary-500 focus:outline-none"
         />
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 justify-end">
+          <div className="flex items-center gap-2 px-2">
+            <span className={`text-sm ${activePanel === 'form' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+              Input Fields
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={activePanel === 'preview'}
+              aria-label="Toggle between input fields and CV output"
+              onClick={() => setActivePanel(prev => (prev === 'form' ? 'preview' : 'form'))}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${activePanel === 'preview' ? 'bg-primary-600' : 'bg-gray-300'}`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${activePanel === 'preview' ? 'translate-x-6' : 'translate-x-1'}`}
+              />
+            </button>
+            <span className={`text-sm ${activePanel === 'preview' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+              Output CV
+            </span>
+          </div>
           <Button onClick={onSave}>Save CV</Button>
           <Button variant="secondary" onClick={() => window.print()}>Download PDF</Button>
         </div>
       </div>
 
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
+      <div className="flex-1 grid grid-cols-1 gap-6 overflow-hidden">
         {/* Form */}
-        <div className="overflow-y-auto pr-2 space-y-6">
+        <div className={`${activePanel === 'form' ? 'block' : 'hidden'} overflow-y-auto pr-2 space-y-6`}>
 
           {/* Personal Info */}
           <section>
@@ -253,7 +279,10 @@ export default function Editor() {
 
           {/* Technical Summary */}
           <section>
-            <h3 className="font-semibold mb-2">Technical Summary</h3>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-semibold">Technical Summary</h3>
+              <Button variant="secondary" type="button" onClick={() => addTechAdditional({ label: '', value: '' })}>+ Add Row</Button>
+            </div>
             <div className="space-y-2">
               <Input label="Languages" {...register('technicalSummary.languages')} />
               <Input label="Frameworks" {...register('technicalSummary.frameworks')} />
@@ -261,6 +290,27 @@ export default function Editor() {
               <Input label="Cloud & DevOps" {...register('technicalSummary.cloud')} />
               <Input label="Tools" {...register('technicalSummary.tools')} />
             </div>
+            {techAdditionalFields.map((field, index) => (
+              <div key={field.id} className="border p-3 rounded-lg mt-3 relative">
+                <button
+                  type="button"
+                  onClick={() => removeTechAdditional(index)}
+                  className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+                >
+                  ✕
+                </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <Input
+                    label="Custom label"
+                    {...register(`technicalSummary.additional.${index}.label`)}
+                  />
+                  <Input
+                    label="Value"
+                    {...register(`technicalSummary.additional.${index}.value`)}
+                  />
+                </div>
+              </div>
+            ))}
           </section>
 
           {/* Technical Summary Labels */}
@@ -294,8 +344,12 @@ export default function Editor() {
         </div>
 
         {/* Preview */}
-        <div className="bg-gray-200 p-4 rounded-xl overflow-auto flex justify-center">
-          <CVPreview ref={printRef} cvData={previewData} template={template} />
+        <div className={`${activePanel === 'preview' ? 'flex' : 'hidden'} bg-gray-200 p-4 rounded-xl overflow-auto justify-center`}>
+          <CVPreview
+            ref={printRef}
+            cvData={previewData}
+            template={template}
+          />
         </div>
       </div>
     </div>
