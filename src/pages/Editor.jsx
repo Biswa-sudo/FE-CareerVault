@@ -289,12 +289,20 @@ export default function Editor() {
 
   const onSave = useCallback(() => {
     try {
-      saveCV({ id: cvId || undefined, name: cvName, templateId, data: getValues() })
+      const savedCv = saveCV({
+        id: cvId && cvId !== 'new' ? cvId : undefined,
+        name: cvName,
+        templateId,
+        data: getValues(),
+      })
+      if (cvId === 'new' && savedCv?.id) {
+        navigate(`/editor/${savedCv.id}?template=${templateId}`, { replace: true })
+      }
       alert('CV saved!')
     } catch (e) {
       alert(e.message)
     }
-  }, [cvId, cvName, templateId, getValues])
+  }, [cvId, cvName, templateId, getValues, navigate])
 
   const handleSectionAction = useCallback((region, action, index) => {
     const layoutPath = `sectionLayout.${region}`

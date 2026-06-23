@@ -56,17 +56,21 @@ export function getCVs() {
 
 export function saveCV(cv) {
   const cvs = getCVs()
+  const normalizedId = cv.id && cv.id !== 'new' ? cv.id : undefined
   const existingIndex = cvs.findIndex(c => c.id === cv.id)
+  let savedCv
   if (existingIndex >= 0) {
-    cvs[existingIndex] = { ...cv, updatedAt: new Date().toISOString() }
+    savedCv = { ...cv, id: normalizedId || cv.id, updatedAt: new Date().toISOString() }
+    cvs[existingIndex] = savedCv
   } else {
     if (cvs.length >= 10) {
       throw new Error('CV limit reached (10).')
     }
-    cvs.push({ ...cv, id: cv.id || crypto.randomUUID(), updatedAt: new Date().toISOString() })
+    savedCv = { ...cv, id: normalizedId || crypto.randomUUID(), updatedAt: new Date().toISOString() }
+    cvs.push(savedCv)
   }
   localStorage.setItem(KEYS.CVS, JSON.stringify(cvs))
-  return cvs
+  return savedCv
 }
 
 export function deleteCV(cvId) {
