@@ -1,0 +1,225 @@
+.executive-blue {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background: #ffffff;
+  box-sizing: border-box;
+  padding: 16mm;
+  font-family: "Inter", sans-serif;
+  color: #333;
+}
+
+.eb-header {
+  margin-bottom: 10mm;
+}
+
+.eb-header h1 {
+  margin: 0;
+  font-size: 42px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.eb-header h2 {
+  margin-top: 4mm;
+  margin-bottom: 5mm;
+  font-size: 22px;
+  font-weight: 600;
+  color: #2e86ff;
+}
+
+.eb-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.eb-contact span {
+  position: relative;
+}
+
+.eb-contact span:not(:last-child)::after {
+  content: "|";
+  margin-left: 18px;
+  color: #9ca3af;
+}
+
+.executive-blue section {
+  margin-top: 8mm;
+}
+
+.eb-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.executive-blue h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.eb-divider {
+  height: 3px;
+  background: #111827;
+  margin-top: 3mm;
+  margin-bottom: 5mm;
+}
+
+.eb-summary {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #374151;
+}
+
+.eb-job {
+  margin-bottom: 8mm;
+  break-inside: avoid;
+}
+
+.eb-job h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.eb-company {
+  margin-top: 1mm;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2e86ff;
+}
+
+.eb-meta {
+  margin-top: 1mm;
+  margin-bottom: 3mm;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.eb-job ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.eb-job li {
+  margin-bottom: 2mm;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.eb-education {
+  margin-bottom: 6mm;
+}
+
+.eb-education h4 {
+  margin: 0;
+  font-size: 15px;
+  color: #111827;
+}
+
+.eb-project {
+  margin-bottom: 5mm;
+}
+
+.eb-project h4 {
+  margin: 0 0 2mm;
+  font-size: 15px;
+  color: #111827;
+}
+
+.eb-project p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.eb-tech {
+  display: flex;
+  flex-direction: column;
+  gap: 2mm;
+}
+
+.eb-tech div {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.eb-tech strong {
+  color: #111827;
+}
+
+.eb-skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.eb-skill {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  font-size: 11px;
+  background: #f9fafb;
+  color: #374151;
+}
+
+.eb-controls {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.eb-controls button {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.eb-controls button:hover {
+  background: #f3f4f6;
+}
+
+.eb-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .executive-blue {
+    width: 100%;
+    min-height: auto;
+    margin: 0;
+    padding: 12mm;
+  }
+
+  .eb-job,
+  .eb-education,
+  .eb-project {
+    break-inside: avoid;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

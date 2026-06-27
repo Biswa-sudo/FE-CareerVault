@@ -19,7 +19,7 @@ export default function MyCVs() {
   }
 
   const handleDownload = (cv) => {
-    navigate(`/editor/${cv.id}?print=true`)
+    navigate(`/editor/${cv.id}?template=${cv.templateId}&print=true`)
   }
 
   return (
@@ -44,7 +44,7 @@ export default function MyCVs() {
               <p className="font-medium">{cv.name}</p>
               <p className="text-xs text-gray-400 mb-3">Updated {new Date(cv.updatedAt).toLocaleDateString()}</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <Button className="w-full" onClick={() => navigate(`/editor/${cv.id}`)} variant="primary">Edit</Button>
+                <Button className="w-full" onClick={() => navigate(`/editor/${cv.id}?template=${cv.templateId}`)} variant="primary">Edit</Button>
                 <Button className="w-full" onClick={() => handleDownload(cv)} variant="secondary">Download</Button>
                 <Button className="w-full" onClick={() => handleDelete(cv.id)} variant="danger">Delete</Button>
               </div>

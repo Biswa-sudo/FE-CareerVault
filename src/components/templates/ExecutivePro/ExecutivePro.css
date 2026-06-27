@@ -1,0 +1,385 @@
+/* ExecutivePro.css */
+* {
+  box-sizing: border-box;
+}
+
+.ep-resume {
+  display: flex;
+  width: 100%;
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background: #ffffff;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  border: 1px solid #e5e7eb;
+}
+
+/* ===== SIDEBAR ===== */
+.ep-sidebar {
+  width: 30%;
+  min-width: 200px;
+  max-width: 280px;
+  background: #1a3a5c;
+  color: #ffffff;
+  padding: 25px 18px;
+  flex-shrink: 0;
+}
+
+/* ===== PROFILE ===== */
+.ep-profile {
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 15px;
+  margin-bottom: 12px;
+}
+
+.ep-profile-image {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 12px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  display: block;
+}
+
+.ep-profile h1 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.ep-profile h2 {
+  font-size: 12px;
+  font-weight: 400;
+  margin: 0 0 10px;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.3px;
+}
+
+.ep-contact-info p {
+  margin: 3px 0;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+}
+
+/* ===== SIDEBAR SECTIONS ===== */
+.ep-sidebar-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 10px;
+  margin-bottom: 10px;
+}
+
+.ep-sidebar-section:last-child {
+  margin-bottom: 0;
+}
+
+.ep-sidebar-section h3 {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #8ab4f8;
+  margin: 0 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid #8ab4f8;
+  display: inline-block;
+}
+
+.ep-summary-text {
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+/* ===== EDUCATION ===== */
+.ep-education-item {
+  margin-bottom: 10px;
+}
+
+.ep-education-item:last-child {
+  margin-bottom: 0;
+}
+
+.ep-education-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.ep-education-header h4 {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.ep-date {
+  font-size: 9px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+}
+
+.ep-institute {
+  font-size: 10px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 1px 0 0;
+}
+
+.ep-location {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0 0 3px;
+}
+
+.ep-achievement-list {
+  padding-left: 14px;
+  margin: 3px 0 0;
+}
+
+.ep-achievement-list li {
+  font-size: 9.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 2px;
+}
+
+/* ===== SKILLS ===== */
+.ep-skills-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ep-skills-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+}
+
+.ep-skill-cell {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 3px 4px;
+  font-size: 9px;
+  text-align: center;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ===== MAIN CONTENT ===== */
+.ep-main {
+  flex: 1;
+  padding: 25px 30px 30px 30px;
+  background: #ffffff;
+  min-width: 0;
+}
+
+.ep-main-section {
+  margin-bottom: 18px;
+}
+
+.ep-main-section:last-child {
+  margin-bottom: 0;
+}
+
+.ep-main-section h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a3a5c;
+  margin: 0 0 8px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-bottom: 2px solid #1a3a5c;
+  padding-bottom: 4px;
+}
+
+/* ===== VOLUNTEER ===== */
+.ep-volunteer-item {
+  margin-bottom: 12px;
+}
+
+.ep-volunteer-item:last-child {
+  margin-bottom: 0;
+}
+
+.ep-volunteer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.ep-volunteer-header h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a3a5c;
+  margin: 0;
+}
+
+.ep-company {
+  font-size: 11px;
+  font-weight: 500;
+  color: #444;
+  margin: 1px 0 0;
+}
+
+/* ===== EXPERIENCE ===== */
+.ep-experience-item {
+  margin-bottom: 14px;
+}
+
+.ep-experience-item:last-child {
+  margin-bottom: 0;
+}
+
+.ep-experience-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.ep-experience-header h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a3a5c;
+  margin: 0;
+}
+
+.ep-company-description {
+  font-size: 10.5px;
+  color: #666;
+  font-style: italic;
+  margin: 2px 0 4px;
+}
+
+/* ===== STRENGTHS ===== */
+.ep-strength-item {
+  margin-bottom: 8px;
+}
+
+.ep-strength-item:last-child {
+  margin-bottom: 0;
+}
+
+.ep-strength-item h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a3a5c;
+  margin: 0 0 2px;
+}
+
+.ep-strength-item p {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #444;
+  margin: 0;
+}
+
+/* ===== REFERENCES ===== */
+.ep-reference-item {
+  margin-bottom: 8px;
+}
+
+.ep-reference-item:last-child {
+  margin-bottom: 0;
+}
+
+.ep-reference-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1a3a5c;
+  margin: 0;
+}
+
+.ep-reference-details {
+  font-size: 10.5px;
+  color: #555;
+  margin: 1px 0 0;
+}
+
+/* ===== CONTROLS ===== */
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.section-controls button {
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgba(26, 58, 92, 0.2);
+  border-radius: 3px;
+  background: #f8f9fa;
+  color: #1a3a5c;
+  font-size: 10px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.section-controls button:hover:not(:disabled) {
+  background: #e9ecef;
+  border-color: #1a3a5c;
+}
+
+.section-controls button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.ep-sidebar .section-controls button {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.ep-sidebar .section-controls button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ===== PRINT ===== */
+@media print {
+  .ep-resume {
+    border: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* ===== RESPONSIVE ===== */
+@media screen and (max-width: 768px) {
+  .ep-resume {
+    flex-direction: column;
+  }
+  .ep-sidebar {
+    width: 100%;
+    max-width: 100%;
+    min-width: unset;
+  }
+  .ep-skills-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

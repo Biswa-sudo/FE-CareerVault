@@ -140,7 +140,13 @@ const normalizeLoadedData = (source = {}) => ({
 export default function Editor() {
   const { cvId } = useParams()
   const [searchParams] = useSearchParams()
-  const templateId = searchParams.get('template') || 'classic-professional'
+  const explicitTemplateId = searchParams.get('template')
+  const savedTemplateId = useMemo(() => {
+    if (!cvId || cvId === 'new') return null
+    const existing = getCVs().find(c => c.id === cvId)
+    return existing?.templateId || null
+  }, [cvId])
+  const templateId = explicitTemplateId || savedTemplateId || 'classic-professional'
   const template = getTemplateById(templateId)
   const navigate = useNavigate()
   const printRef = useRef()
