@@ -292,4 +292,4 @@ const ExecutivePro = ({ data, onSectionAction }) => {
   );
 };
 
-export default ExecutivePro;
+export default ExecutivePro                                                                                                                                         ;
