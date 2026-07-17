@@ -71,6 +71,11 @@ const createSectionInstanceData = (type, values, sourceInstance) => {
     return JSON.parse(JSON.stringify(values.technicalSummary || {}))
   }
 
+  const sectionBase = values.sectionContent?.[type]?.base
+  if (sectionBase && typeof sectionBase === 'object') {
+    return JSON.parse(JSON.stringify(sectionBase))
+  }
+
   return {}
 }
 
@@ -197,8 +202,45 @@ export default function Editor() {
     return () => window.clearTimeout(timer)
   }, [searchParams, cvId, formData])
 
-  // Transform form data into the shape ClassicProfessional expects
+  // Build template-specific preview shape.
   const previewData = useMemo(() => {
+    if (templateId === 'executive-pro') {
+      const defaults = getTemplateDefaults('executive-pro') || {}
+      const sourceLayout = formData.sectionLayout || defaults.sectionLayout || { sidebar: [], main: [] }
+      const sourceContent = formData.sectionContent || defaults.sectionContent || {}
+      const sourceInstances = formData.sectionInstances || {}
+
+      const normalizeLayout = (list = []) =>
+        list.map((entry) => ({ source: 'base', ...entry }))
+
+      const sectionTypes = new Set([
+        ...Object.keys(sourceContent),
+        ...Object.keys(sourceInstances),
+      ])
+
+      const normalizedSectionContent = {}
+      sectionTypes.forEach((type) => {
+        const bucket = sourceContent[type] || {}
+        const inferredInstances = (sourceInstances[type] || []).map((instance) => instance?.data || {})
+        normalizedSectionContent[type] = {
+          ...bucket,
+          base: bucket.base || {},
+          instances: inferredInstances.length ? inferredInstances : (bucket.instances || []),
+        }
+      })
+
+      return {
+        personalInfo: formData.personalInfo || defaults.personalInfo || {},
+        sectionHeadings: formData.sectionHeadings || defaults.sectionHeadings || {},
+        sectionLayout: {
+          sidebar: normalizeLayout(sourceLayout.sidebar),
+          main: normalizeLayout(sourceLayout.main),
+        },
+        sectionContent: normalizedSectionContent,
+      }
+    }
+
+    // Transform form data into the shape ClassicProfessional expects.
     const baseContact = {
       email: formData.personalInfo?.email || '',
       phone: formData.personalInfo?.phone || '',
@@ -291,7 +333,7 @@ export default function Editor() {
         },
       },
     }
-  }, [formData])
+  }, [formData, templateId])
 
   const onSave = useCallback(() => {
     try {

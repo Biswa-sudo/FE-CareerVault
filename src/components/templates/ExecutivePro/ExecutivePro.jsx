@@ -1,9 +1,19 @@
 // ExecutivePro.jsx
 import "./ExecutivePro.css";
 
-const ExecutivePro = ({ data, onSectionAction }) => {
+// Moved outside to prevent unmounting/re-rendering issues
+const SectionControls = ({ region, index, total, onSectionAction }) => (
+  <div className="section-controls no-print">
+    <button type="button" onClick={() => onSectionAction?.(region, 'up', index)} disabled={index === 0}>↑</button>
+    <button type="button" onClick={() => onSectionAction?.(region, 'down', index)} disabled={index === total - 1}>↓</button>
+    <button type="button" onClick={() => onSectionAction?.(region, 'duplicate', index)}>⎘</button>
+    <button type="button" onClick={() => onSectionAction?.(region, 'delete', index)}>🗑</button>
+  </div>
+);
+
+const ExecutivePro = ({ data = {}, onSectionAction }) => {
   const {
-    personalInfo,
+    personalInfo = {},
     sectionHeadings = {},
     sectionLayout = { sidebar: [], main: [] },
     sectionContent = {},
@@ -18,39 +28,8 @@ const ExecutivePro = ({ data, onSectionAction }) => {
     return bucket.base || {};
   };
 
-  const SectionControls = ({ region, index, total }) => (
-    <div className="section-controls no-print">
-      <button
-        type="button"
-        onClick={() => onSectionAction?.(region, 'up', index)}
-        disabled={index === 0}
-      >
-        ↑
-      </button>
-      <button
-        type="button"
-        onClick={() => onSectionAction?.(region, 'down', index)}
-        disabled={index === total - 1}
-      >
-        ↓
-      </button>
-      <button
-        type="button"
-        onClick={() => onSectionAction?.(region, 'duplicate', index)}
-      >
-        ⎘
-      </button>
-      <button
-        type="button"
-        onClick={() => onSectionAction?.(region, 'delete', index)}
-      >
-        🗑
-      </button>
-    </div>
-  );
-
   const renderSectionBody = (entry) => {
-    const type = entry.type;
+    const { type } = entry;
     const value = getSectionData(entry);
 
     // SUMMARY
@@ -208,13 +187,11 @@ const ExecutivePro = ({ data, onSectionAction }) => {
     return null;
   };
 
-  const sidebarSections = (sectionLayout.sidebar || []).filter(
-    section => section.type !== 'profile'
-  );
+  // Helper to get true index for SectionControls
+  const getTrueIndex = (id, list) => list.findIndex(s => s.id === id);
 
   return (
     <div className="resume">
-
       {/* ===== HEADER ===== */}
       <header className="header">
         <h1>{personalInfo.fullName || 'LIZ SHELBY'}</h1>
@@ -241,19 +218,19 @@ const ExecutivePro = ({ data, onSectionAction }) => {
 
       {/* ===== BODY ===== */}
       <div className="content">
-
         {/* LEFT COLUMN */}
         <aside className="left-column">
-          {sidebarSections.map((section, index) => (
+          {sectionLayout.sidebar.filter(s => s.type !== 'profile').map((section) => (
             <section key={section.id}>
               <div className="section-title-row">
                 <h3 className="section-title">
                   {sectionHeadings[section.type] || section.type.toUpperCase()}
                 </h3>
-                <SectionControls
-                  region="sidebar"
-                  index={index}
-                  total={sidebarSections.length}
+                <SectionControls 
+                  region="sidebar" 
+                  index={getTrueIndex(section.id, sectionLayout.sidebar)} 
+                  total={sectionLayout.sidebar.length}
+                  onSectionAction={onSectionAction}
                 />
               </div>
               {renderSectionBody(section)}
@@ -263,23 +240,23 @@ const ExecutivePro = ({ data, onSectionAction }) => {
 
         {/* RIGHT COLUMN */}
         <main className="right-column">
-          {(sectionLayout.main || []).map((section, index) => (
+          {sectionLayout.main.map((section) => (
             <section key={section.id}>
               <div className="section-title-row">
                 <h3 className="section-title">
                   {sectionHeadings[section.type] || section.type.toUpperCase()}
                 </h3>
-                <SectionControls
-                  region="main"
-                  index={index}
-                  total={(sectionLayout.main || []).length}
+                <SectionControls 
+                  region="main" 
+                  index={getTrueIndex(section.id, sectionLayout.main)} 
+                  total={sectionLayout.main.length}
+                  onSectionAction={onSectionAction}
                 />
               </div>
               {renderSectionBody(section)}
             </section>
           ))}
         </main>
-
       </div>
 
       {/* ===== FOOTER ===== */}
@@ -287,9 +264,8 @@ const ExecutivePro = ({ data, onSectionAction }) => {
         <span>www.enhancv.com</span>
         <span>Powered by Enhancv</span>
       </footer>
-
     </div>
   );
 };
 
-export default ExecutivePro                                                                                                                                         ;
+export default ExecutivePro;
