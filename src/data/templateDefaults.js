@@ -1,29 +1,17 @@
-// import classicProfessionalDefaults from '../components/templates/ClassicProfessional/defaultFormData'
-// import executiveBlueDefaults from '../components/templates/ExecutiveBlue/defaultFormData'
-
-// // Maps templateId → default form data for new CVs.
-// // Add an entry here whenever a new template is created.
-// const templateDefaults = {
-//   'classic-professional': classicProfessionalDefaults,
-//   'executive-blue': executiveBlueDefaults,
-// }
-
-// export function getTemplateDefaults(templateId) {  
-//   return templateDefaults[templateId] || null
-// }
-
 import classicProfessionalDefaults from '../components/templates/ClassicProfessional/defaultFormData'
 import executiveBlueDefaults from '../components/templates/ExecutiveBlue/defaultFormData'
-import executiveProDefaults from '../components/templates/ExecutivePro/defaultFormData' // NEW
+import executiveProDefaults from '../components/templates/ExecutivePro/defaultFormData'
+import simpleAndElegantDefaults from '../components/templates/SimpleAndElegant/defaultFormData' // NEW
+import templateExecutiveAssistantDefaults from '../components/templates/TemplateExecutiveAssistant/defaultFormData' // NEW
 
-// Maps templateId → default form data for new CVs.
-// Add an entry here whenever a new template is created.
 const templateDefaults = {
-  'classic-professional': classicProfessionalDefaults,
-  'executive-blue': executiveBlueDefaults,
-  'executive-pro': executiveProDefaults, // NEW
+ 'classic-professional': classicProfessionalDefaults,
+ 'executive-blue': executiveBlueDefaults,
+ 'executive-pro': executiveProDefaults,
+ 'simple-and-elegant': simpleAndElegantDefaults,
+ 'template-executive-assistant': templateExecutiveAssistantDefaults, // NEW
 }
 
 export function getTemplateDefaults(templateId) {
-  return templateDefaults[templateId] || null
+ return templateDefaults[templateId] || null
 }

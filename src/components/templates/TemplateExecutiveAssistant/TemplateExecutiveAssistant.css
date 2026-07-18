@@ -1,0 +1,346 @@
+.tea-container {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #4b5563;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 12mm 15mm;
+  background-color: white;
+  box-sizing: border-box;
+  font-size: 10pt;
+  line-height: 1.5;
+}
+
+.tea-container * {
+  box-sizing: border-box;
+}
+
+/* Header */
+.tea-header {
+  margin-bottom: 25px;
+}
+
+.tea-name {
+  font-size: 28pt;
+  font-weight: 800;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 5px 0;
+  line-height: 1.1;
+}
+
+.tea-title {
+  font-size: 12pt;
+  font-weight: 600;
+  color: #d97706;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 15px 0;
+}
+
+.tea-contact-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  font-size: 9.5pt;
+  color: #6b7280;
+}
+
+.tea-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tea-contact-item svg {
+  color: #9ca3af;
+}
+
+/* Layout */
+.tea-content {
+  display: flex;
+  gap: 30px;
+}
+
+.tea-left-col {
+  width: 32%;
+}
+
+.tea-right-col {
+  width: 68%;
+}
+
+/* Sections */
+.tea-section {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.tea-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 6px;
+  margin-bottom: 15px;
+}
+
+.tea-section-title {
+  font-size: 11pt;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.tea-summary-text {
+  margin: 0;
+  text-align: justify;
+}
+
+/* Achievements (Projects mapped) */
+.tea-achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.tea-achievement-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.tea-achievement-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #fef3c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tea-achievement-text h4 {
+  margin: 0 0 4px 0;
+  font-size: 10pt;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.tea-achievement-text p {
+  margin: 0;
+  font-size: 9pt;
+  line-height: 1.4;
+}
+
+/* Skills */
+.tea-skills-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tea-skill-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Courses (Certifications mapped) */
+.tea-courses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tea-course-item h4 {
+  margin: 0 0 4px 0;
+  font-size: 9.5pt;
+  font-weight: 600;
+  color: #d97706;
+}
+
+.tea-course-item p {
+  margin: 0;
+  font-size: 9pt;
+  line-height: 1.4;
+}
+
+/* Experience */
+.tea-experience-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tea-job-title {
+  margin: 0 0 4px 0;
+  font-size: 13pt;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.tea-job-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.tea-job-company {
+  font-weight: 600;
+  color: #d97706;
+  font-size: 10.5pt;
+}
+
+.tea-job-right-meta, .tea-edu-right-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 9pt;
+  color: #6b7280;
+}
+
+.tea-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tea-job-bullets {
+  margin: 0;
+  padding-left: 18px;
+  color: #4b5563;
+}
+
+.tea-job-bullets li {
+  margin-bottom: 4px;
+}
+
+/* Education */
+.tea-education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tea-edu-degree {
+  margin: 0 0 4px 0;
+  font-size: 11.5pt;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.tea-edu-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tea-edu-school {
+  font-weight: 600;
+  color: #d97706;
+  font-size: 10pt;
+}
+
+/* Languages */
+.tea-languages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tea-lang-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tea-lang-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.tea-lang-score {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tea-lang-level {
+  font-size: 9pt;
+  color: #6b7280;
+}
+
+.tea-lang-dots {
+  display: flex;
+  gap: 4px;
+}
+
+/* Controls Styling */
+.tea-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.tea-controls button {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 3px 6px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #4b5563;
+  transition: all 0.2s ease;
+}
+
+.tea-controls button:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #111827;
+}
+
+.tea-controls button:active:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.tea-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Responsive screen styles */
+@media screen and (max-width: 768px) {
+  .tea-content {
+    flex-direction: column;
+  }
+  .tea-left-col, .tea-right-col {
+    width: 100%;
+  }
+  .tea-job-meta, .tea-edu-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* Print Rules */
+@media print {
+  .tea-container {
+    width: 210mm;
+    padding: 12mm 15mm;
+    margin: 0;
+    box-shadow: none;
+  }
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background-color: white;
+  }
+}

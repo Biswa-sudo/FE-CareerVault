@@ -12,9 +12,12 @@ const LandingPageFinal = () => {
             <span className="logo-text">Benture AI</span>
           </div>
           <nav className="nav">
-            <a href="#features">Features</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#faq">FAQ</a>
+            <a href="/about-us">About Us</a>
+            <a href="/contact">Contact</a>
+            <a href="/faq">FAQ</a>
+            <a href="/terms-of-service">Terms of Service</a>
+            <a href="/privacy-policy">Privacy Policy</a>
+            <a href="/account-settings">Account Settings</a>
           </nav>
           <div className="header-actions">
             <a href="/login" className="btn btn-outline">Login</a>

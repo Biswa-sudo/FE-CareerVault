@@ -21,6 +21,12 @@ import LandingPageFinal from './pages/LandingPageFinal'
 import RecruiterMarketplace from './pages/RecruiterMarketplace'
 import AIInterview from './pages/AIInterview'
 import PortfolioPage from './pages/PortfolioPage'
+import Contact from './pages/Contact'
+import TermsOfService from './pages/TermsOfService'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import AccountSettings from './pages/AccountSettings'
+import FAQ from './pages/FAQ'
+import AboutUs from './pages/AboutUs'
 
 export default function App() {
   return (
@@ -32,6 +38,12 @@ export default function App() {
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/account-settings" element={<AccountSettings />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/about-us" element={<AboutUs />} />
           {/* Protected routes inside dashboard layout */}
           <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<Dashboard />} />

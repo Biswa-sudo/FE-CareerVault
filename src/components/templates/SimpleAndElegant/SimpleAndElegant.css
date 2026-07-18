@@ -1,0 +1,201 @@
+.sae-container {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #333;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 20mm;
+  background-color: white;
+  box-sizing: border-box;
+  font-size: 10pt;
+  line-height: 1.4;
+}
+
+.sae-container * {
+  box-sizing: border-box;
+}
+
+.sae-header-title h1 {
+  font-size: 28pt;
+  font-weight: bold;
+  margin: 0 0 20px 0;
+  color: #000;
+}
+
+.sae-header-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr 150px;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.sae-info-block {
+  margin-bottom: 12px;
+}
+
+.sae-info-block strong {
+  display: block;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 2px;
+}
+
+.sae-pre-line {
+  white-space: pre-line;
+}
+
+.sae-photo-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.sae-photo {
+  width: 120px;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+}
+
+.sae-section {
+  margin-bottom: 20px;
+}
+
+.sae-section-header {
+  background-color: #b3b3b3;
+  padding: 5px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.sae-section-header h2 {
+  margin: 0;
+  font-size: 11pt;
+  font-weight: bold;
+  color: #333;
+}
+
+.sae-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  padding: 8px 10px;
+  page-break-inside: avoid;
+}
+
+.sae-row:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.sae-row-left {
+  color: #333;
+  padding-right: 15px;
+}
+
+.sae-row-right strong {
+  display: block;
+  font-weight: bold;
+  color: #000;
+}
+
+.sae-subtitle {
+  margin-bottom: 4px;
+}
+
+.sae-bullets {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sae-bullets li {
+  margin-bottom: 2px;
+}
+
+.sae-footer {
+  margin-top: 40px;
+  page-break-inside: avoid;
+}
+
+.sae-signature-placeholder {
+  margin-top: 15px;
+}
+
+.sae-signature {
+  font-family: "Brush Script MT", cursive, sans-serif;
+  font-size: 24pt;
+  color: #2b3b70;
+}
+
+/* Controls Styling */
+.sae-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.sae-controls button {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid #999;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 2px 5px;
+  font-size: 10px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  color: #333;
+}
+
+.sae-controls button:hover:not(:disabled) {
+  background: #fff;
+  border-color: #333;
+  transform: translateY(-1px);
+}
+
+.sae-controls button:active:not(:disabled) {
+  background: #e0e0e0;
+  transform: translateY(0);
+}
+
+.sae-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Responsive screen styles */
+@media screen and (max-width: 768px) {
+  .sae-container {
+    width: 100%;
+    min-height: auto;
+    padding: 15px;
+  }
+  
+  .sae-header-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .sae-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .sae-row-left {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+}
+
+/* Print Rules */
+@media print {
+  .sae-container {
+    width: 210mm;
+    padding: 10mm;
+    margin: 0;
+    box-shadow: none;
+  }
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background-color: white;
+  }
+}

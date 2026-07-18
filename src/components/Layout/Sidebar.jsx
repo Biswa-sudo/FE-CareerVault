@@ -30,7 +30,9 @@ export default function Sidebar({ open, setOpen, desktopOpen = true }) {
       {open && <div className="fixed inset-0 z-40 bg-black/30 md:hidden" onClick={() => setOpen(false)} />}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r transform transition-all duration-300 ease-in-out md:relative md:inset-auto ${open ? 'translate-x-0' : '-translate-x-full'} ${desktopOpen ? 'md:translate-x-0 md:w-64 md:opacity-100' : 'md:-translate-x-full md:w-0 md:opacity-0 md:border-r-0 md:overflow-hidden'}`}>
         <div className="flex items-center h-16 px-4 border-b">
-          <span className="text-xl font-display font-bold text-primary-600">CV Pro</span>
+          {/* <span className="text-xl font-display font-bold text-primary-600">CV Pro </span> */}
+           <span className="logo-icon">🚀</span>
+          <span className="logo-text">Benture AI</span>
         </div>
         <nav className="mt-6 px-4 space-y-1">
           {navItems.map(item => (
