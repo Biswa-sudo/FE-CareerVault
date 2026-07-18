@@ -176,6 +176,7 @@ const ClassicProfessional = ({ data, showLeftSidebar = true, onSectionAction }) 
       <button
         type="button"
         aria-label="Move section up"
+        title="Move section up"
         onClick={() => onSectionAction?.(region, 'up', index)}
         disabled={index === 0}
       >
@@ -184,6 +185,7 @@ const ClassicProfessional = ({ data, showLeftSidebar = true, onSectionAction }) 
       <button
         type="button"
         aria-label="Move section down"
+        title="Move section down"
         onClick={() => onSectionAction?.(region, 'down', index)}
         disabled={index === total - 1}
       >
@@ -192,6 +194,7 @@ const ClassicProfessional = ({ data, showLeftSidebar = true, onSectionAction }) 
       <button
         type="button"
         aria-label="Duplicate section"
+        title="Duplicate section"
         onClick={() => onSectionAction?.(region, 'duplicate', index)}
       >
         ⎘
@@ -199,6 +202,7 @@ const ClassicProfessional = ({ data, showLeftSidebar = true, onSectionAction }) 
       <button
         type="button"
         aria-label="Delete section"
+        title="Delete section"
         onClick={() => onSectionAction?.(region, 'delete', index)}
       >
         🗑

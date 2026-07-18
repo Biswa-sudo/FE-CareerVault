@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import StudyGroups from './pages/StudyGroups'
+import SpokenEnglish from './pages/SpokenEnglish'
 import { AuthProvider } from './context/AuthContext'
+import SkillAnalysis from './pages/SkillAnalysis'
 import Landing from './pages/Landing'
 import Payment from './pages/Payment'
 import PaymentSuccess from './pages/PaymentSuccess'
@@ -15,6 +18,9 @@ import DashboardLayout from './components/Layout/DashboardLayout'
 import ProtectedRoute from './routes/ProtectedRoute'
 import LandingPage from './pages/LandingPage'
 import LandingPageFinal from './pages/LandingPageFinal'
+import RecruiterMarketplace from './pages/RecruiterMarketplace'
+import AIInterview from './pages/AIInterview'
+import PortfolioPage from './pages/PortfolioPage'
 
 export default function App() {
   return (
@@ -36,6 +42,12 @@ export default function App() {
             <Route path="/account" element={<Account />} />
             <Route path="/landing-page" element={<LandingPage />} />
             <Route path="/landing-page-final" element={<LandingPageFinal />} />
+            <Route path="/spoken-english" element={<SpokenEnglish />} />
+            <Route path="/skill-analysis" element={<SkillAnalysis />} />
+            <Route path="/recruiter-marketplace" element={<RecruiterMarketplace />} />
+            <Route path="/ai-interview" element={<AIInterview />} />
+            <Route path="/portfolio" element={<PortfolioPage />} />
+            <Route path="/study-groups" element={<StudyGroups />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

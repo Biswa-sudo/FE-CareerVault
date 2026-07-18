@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import Button from '../components/ui/Button'
 import LandingPage from './LandingPage'
 import Landing2 from './Landing2'
+import LandingPageFinal from './LandingPageFinal'
 
 const features = [
   { title: '10 Professional Templates', desc: 'Choose from modern, minimal, or creative styles.' },
@@ -14,7 +15,7 @@ const features = [
 export default function Landing() {
   return (
     <>
-    <LandingPage />
+    
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="px-6 py-4 flex justify-between items-center border-b">
@@ -91,7 +92,9 @@ export default function Landing() {
       </footer>
       
     </div>
+    <LandingPage />
      <Landing2 />
+     <LandingPageFinal />
     </>
   )
 }
