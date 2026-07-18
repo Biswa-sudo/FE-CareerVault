@@ -14,6 +14,7 @@ import Account from './pages/Account'
 import DashboardLayout from './components/Layout/DashboardLayout'
 import ProtectedRoute from './routes/ProtectedRoute'
 import LandingPage from './pages/LandingPage'
+import LandingPageFinal from './pages/LandingPageFinal'
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/documents" element={<Documents />} />
             <Route path="/account" element={<Account />} />
             <Route path="/landing-page" element={<LandingPage />} />
+            <Route path="/landing-page-final" element={<LandingPageFinal />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

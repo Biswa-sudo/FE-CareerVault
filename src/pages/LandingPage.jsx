@@ -47,6 +47,7 @@ const LandingPage = () => {
         <div className="container">
           <div className="row align-items-center g-5">
             <div className="col-lg-6">
+              <button className="btn btn-primary btn-lg rounded-pill px-5 py-5">  Go to New Landing Page</button>
               <h1 className="display-3 fw-bold mb-3">Transform Your Career with <span className="text-primary">AI</span></h1>
               <p className="lead text-secondary mb-4">Create ATS-friendly resumes, practice AI interviews, improve spoken English, learn job-ready skills, and get discovered by recruiters.</p>
               <div className="d-flex gap-3 flex-wrap">
