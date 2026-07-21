@@ -1,5 +1,7 @@
 import React from 'react';
 import './AboutUs.css';
+import MainNavbar from '../components/Layout/MainNavbar';
+
 
 const AboutUs = () => {
   const teamMembers = [
@@ -84,7 +86,9 @@ const AboutUs = () => {
   ];
 
   return (
-    <div className="about-us">
+    <>
+      <MainNavbar />
+      <div className="about-us">
       {/* ===== HERO SECTION ===== */}
       <section className="about-hero">
         <div className="container">
@@ -372,6 +376,7 @@ const AboutUs = () => {
         </div>
       </section>
     </div>
+    </>
   );
 };
 

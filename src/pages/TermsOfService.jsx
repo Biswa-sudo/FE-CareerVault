@@ -1,5 +1,7 @@
 import React from 'react';
 import './TermsOfService.css';
+import MainNavbar from '../components/Layout/MainNavbar';
+
 
 const TermsOfService = () => {
   const sections = [
@@ -84,6 +86,7 @@ const TermsOfService = () => {
 
   return (
     <div className="tos-page">
+        <MainNavbar />
       {/* ===== HERO ===== */}
       <section className="tos-hero">
         <div className="container">

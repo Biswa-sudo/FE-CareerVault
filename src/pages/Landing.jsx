@@ -16,14 +16,12 @@ export default function Landing() {
   return (
     <>
     
-    <div className="min-h-screen bg-white">
-      {/* Header */}
+    {/* <div className="min-h-screen bg-white">
       <header className="px-6 py-4 flex justify-between items-center border-b">
         <span className="text-2xl font-display font-bold text-primary-600">CV Pro</span>
         <Link to="/login" className="text-gray-600 hover:text-primary-600 text-sm font-medium">Login</Link>
       </header>
 
-      {/* Hero */}
       <section className="max-w-5xl mx-auto px-6 py-20 text-center">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -43,7 +41,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-5xl mx-auto px-6">
           <h2 className="text-3xl font-display font-bold text-center mb-12">Everything you need</h2>
@@ -67,7 +64,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Pricing */}
       <section className="py-16">
         <div className="max-w-md mx-auto px-6 text-center">
           <h2 className="text-3xl font-display font-bold mb-4">One Simple Plan</h2>
@@ -91,9 +87,9 @@ export default function Landing() {
         © 2026 CV Builder Pro. All rights reserved.
       </footer>
       
-    </div>
-    <LandingPage />
-     <Landing2 />
+    </div> */}
+    {/* <LandingPage /> */}
+     {/* <Landing2 /> */}
      <LandingPageFinal />
     </>
   )

@@ -1,5 +1,7 @@
 import React from 'react';
 import './PrivacyPolicy.css';
+import MainNavbar from '../components/Layout/MainNavbar';
+
 
 const PrivacyPolicy = () => {
   const lastUpdated = 'July 18, 2026';
@@ -132,6 +134,7 @@ const PrivacyPolicy = () => {
 
   return (
     <div className="privacy-page">
+        <MainNavbar />
       {/* ===== HERO ===== */}
       <section className="privacy-hero">
         <div className="container">

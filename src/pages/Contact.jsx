@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Contact.css';
+import MainNavbar from '../components/Layout/MainNavbar';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -61,6 +62,7 @@ const Contact = () => {
 
   return (
     <div className="contact-page">
+      <MainNavbar />
       {/* ===== HERO ===== */}
       <section className="contact-hero">
         <div className="container">

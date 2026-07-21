@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './AIInterview.css';
+import { generateInterviewResponse } from '../lib/geminiInterview';
 
 const AIInterview = () => {
   const [activeTab, setActiveTab] = useState('practice');
   const [messages, setMessages] = useState([
     {
-      id: 1,
+      id: crypto.randomUUID(),
       sender: 'ai',
-      text: "Hello! I'm your AI Interview Coach. I'll help you practice for your upcoming interviews. Choose a mode below or let's start with a general interview.",
+      text: "Hello! I'm your AI Interview Coach. I'll help you practice for your upcoming interviews with live feedback. Choose a mode below or let's start with a general interview.",
       time: '10:30 AM'
     }
   ]);
@@ -23,6 +24,14 @@ const AIInterview = () => {
     streak: 5
   });
   const messagesEndRef = useRef(null);
+
+  const createMessage = (sender, text, extra = {}) => ({
+    id: crypto.randomUUID(),
+    sender,
+    text,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    ...extra
+  });
 
   const modes = [
     { id: 'general', label: '🎯 General', desc: 'Standard interview questions' },
@@ -64,58 +73,42 @@ const AIInterview = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSendMessage = () => {
-    if (!inputText.trim() || isLoading) return;
-    
-    const userMessage = {
-      id: messages.length + 1,
-      sender: 'user',
-      text: inputText,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    
-    setMessages([...messages, userMessage]);
+  const handleSendMessage = async () => {
+    const trimmedInput = inputText.trim();
+    if (!trimmedInput || isLoading) return;
+
+    const userMessage = createMessage('user', trimmedInput);
+    const conversation = [...messages, userMessage];
+
+    setMessages(conversation);
     setInputText('');
     setIsLoading(true);
 
-    // Simulate AI thinking
-    setTimeout(() => {
-      const responses = [
-        {
-          text: "That's a great response! Your answer was clear and well-structured. To improve, try adding more specific examples from your experience.",
-          feedback: 'Structure: 8/10, Content: 7/10, Delivery: 8/10'
-        },
-        {
-          text: "Good effort! I like how you connected your skills to the job requirements. Consider adding more metrics or numbers to make your achievements more impactful.",
-          feedback: 'Structure: 7/10, Content: 8/10, Delivery: 7/10'
-        },
-        {
-          text: "Nice answer! You demonstrated good communication skills. Try to pause and think briefly before responding — it shows confidence and thoughtfulness.",
-          feedback: 'Structure: 8/10, Content: 7/10, Delivery: 9/10'
-        },
-        {
-          text: "Excellent! This was a very well-articulated response. You covered all key points effectively. Keep up this quality throughout the interview.",
-          feedback: 'Structure: 9/10, Content: 8/10, Delivery: 9/10'
-        },
-        {
-          text: "Good start. Your answer touched on the key points. For next time, try to structure your response using the STAR method — Situation, Task, Action, Result.",
-          feedback: 'Structure: 6/10, Content: 7/10, Delivery: 7/10'
-        }
-      ];
+    try {
+      const result = await generateInterviewResponse({
+        mode: selectedMode,
+        role: selectedRole,
+        userMessage: trimmedInput,
+        conversation
+      });
 
-      const response = responses[Math.floor(Math.random() * responses.length)];
-      
-      const aiMessage = {
-        id: messages.length + 2,
-        sender: 'ai',
-        text: response.text,
-        feedback: response.feedback,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      
-      setMessages(prev => [...prev, aiMessage]);
+      const aiText = result.followUpQuestion
+        ? `${result.answer}\n\nFollow-up: ${result.followUpQuestion}`
+        : result.answer;
+
+      setMessages(prev => [...prev, createMessage('ai', aiText, { feedback: result.feedback })]);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown Groq error';
+      setMessages(prev => [
+        ...prev,
+        createMessage(
+          'ai',
+          `I couldn't reach Groq right now. ${errorMessage}`
+        )
+      ]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -134,13 +127,7 @@ const AIInterview = () => {
       hr: "Switching to HR Round mode. We'll practice culture fit, career goals, and HR-specific questions."
     };
     
-    const aiMessage = {
-      id: messages.length + 1,
-      sender: 'ai',
-      text: modeMessages[modeId],
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    setMessages(prev => [...prev, aiMessage]);
+    setMessages(prev => [...prev, createMessage('ai', modeMessages[modeId])]);
   };
 
   const handleRoleChange = (e) => {
@@ -152,13 +139,7 @@ const AIInterview = () => {
   };
 
   const handleStartInterview = () => {
-    const aiMessage = {
-      id: messages.length + 1,
-      sender: 'ai',
-      text: `Alright, let's begin! I'll ask you a series of questions for the ${selectedRole} position. Take your time and respond thoughtfully. Here's your first question: "Can you tell me about yourself and why you're interested in this role?"`,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    setMessages(prev => [...prev, aiMessage]);
+    setMessages(prev => [...prev, createMessage('ai', `Alright, let's begin! I'll ask you a series of questions for the ${selectedRole} position. Take your time and respond thoughtfully. Here's your first question: "Can you tell me about yourself and why you're interested in this role?"`)]);
   };
 
   const handleToggleRecording = () => {
@@ -168,13 +149,7 @@ const AIInterview = () => {
       setTimeout(() => {
         setIsRecording(false);
         // Add a message
-        const aiMessage = {
-          id: messages.length + 1,
-          sender: 'ai',
-          text: "🎤 I've captured your voice response. Let me analyze it... Good clarity and confidence in your voice. You sound prepared!",
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        };
-        setMessages(prev => [...prev, aiMessage]);
+        setMessages(prev => [...prev, createMessage('ai', "🎤 I've captured your voice response. Let me analyze it... Good clarity and confidence in your voice. You sound prepared!")]);
       }, 3000);
     }
   };

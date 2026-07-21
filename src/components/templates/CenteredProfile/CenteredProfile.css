@@ -1,0 +1,241 @@
+.cp-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333333;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 15mm 20mm;
+  background-color: white;
+  box-sizing: border-box;
+  font-size: 9.5pt;
+  line-height: 1.5;
+}
+
+.cp-container * {
+  box-sizing: border-box;
+}
+
+/* Header */
+.cp-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.cp-photo-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.cp-photo {
+  width: 130px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.cp-name {
+  font-family: 'Georgia', serif;
+  font-size: 20pt;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: left;
+  margin: 0 0 10px 0;
+  color: #000;
+}
+
+.cp-divider {
+  border: none;
+  border-top: 1.5px solid #d98a3c; /* Orange accent color */
+  margin: 10px 0;
+}
+
+.cp-contact-info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: 9pt;
+  color: #777;
+}
+
+.cp-contact-dot {
+  color: #d98a3c;
+  font-size: 14pt;
+  line-height: 0;
+  position: relative;
+  top: 1px;
+}
+
+.cp-summary {
+  font-family: 'Georgia', serif;
+  font-size: 9.5pt;
+  font-style: italic;
+  color: #d98a3c;
+  margin: 15px 15px 0 15px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* Main Sections */
+.cp-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cp-section {
+  position: relative;
+}
+
+.cp-section-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.cp-section-title {
+  font-family: 'Georgia', serif;
+  font-size: 11pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  background-color: #f2f2f2;
+  display: inline-block;
+  padding: 6px 12px;
+  margin: 0;
+  color: #000;
+}
+
+/* Job/Education Items */
+.cp-job-item {
+  margin-bottom: 15px;
+}
+
+.cp-date-badge {
+  background-color: #d98a3c;
+  color: white;
+  font-size: 8pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin-bottom: 6px;
+}
+
+.cp-job-header {
+  font-size: 10pt;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+.cp-job-header strong {
+  color: #000;
+  font-weight: 700;
+}
+
+.cp-separator {
+  color: #999;
+}
+
+/* Bullets */
+.cp-bullets {
+  margin: 0;
+  padding-left: 18px;
+  color: #555;
+}
+
+.cp-bullets li {
+  margin-bottom: 4px;
+}
+
+.cp-bullets li::marker {
+  color: #d98a3c; /* Orange bullets */
+}
+
+.cp-two-columns {
+  column-count: 2;
+  column-gap: 30px;
+}
+
+/* Technical Summary Grid */
+.cp-tech-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cp-tech-row {
+  display: flex;
+}
+
+.cp-tech-label {
+  width: 120px;
+  flex-shrink: 0;
+  color: #000;
+}
+
+.cp-tech-value {
+  color: #555;
+}
+
+/* Controls Styling */
+.cp-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.cp-controls button {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #555;
+  transition: all 0.2s ease;
+}
+
+.cp-controls button:hover:not(:disabled) {
+  background: #f0f0f0;
+  border-color: #999;
+  color: #000;
+}
+
+.cp-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Responsive screen styles */
+@media screen and (max-width: 768px) {
+  .cp-container {
+    width: 100%;
+    min-height: auto;
+    padding: 15px;
+  }
+  .cp-two-columns {
+    column-count: 1;
+  }
+}
+
+/* Print Rules */
+@media print {
+  .cp-container {
+    width: 210mm;
+    margin: 0;
+    padding: 15mm 20mm;
+    box-shadow: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

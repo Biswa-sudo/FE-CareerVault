@@ -1,0 +1,401 @@
+.ma-container {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #2f3542;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  font-size: 9.5pt;
+  line-height: 1.5;
+  border-top: 12px solid #ff4757; /* Accent Color */
+}
+
+.ma-container * {
+  box-sizing: border-box;
+}
+
+/* Header */
+.ma-header {
+  padding: 40px 40px 20px 40px;
+  background-color: #f1f2f6;
+  margin-bottom: 30px;
+}
+
+.ma-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ma-header-text {
+  flex: 1;
+}
+
+.ma-name {
+  font-size: 36pt;
+  font-weight: 800;
+  color: #2f3542;
+  margin: 0 0 5px 0;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.ma-accent-dot {
+  color: #ff4757;
+}
+
+.ma-title {
+  font-size: 14pt;
+  font-weight: 500;
+  color: #57606f;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.ma-photo-wrapper {
+  margin-left: 20px;
+}
+
+.ma-photo {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Layout */
+.ma-body {
+  display: flex;
+  padding: 0 40px 40px 40px;
+  gap: 40px;
+}
+
+.ma-sidebar {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+}
+
+.ma-main {
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sections */
+.ma-section {
+  margin-bottom: 25px;
+}
+
+.ma-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #dfe4ea;
+  padding-bottom: 6px;
+}
+
+.ma-section-title {
+  font-size: 11pt;
+  font-weight: 700;
+  color: #2f3542;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+  position: relative;
+}
+
+.ma-section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background-color: #ff4757;
+}
+
+.ma-summary {
+  margin: 0;
+  font-size: 10pt;
+  color: #57606f;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+/* Contact List */
+.ma-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ma-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 9pt;
+  color: #57606f;
+  word-break: break-word;
+}
+
+.ma-contact-item svg {
+  color: #ff4757;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ma-pre-line {
+  white-space: pre-line;
+}
+
+/* Tags (Skills / Certs) */
+.ma-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ma-tag {
+  background-color: #f1f2f6;
+  color: #2f3542;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 8.5pt;
+  font-weight: 600;
+}
+
+/* Tech List */
+.ma-tech-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ma-tech-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.ma-tech-label {
+  font-size: 8.5pt;
+  font-weight: 700;
+  color: #2f3542;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.ma-tech-val {
+  font-size: 9pt;
+  color: #57606f;
+}
+
+/* Experience */
+.ma-experience {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ma-job-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.ma-job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.ma-job-title-group {
+  flex: 1;
+  padding-right: 15px;
+}
+
+.ma-job-title {
+  font-size: 11.5pt;
+  font-weight: 700;
+  color: #2f3542;
+  margin: 0 0 3px 0;
+}
+
+.ma-job-company {
+  font-size: 10pt;
+  font-weight: 600;
+  color: #ff4757;
+}
+
+.ma-job-date {
+  font-size: 9pt;
+  font-weight: 600;
+  color: #747d8c;
+  background-color: #f1f2f6;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Education */
+.ma-education {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.ma-edu-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.ma-edu-degree {
+  font-size: 10pt;
+  font-weight: 700;
+  color: #2f3542;
+  margin: 0 0 3px 0;
+}
+
+.ma-edu-school {
+  font-size: 9.5pt;
+  color: #57606f;
+  margin-bottom: 2px;
+}
+
+.ma-edu-date {
+  font-size: 8.5pt;
+  font-style: italic;
+  color: #747d8c;
+}
+
+/* Bullets */
+.ma-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ma-bullets li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 5px;
+  color: #57606f;
+  font-size: 9.5pt;
+}
+
+.ma-bullets li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 5px;
+  height: 5px;
+  background-color: #ff4757;
+  border-radius: 50%;
+}
+
+/* Projects */
+.ma-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.ma-project-item {
+  border-left: 3px solid #ff4757;
+  padding-left: 12px;
+}
+
+.ma-project-title {
+  font-size: 10.5pt;
+  font-weight: 700;
+  color: #2f3542;
+  margin: 0 0 4px 0;
+}
+
+.ma-project-desc {
+  margin: 0;
+  font-size: 9.5pt;
+  color: #57606f;
+}
+
+/* Controls */
+.ma-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.ma-controls button {
+  background: transparent;
+  border: 1px solid #ced6e0;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #747d8c;
+  transition: all 0.2s ease;
+}
+
+.ma-controls button:hover:not(:disabled) {
+  background: #f1f2f6;
+  color: #2f3542;
+  border-color: #a4b0be;
+}
+
+.ma-controls button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Responsive screen styles */
+@media screen and (max-width: 768px) {
+  .ma-container {
+    width: 100%;
+    min-height: auto;
+    border-top-width: 8px;
+  }
+  .ma-header {
+    padding: 20px;
+  }
+  .ma-header-content {
+    flex-direction: column-reverse;
+    text-align: center;
+    gap: 15px;
+  }
+  .ma-photo-wrapper {
+    margin: 0;
+  }
+  .ma-body {
+    flex-direction: column;
+    padding: 20px;
+  }
+  .ma-sidebar, .ma-main {
+    width: 100%;
+  }
+  .ma-job-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}
+
+/* Print Rules */
+@media print {
+  .ma-container {
+    width: 210mm;
+    margin: 0;
+    box-shadow: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

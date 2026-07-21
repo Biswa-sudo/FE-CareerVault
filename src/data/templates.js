@@ -30,6 +30,54 @@ export const templates = [
    category: 'professional',
    preview: '/templates/executive-assistant-preview.jpg',
    previewColor: '#1e293b'
+ },
+ {
+   id: 'creative-blue', // NEW
+   name: 'Creative Blue',
+   description: 'Modern two-column layout with hexagon icons based on CV image.',
+   category: 'creative'
+ },
+ {
+   id: 'modern-dark-sidebar', // NEW
+   name: 'Modern Dark Sidebar',
+   description: 'Clean two-column layout with a distinctive dark blue sidebar.',
+   category: 'professional'
+ },
+ {
+   id: 'centered-profile', // NEW
+   name: 'Centered Profile',
+   description: 'Single column layout with a centered photo and prominent orange accents.',
+   category: 'creative'
+ },
+ {
+   id: 'timeline-professional', // NEW
+   name: 'Timeline Professional',
+   description: 'Clean two-column layout featuring a timeline visual for experience and elegant teal accents.',
+   category: 'professional'
+ },
+ {
+   id: 'elegant-split', // NEW
+   name: 'Elegant Split',
+   description: 'Sophisticated dual-column design with a distinct dark sidebar and sharp typography.',
+   category: 'creative'
+ },
+ {
+   id: 'clean-sidebar-timeline', // NEW
+   name: 'Clean Sidebar Timeline',
+   description: 'Light sidebar with progress bars and a clean main timeline for experience.',
+   category: 'professional'
+ },
+ {
+   id: 'modern-accent', // NEW
+   name: 'Modern Accent',
+   description: 'Bold top-border design with striking coral accents and a clean split layout.',
+   category: 'creative'
+ },
+ {
+   id: 'minimalist-tech', // NEW
+   name: 'Minimalist Tech',
+   description: 'Sleek tech-focused layout with a dark header block and clean light body.',
+   category: 'professional'
  }
 ]
 

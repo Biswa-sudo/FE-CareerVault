@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './FAQ.css';
+import MainNavbar from '../components/Layout/MainNavbar';
+
 
 const FAQ = () => {
   const [activeCategory, setActiveCategory] = useState('general');
@@ -150,6 +152,7 @@ const FAQ = () => {
 
   return (
     <div className="faq-page">
+        <MainNavbar />
       {/* ===== HERO ===== */}
       <section className="faq-hero">
         <div className="container">

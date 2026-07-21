@@ -1,0 +1,294 @@
+.mds-container {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #333;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background-color: white;
+  box-sizing: border-box;
+  font-size: 10pt;
+  line-height: 1.5;
+  display: flex;
+}
+
+.mds-container * {
+  box-sizing: border-box;
+}
+
+/* Sidebar */
+.mds-sidebar {
+  width: 34%;
+  background-color: #273a5a; /* Dark blue matching the image */
+  color: #ffffff;
+  padding: 30px 25px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mds-photo-container {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.mds-photo {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border: 4px solid #3c4f6f; /* Slight border to frame it within the dark bg */
+}
+
+/* Sidebar Sections */
+.mds-sidebar-section {
+  margin-bottom: 25px;
+}
+
+.mds-sidebar-section .mds-section-title {
+  color: #ffffff;
+  font-size: 12pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+}
+
+.mds-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 9.5pt;
+  word-break: break-word;
+}
+
+.mds-pre-line {
+  white-space: pre-line;
+}
+
+.mds-bullet-list {
+  list-style-type: disc;
+  padding-left: 18px;
+  margin: 0;
+  font-size: 9.5pt;
+}
+
+.mds-bullet-list li {
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.mds-languages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 9.5pt;
+}
+
+.mds-language-item {
+  display: flex;
+}
+
+.mds-language-name {
+  min-width: 60px;
+}
+
+/* Main Content Area */
+.mds-main {
+  width: 66%;
+  background-color: #ffffff;
+  padding: 35px 40px;
+}
+
+/* Header */
+.mds-header {
+  border-bottom: 3px solid #222222;
+  padding-bottom: 15px;
+  margin-bottom: 25px;
+}
+
+.mds-name {
+  font-size: 26pt;
+  font-weight: 800;
+  color: #27457a; /* Distinctive blue for the name */
+  margin: 0 0 5px 0;
+  line-height: 1.1;
+}
+
+.mds-title {
+  font-size: 13pt;
+  font-weight: 500;
+  color: #000000;
+  margin: 0;
+}
+
+/* Main Sections */
+.mds-main-section {
+  margin-bottom: 25px;
+}
+
+.mds-main-section .mds-section-title {
+  font-size: 13pt;
+  font-weight: 800;
+  color: #000000;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+}
+
+.mds-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mds-summary-text {
+  margin: 0;
+  font-size: 9.5pt;
+  text-align: justify;
+  line-height: 1.5;
+}
+
+/* Experience */
+.mds-experience-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mds-job-header {
+  font-size: 10.5pt;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 2px;
+}
+
+.mds-job-company {
+  font-weight: 700;
+}
+
+.mds-job-separator {
+  margin: 0 4px;
+}
+
+.mds-job-title {
+  font-weight: 700;
+}
+
+.mds-job-date {
+  font-size: 9.5pt;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 8px;
+}
+
+.mds-job-bullets {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 0;
+  font-size: 9.5pt;
+  color: #111;
+}
+
+.mds-job-bullets li {
+  margin-bottom: 4px;
+}
+
+/* Education */
+.mds-education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.mds-edu-degree {
+  font-size: 10.5pt;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 4px;
+}
+
+.mds-edu-meta {
+  font-size: 9.5pt;
+  font-style: italic;
+  margin-bottom: 4px;
+}
+
+.mds-edu-extra {
+  font-size: 9.5pt;
+  color: #000;
+}
+
+/* Projects */
+.mds-projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Controls Styling */
+.mds-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.mds-controls button {
+  background: rgba(128, 128, 128, 0.2);
+  border: 1px solid #999;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 10px;
+  font-weight: bold;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.mds-sidebar .mds-controls button {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+.mds-controls button:hover:not(:disabled) {
+  background: #333;
+  color: #fff;
+}
+
+.mds-controls button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Responsive screen styles */
+@media screen and (max-width: 768px) {
+  .mds-container {
+    flex-direction: column;
+    width: 100%;
+    min-height: auto;
+  }
+  .mds-sidebar {
+    width: 100%;
+    padding: 20px;
+  }
+  .mds-main {
+    width: 100%;
+    padding: 20px;
+  }
+  .mds-photo {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+/* Print Rules */
+@media print {
+  .mds-container {
+    width: 210mm;
+    margin: 0;
+    box-shadow: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

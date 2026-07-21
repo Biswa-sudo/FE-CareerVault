@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './AccountSettings.css';
+import MainNavbar from '../components/Layout/MainNavbar';
+    
 
 const AccountSettings = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -69,6 +71,8 @@ const AccountSettings = () => {
   ];
 
   return (
+    <>
+    <MainNavbar />
     <div className="account-settings">
       {/* ===== MAIN CONTENT ===== */}
       <main className="main-content">
@@ -524,6 +528,7 @@ const AccountSettings = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

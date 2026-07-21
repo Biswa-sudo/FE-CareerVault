@@ -1,0 +1,398 @@
+.cst-container {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #333333;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  font-size: 10pt;
+  line-height: 1.5;
+  display: flex;
+}
+
+.cst-container * {
+  box-sizing: border-box;
+}
+
+/* Sidebar */
+.cst-sidebar {
+  width: 38%;
+  background-color: #eaeff2;
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cst-photo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.cst-photo {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.cst-sidebar-section {
+  margin-bottom: 30px;
+}
+
+/* Main Area */
+.cst-main {
+  width: 62%;
+  padding: 40px 40px 40px 35px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cst-header {
+  margin-bottom: 30px;
+}
+
+.cst-name {
+  font-size: 32pt;
+  font-weight: 800;
+  color: #2c3e50;
+  text-transform: uppercase;
+  margin: 0 0 5px 0;
+  line-height: 1.1;
+  letter-spacing: 1px;
+}
+
+.cst-title {
+  font-size: 14pt;
+  font-weight: 400;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin: 0 0 30px 0;
+}
+
+.cst-profile-section {
+  margin-bottom: 0;
+}
+
+.cst-summary-text {
+  margin: 0;
+  font-size: 10pt;
+  color: #555555;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+/* Sections */
+.cst-section {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.cst-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.cst-section-title {
+  font-size: 14pt;
+  font-weight: 700;
+  color: #2c3e50;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 0;
+  position: relative;
+  display: inline-block;
+}
+
+.cst-section-title::after {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 3px;
+  background-color: #3498db;
+  margin-top: 6px;
+}
+
+.cst-sidebar-title::after {
+  background-color: #3498db;
+}
+
+/* Contact List */
+.cst-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cst-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 9.5pt;
+  color: #555;
+  word-break: break-word;
+}
+
+.cst-icon-wrap {
+  background-color: #ffffff;
+  color: #3498db;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.cst-pre-line {
+  white-space: pre-line;
+}
+
+/* Education List */
+.cst-education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.cst-edu-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.cst-edu-year {
+  font-size: 9pt;
+  font-weight: 700;
+  color: #3498db;
+  margin-bottom: 2px;
+}
+
+.cst-edu-degree {
+  font-size: 10pt;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 2px;
+}
+
+.cst-edu-school {
+  font-size: 9.5pt;
+  color: #7f8c8d;
+}
+
+/* Expertise List */
+.cst-expertise-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cst-expertise-name {
+  font-size: 9.5pt;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 4px;
+}
+
+.cst-expertise-bar-bg {
+  width: 100%;
+  height: 6px;
+  background-color: #d1d8dd;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.cst-expertise-bar-fill {
+  height: 100%;
+  background-color: #3498db;
+  border-radius: 3px;
+}
+
+/* Languages List */
+.cst-languages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cst-lang-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cst-lang-name {
+  font-size: 9.5pt;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.cst-lang-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.cst-lang-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #d1d8dd;
+}
+
+.cst-lang-dot-filled {
+  background-color: #3498db;
+}
+
+/* Experience Timeline */
+.cst-experience-timeline, .cst-projects-timeline {
+  border-left: 2px solid #eaeff2;
+  padding-left: 20px;
+  margin-left: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cst-timeline-item {
+  position: relative;
+}
+
+.cst-timeline-dot {
+  position: absolute;
+  left: -27px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 3px solid #3498db;
+}
+
+.cst-job-title {
+  font-size: 12pt;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 4px 0;
+}
+
+.cst-job-meta {
+  font-size: 10pt;
+  color: #7f8c8d;
+  margin-bottom: 8px;
+}
+
+.cst-job-company {
+  font-weight: 600;
+}
+
+.cst-job-date {
+  font-style: italic;
+  font-size: 9.5pt;
+}
+
+.cst-project-desc {
+  margin: 0;
+  font-size: 9.5pt;
+  color: #555555;
+}
+
+/* Bullets */
+.cst-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cst-bullets li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 6px;
+  color: #555555;
+  font-size: 9.5pt;
+  line-height: 1.4;
+}
+
+.cst-bullets li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #3498db;
+  font-weight: bold;
+}
+
+/* Controls Styling */
+.cst-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.cst-controls button {
+  background: transparent;
+  border: 1px solid #bdc3c7;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 2px 5px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #7f8c8d;
+  transition: all 0.2s ease;
+}
+
+.cst-controls button:hover:not(:disabled) {
+  background: #ecf0f1;
+  color: #2c3e50;
+  border-color: #95a5a6;
+}
+
+.cst-controls-sidebar button {
+  border-color: #b0bec5;
+  color: #78909c;
+}
+
+.cst-controls-sidebar button:hover:not(:disabled) {
+  background: #cfd8dc;
+  color: #37474f;
+}
+
+.cst-controls button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Responsive screen styles */
+@media screen and (max-width: 768px) {
+  .cst-container {
+    flex-direction: column;
+    width: 100%;
+    min-height: auto;
+  }
+  .cst-sidebar {
+    width: 100%;
+    padding: 30px 20px;
+  }
+  .cst-main {
+    width: 100%;
+    padding: 30px 20px;
+  }
+}
+
+/* Print Rules */
+@media print {
+  .cst-container {
+    width: 210mm;
+    margin: 0;
+    box-shadow: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
