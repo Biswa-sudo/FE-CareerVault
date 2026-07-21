@@ -152,6 +152,10 @@
   flex-wrap: wrap;
 }
 
+.topic-custom-row {
+  margin-top: 10px;
+}
+
 .topic-select {
   padding: 10px 16px;
   border-radius: 10px;
@@ -219,6 +223,19 @@
   font-size: 0.8rem;
   color: var(--text-light);
   margin-bottom: 8px;
+}
+
+.replay-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  margin-bottom: 10px;
 }
 
 .question-title {
@@ -529,6 +546,10 @@
 }
 .send-btn:hover:not(:disabled) { background: var(--primary-dark); transform: scale(1.02); }
 .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.replay-btn {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
 
 .chat-tips {
   padding: 6px 24px 12px;

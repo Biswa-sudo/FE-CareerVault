@@ -1,5 +1,7 @@
-const TOPIC_BATCH_KEY = 'topicPracticeBatch';
-const WEAK_QUESTIONS_KEY = 'topicPracticeWeakQuestions';
+import { generateTopicQuestions } from '../services/interviewService';
+
+const TOPIC_QUESTIONS_KEY = 'topicPracticeQuestions';
+const USED_TOPICS_KEY = 'used_topics';
 
 /**
  * @typedef {Object} QuestionEntry
@@ -31,22 +33,75 @@ function writeJsonArray(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+function normalizeTopic(topic) {
+  return String(topic || '').trim().toLowerCase();
+}
+
+function sanitizeTopic(topic) {
+  return String(topic || '').trim();
+}
+
+function sameTopic(a, b) {
+  return normalizeTopic(a) === normalizeTopic(b);
+}
+
+function mergeTopicQuestions(allQuestions, topic, topicQuestions) {
+  const topicKey = normalizeTopic(topic);
+  const others = allQuestions.filter(item => normalizeTopic(item.topic) !== topicKey);
+  return [...others, ...topicQuestions];
+}
+
+/**
+ * @returns {QuestionEntry[]}
+ */
+export function getAllQuestions() {
+  return readJsonArray(TOPIC_QUESTIONS_KEY);
+}
+
+/**
+ * @param {QuestionEntry[]} entries
+ */
+export function saveQuestions(entries) {
+  writeJsonArray(TOPIC_QUESTIONS_KEY, entries);
+}
+
+/**
+ * @param {string} topic
+ * @returns {QuestionEntry[]}
+ */
+export function getQuestionsForTopic(topic) {
+  const topicKey = normalizeTopic(topic);
+  return getAllQuestions().filter(item => normalizeTopic(item.topic) === topicKey);
+}
+
+/**
+ * @param {string} topic
+ * @param {QuestionEntry[]} topicQuestions
+ * @returns {QuestionEntry[]}
+ */
+export function setTopicQuestions(topic, topicQuestions) {
+  const allQuestions = getAllQuestions();
+  const merged = mergeTopicQuestions(allQuestions, topic, topicQuestions);
+  saveQuestions(merged);
+  return topicQuestions;
+}
+
 /**
  * @returns {QuestionEntry[]}
  */
 export function getTopicPracticeBatch() {
-  return readJsonArray(TOPIC_BATCH_KEY);
+  return getAllQuestions();
 }
 
 /**
  * @param {QuestionEntry[]} entries
  */
 export function setTopicPracticeBatch(entries) {
-  writeJsonArray(TOPIC_BATCH_KEY, entries);
+  saveQuestions(entries);
 }
 
 export function clearTopicPracticeBatch() {
-  localStorage.removeItem(TOPIC_BATCH_KEY);
+  localStorage.removeItem(TOPIC_QUESTIONS_KEY);
 }
 
 /**
@@ -55,7 +110,7 @@ export function clearTopicPracticeBatch() {
  * @returns {QuestionEntry[]}
  */
 export function updateQuestionEntry(questionId, patch) {
-  const current = getTopicPracticeBatch();
+  const current = getAllQuestions();
   const updated = current.map(entry => (
     entry.id === questionId
       ? {
@@ -65,26 +120,28 @@ export function updateQuestionEntry(questionId, patch) {
       : entry
   ));
 
-  setTopicPracticeBatch(updated);
+  saveQuestions(updated);
   return updated;
 }
 
-/**
- * @returns {{topic: string, questionId: string, rating: number, createdAt: number}[]}
- */
 export function getWeakQuestions() {
-  return readJsonArray(WEAK_QUESTIONS_KEY);
+  return getAllQuestions().filter(item => Number.isFinite(item.userRating) && Number(item.userRating) < 3);
 }
 
 /**
- * @param {{topic: string, questionId: string, rating: number, createdAt: number}} weakQuestion
+ * @param {string} topic
+ * @returns {QuestionEntry[]}
  */
-export function addWeakQuestion(weakQuestion) {
-  const weakQuestions = getWeakQuestions();
-  const deduplicated = weakQuestions.filter(item => item.questionId !== weakQuestion.questionId);
+export function getWeakQuestionsForTopic(topic) {
+  const topicKey = normalizeTopic(topic);
+  return getWeakQuestions().filter(item => normalizeTopic(item.topic) === topicKey);
+}
 
-  deduplicated.push(weakQuestion);
-  writeJsonArray(WEAK_QUESTIONS_KEY, deduplicated);
+/**
+ * @param {string} topic
+ */
+export function hasWeakQuestions(topic) {
+  return getWeakQuestionsForTopic(topic).length > 0;
 }
 
 /**
@@ -116,4 +173,103 @@ export function getWeakTopicSummary() {
     acc[item.topic] = (acc[item.topic] || 0) + 1;
     return acc;
   }, {});
+}
+
+export function getUsedTopics() {
+  return readJsonArray(USED_TOPICS_KEY)
+    .map(topic => sanitizeTopic(topic))
+    .filter(Boolean);
+}
+
+/**
+ * @param {string} topic
+ */
+export function addUsedTopic(topic) {
+  const cleanTopic = sanitizeTopic(topic);
+  if (!cleanTopic) {
+    return getUsedTopics();
+  }
+
+  const topics = getUsedTopics();
+  const exists = topics.some(item => normalizeTopic(item) === normalizeTopic(cleanTopic));
+
+  if (!exists) {
+    topics.push(cleanTopic);
+    writeJsonArray(USED_TOPICS_KEY, topics);
+  }
+
+  return getUsedTopics();
+}
+
+/**
+ * Generates and stores a fresh 10-question batch.
+ * If append is true, keeps existing topic history and appends new entries.
+ * @param {string} topic
+ * @param {boolean} append
+ * @returns {Promise<QuestionEntry[]>}
+ */
+export async function generateQuestionsBatch(topic, append = false) {
+  const cleanTopic = sanitizeTopic(topic);
+  if (!cleanTopic) {
+    return [];
+  }
+
+  const existing = getQuestionsForTopic(cleanTopic);
+  const generated = await generateTopicQuestions({ topic: cleanTopic });
+  const nextBatch = append ? [...existing, ...generated] : generated;
+
+  setTopicQuestions(cleanTopic, nextBatch);
+  addUsedTopic(cleanTopic);
+  return nextBatch;
+}
+
+/**
+ * Local-first question source.
+ * - append=true: always generates and appends a fresh batch.
+ * - generateIfMissing=false: never generates if topic has no local rows.
+ * - default: returns local rows, otherwise generates a new batch.
+ * @param {string} topic
+ * @param {{append?: boolean, generateIfMissing?: boolean}} options
+ * @returns {Promise<QuestionEntry[]>}
+ */
+export async function getTopicQuestions(topic, options = {}) {
+  const { append = false, generateIfMissing = true } = options;
+  const cleanTopic = sanitizeTopic(topic);
+  if (!cleanTopic) {
+    return [];
+  }
+
+  if (append) {
+    return generateQuestionsBatch(cleanTopic, true);
+  }
+
+  const existing = getQuestionsForTopic(cleanTopic);
+  if (existing.length) {
+    addUsedTopic(cleanTopic);
+    return existing;
+  }
+
+  if (!generateIfMissing) {
+    return [];
+  }
+
+  return generateQuestionsBatch(cleanTopic, false);
+}
+
+export function getStoredTopicLabel(topic) {
+  const cleanTopic = sanitizeTopic(topic);
+  if (!cleanTopic) {
+    return '';
+  }
+
+  return getUsedTopics().find(item => sameTopic(item, cleanTopic)) || cleanTopic;
+}
+
+/**
+ * Backward-compatible alias for replacing a topic batch.
+ * @param {string} topic
+ * @returns {Promise<QuestionEntry[]>}
+ */
+export async function regenerateTopicQuestions(topic) {
+  return generateQuestionsBatch(topic, false);
 }
