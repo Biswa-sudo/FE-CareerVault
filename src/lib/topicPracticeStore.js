@@ -273,3 +273,116 @@ export function getStoredTopicLabel(topic) {
 export async function regenerateTopicQuestions(topic) {
   return generateQuestionsBatch(topic, false);
 }
+
+// ============================================================================
+// NEW DYNAMIC STATS HELPERS (for dashboard)
+// ============================================================================
+
+/**
+ * Compute overall statistics from all stored questions.
+ * @returns {{
+ *   sessions: number,
+ *   avgScore: number,
+ *   questionsAnswered: number,
+ *   streak: number
+ * }}
+ */
+export function getOverallStats() {
+  const all = getAllQuestions();
+  const answered = all.filter(q => q.userAnswer?.trim());
+  const rated = all.filter(q => Number.isFinite(q.userRating));
+  const topics = getUsedTopics();
+
+  const avgRating = rated.length
+    ? rated.reduce((sum, q) => sum + q.userRating, 0) / rated.length
+    : 0;
+
+  // Streak: count consecutive days with any activity (based on createdAt)
+  const dateSet = new Set();
+  all.forEach(q => {
+    if (q.createdAt) {
+      dateSet.add(new Date(q.createdAt).toDateString());
+    }
+  });
+  const dates = Array.from(dateSet).sort((a, b) => new Date(b) - new Date(a));
+  let streak = 0;
+  const today = new Date().toDateString();
+  for (let d of dates) {
+    const expected = new Date(Date.now() - streak * 86400000).toDateString();
+    if (d === today || d === expected) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+
+  return {
+    sessions: topics.length,
+    avgScore: Math.round(avgRating * 20), // convert 0-5 to 0-100 percentage
+    questionsAnswered: answered.length,
+    streak
+  };
+}
+
+/**
+ * Group questions by topic to build history entries.
+ * @returns {Array<{date: string, role: string, score: number, duration: string, topic: string}>}
+ */
+export function getTopicHistory() {
+  const all = getAllQuestions();
+  const topicMap = {};
+  all.forEach(q => {
+    if (!topicMap[q.topic]) {
+      topicMap[q.topic] = {
+        topic: q.topic,
+        createdAt: q.createdAt,
+        totalRating: 0,
+        ratedCount: 0,
+        questionCount: 0
+      };
+    }
+    const entry = topicMap[q.topic];
+    entry.questionCount++;
+    if (Number.isFinite(q.userRating)) {
+      entry.totalRating += q.userRating;
+      entry.ratedCount++;
+    }
+    // Keep the most recent createdAt for the topic
+    if (q.createdAt > entry.createdAt) entry.createdAt = q.createdAt;
+  });
+
+  // Convert to array and sort by most recent createdAt
+  const history = Object.values(topicMap).map(item => ({
+    date: new Date(item.createdAt).toLocaleDateString(),
+    role: item.topic,
+    score: item.ratedCount ? Math.round((item.totalRating / item.ratedCount) * 20) : 0,
+    duration: `${item.questionCount} questions`,
+    topic: item.topic
+  }));
+
+  history.sort((a, b) => new Date(b.date) - new Date(a.date));
+  return history;
+}
+
+/**
+ * Get performance breakdown per topic (for skill bars).
+ * @returns {Array<{label: string, score: number}>}
+ */
+export function getTopicPerformance() {
+  const history = getTopicHistory();
+  return history.map(item => ({
+    label: item.role,
+    score: item.score
+  }));
+}
+
+/**
+ * Extract strengths (score >= 70%) and weaknesses (score < 60%)
+ * @returns {{ strengths: string[], weaknesses: string[] }}
+ */
+export function getStrengthsWeaknesses() {
+  const perf = getTopicPerformance();
+  const strengths = perf.filter(p => p.score >= 70).map(p => p.label);
+  const weaknesses = perf.filter(p => p.score < 60).map(p => p.label);
+  return { strengths, weaknesses };
+}

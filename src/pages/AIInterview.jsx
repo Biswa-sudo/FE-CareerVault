@@ -4,7 +4,11 @@ import {
   addUsedTopic,
   getAllQuestions,
   getBatchProgress,
+  getOverallStats,
   getStoredTopicLabel,
+  getStrengthsWeaknesses,
+  getTopicHistory,
+  getTopicPerformance,
   getTopicQuestions,
   getUsedTopics,
   getWeakQuestionsForTopic,
@@ -37,13 +41,13 @@ const AIInterview = () => {
   const [allowNextBatch, setAllowNextBatch] = useState(false);
   const [isReplayMode, setIsReplayMode] = useState(false);
   const [replayInitialWeakCount, setReplayInitialWeakCount] = useState(0);
-  const [interviewStats] = useState({
-    sessions: 8,
-    avgScore: 72,
-    questionsAnswered: 34,
-    streak: 5
-  });
   const messagesEndRef = useRef(null);
+
+  // ---- Dynamic data from store ----
+  const stats = useMemo(() => getOverallStats(), [topicQuestions, availableTopics]);
+  const historyData = useMemo(() => getTopicHistory(), [topicQuestions]);
+  const topicPerformance = useMemo(() => getTopicPerformance(), [topicQuestions]);
+  const strengthsWeaknesses = useMemo(() => getStrengthsWeaknesses(), [topicQuestions]);
 
   const createMessage = (sender, text, extra = {}) => ({
     id: crypto.randomUUID(),
@@ -52,13 +56,6 @@ const AIInterview = () => {
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     ...extra
   });
-
-  const historyData = [
-    { date: 'Today', role: 'Full Stack Developer', score: 78, duration: '25 min' },
-    { date: 'Yesterday', role: 'Software Engineer', score: 65, duration: '20 min' },
-    { date: 'Jul 15', role: 'Frontend Engineer', score: 82, duration: '30 min' },
-    { date: 'Jul 12', role: 'Data Scientist', score: 70, duration: '22 min' }
-  ];
 
   const activeQuestions = useMemo(() => (
     activeQuestionIds
@@ -525,7 +522,7 @@ const AIInterview = () => {
             <p className="page-subtitle">Resume by topic, replay weak questions, append new batches</p>
           </div>
           <div className="header-right">
-            <span className="badge">{interviewStats.sessions} sessions</span>
+            <span className="badge">{stats.sessions} sessions</span>
           </div>
         </header>
 
@@ -533,28 +530,28 @@ const AIInterview = () => {
           <div className="stat-card">
             <div className="stat-icon">🎯</div>
             <div className="stat-info">
-              <span className="stat-value">{interviewStats.sessions}</span>
+              <span className="stat-value">{stats.sessions}</span>
               <span className="stat-label">Sessions Completed</span>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon">📈</div>
             <div className="stat-info">
-              <span className="stat-value">{interviewStats.avgScore}%</span>
+              <span className="stat-value">{stats.avgScore}%</span>
               <span className="stat-label">Average Score</span>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon">📝</div>
             <div className="stat-info">
-              <span className="stat-value">{interviewStats.questionsAnswered}</span>
+              <span className="stat-value">{stats.questionsAnswered}</span>
               <span className="stat-label">Questions Answered</span>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon">🔥</div>
             <div className="stat-info">
-              <span className="stat-value">{interviewStats.streak}</span>
+              <span className="stat-value">{stats.streak}</span>
               <span className="stat-label">Day Streak</span>
             </div>
           </div>
@@ -765,18 +762,31 @@ const AIInterview = () => {
               <h3>Interview History</h3>
               <p>Review your past interview practice sessions</p>
               <div className="history-list">
-                {historyData.map((item, index) => (
-                  <div key={index} className="history-item">
-                    <div className="history-date">{item.date}</div>
-                    <div className="history-role">{item.role}</div>
-                    <div className="history-score">
-                      <span className="score-value">{item.score}%</span>
-                      <span className="score-label">Score</span>
+                {historyData.length === 0 ? (
+                  <p>No practice sessions yet. Start a new topic!</p>
+                ) : (
+                  historyData.map((item, index) => (
+                    <div key={index} className="history-item">
+                      <div className="history-date">{item.date}</div>
+                      <div className="history-role">{item.role}</div>
+                      <div className="history-score">
+                        <span className="score-value">{item.score}%</span>
+                        <span className="score-label">Score</span>
+                      </div>
+                      <div className="history-duration">{item.duration}</div>
+                      <button
+                        className="btn btn-outline btn-small"
+                        onClick={() => {
+                          // Load the topic when "Review" is clicked
+                          handleTopicSelect(item.topic, { allowGenerate: false, appendMessage: true });
+                          setActiveTab('practice');
+                        }}
+                      >
+                        Review
+                      </button>
                     </div>
-                    <div className="history-duration">{item.duration}</div>
-                    <button className="btn btn-outline btn-small">Review</button>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -787,60 +797,44 @@ const AIInterview = () => {
             <div className="performance-container">
               <div className="performance-grid">
                 <div className="performance-card">
-                  <h4>Skill Breakdown</h4>
-                  <div className="skill-bar">
-                    <span>Technical Knowledge</span>
-                    <div className="bar-track">
-                      <div className="bar-fill" style={{ width: '75%' }}></div>
-                    </div>
-                    <span className="bar-score">75%</span>
-                  </div>
-                  <div className="skill-bar">
-                    <span>Communication</span>
-                    <div className="bar-track">
-                      <div className="bar-fill" style={{ width: '82%' }}></div>
-                    </div>
-                    <span className="bar-score">82%</span>
-                  </div>
-                  <div className="skill-bar">
-                    <span>Problem Solving</span>
-                    <div className="bar-track">
-                      <div className="bar-fill" style={{ width: '68%' }}></div>
-                    </div>
-                    <span className="bar-score">68%</span>
-                  </div>
-                  <div className="skill-bar">
-                    <span>Confidence</span>
-                    <div className="bar-track">
-                      <div className="bar-fill" style={{ width: '70%' }}></div>
-                    </div>
-                    <span className="bar-score">70%</span>
-                  </div>
-                  <div className="skill-bar">
-                    <span>Structure & Clarity</span>
-                    <div className="bar-track">
-                      <div className="bar-fill" style={{ width: '77%' }}></div>
-                    </div>
-                    <span className="bar-score">77%</span>
-                  </div>
+                  <h4>Topic Performance</h4>
+                  {topicPerformance.length === 0 ? (
+                    <p>No topics practiced yet.</p>
+                  ) : (
+                    topicPerformance.map((item, idx) => (
+                      <div className="skill-bar" key={idx}>
+                        <span>{item.label}</span>
+                        <div className="bar-track">
+                          <div className="bar-fill" style={{ width: `${item.score}%` }}></div>
+                        </div>
+                        <span className="bar-score">{item.score}%</span>
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 <div className="performance-card">
                   <h4>Progress Over Time</h4>
                   <div className="chart-placeholder">
                     <div className="chart-bar-container">
-                      <div className="chart-bar" style={{ height: '40%' }}>65%</div>
-                      <div className="chart-bar" style={{ height: '55%' }}>70%</div>
-                      <div className="chart-bar" style={{ height: '70%' }}>78%</div>
-                      <div className="chart-bar" style={{ height: '60%' }}>72%</div>
-                      <div className="chart-bar" style={{ height: '75%' }}>82%</div>
+                      {topicPerformance.length > 0 ? (
+                        topicPerformance.slice(0, 5).map((item, idx) => (
+                          <div key={idx} className="chart-bar" style={{ height: `${Math.max(item.score, 10)}%` }}>
+                            {item.score}%
+                          </div>
+                        ))
+                      ) : (
+                        <div className="chart-bar" style={{ height: '30%' }}>0%</div>
+                      )}
                     </div>
                     <div className="chart-labels">
-                      <span>Day 1</span>
-                      <span>Day 2</span>
-                      <span>Day 3</span>
-                      <span>Day 4</span>
-                      <span>Day 5</span>
+                      {topicPerformance.length > 0 ? (
+                        topicPerformance.slice(0, 5).map((item, idx) => (
+                          <span key={idx}>{item.label.slice(0, 8)}</span>
+                        ))
+                      ) : (
+                        <span>No data</span>
+                      )}
                     </div>
                     <p className="chart-note">Your scores are improving. Keep practicing.</p>
                   </div>
@@ -854,9 +848,11 @@ const AIInterview = () => {
                       <div>
                         <strong>Strengths</strong>
                         <ul>
-                          <li>Clear communication and articulation</li>
-                          <li>Good technical understanding</li>
-                          <li>Confident delivery</li>
+                          {strengthsWeaknesses.strengths.length > 0 ? (
+                            strengthsWeaknesses.strengths.map((s, i) => <li key={i}>{s}</li>)
+                          ) : (
+                            <li>Keep practicing to identify strengths.</li>
+                          )}
                         </ul>
                       </div>
                     </div>
@@ -865,9 +861,11 @@ const AIInterview = () => {
                       <div>
                         <strong>Areas to Improve</strong>
                         <ul>
-                          <li>Use more specific examples</li>
-                          <li>Practice STAR method for behavioral questions</li>
-                          <li>Reduce filler words (um, uh, like)</li>
+                          {strengthsWeaknesses.weaknesses.length > 0 ? (
+                            strengthsWeaknesses.weaknesses.map((w, i) => <li key={i}>{w}</li>)
+                          ) : (
+                            <li>Great job! No weak topics identified.</li>
+                          )}
                         </ul>
                       </div>
                     </div>
