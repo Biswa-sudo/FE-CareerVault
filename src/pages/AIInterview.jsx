@@ -1,6 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './AIInterview.css';
-import { generateInterviewResponse } from '../lib/geminiInterview';
+import { generateTopicQuestions } from '../services/interviewService';
+import {
+  addWeakQuestion,
+  clearTopicPracticeBatch,
+  getBatchProgress,
+  getTopicPracticeBatch,
+  getWeakTopicSummary,
+  setTopicPracticeBatch,
+  updateQuestionEntry
+} from '../lib/topicPracticeStore';
 
 const AIInterview = () => {
   const [activeTab, setActiveTab] = useState('practice');
@@ -13,10 +22,12 @@ const AIInterview = () => {
     }
   ]);
   const [inputText, setInputText] = useState('');
-  const [selectedMode, setSelectedMode] = useState('general');
-  const [selectedRole, setSelectedRole] = useState('Software Engineer');
+  const [selectedTopic, setSelectedTopic] = useState('JavaScript');
   const [isRecording, setIsRecording] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isBatchLoading, setIsBatchLoading] = useState(false);
+  const [questionBatch, setQuestionBatchState] = useState([]);
+  const [showConceptByQuestion, setShowConceptByQuestion] = useState({});
+  const [allowNextBatch, setAllowNextBatch] = useState(false);
   const [interviewStats, setInterviewStats] = useState({
     sessions: 8,
     avgScore: 72,
@@ -33,29 +44,13 @@ const AIInterview = () => {
     ...extra
   });
 
-  const modes = [
-    { id: 'general', label: '🎯 General', desc: 'Standard interview questions' },
-    { id: 'technical', label: '💻 Technical', desc: 'Coding & technical skills' },
-    { id: 'behavioral', label: '🧠 Behavioral', desc: 'Soft skills & situational' },
-    { id: 'hr', label: '🤝 HR Round', desc: 'HR & culture fit questions' }
-  ];
-
-  const roles = [
-    'Software Engineer',
-    'Full Stack Developer',
-    'Frontend Engineer',
-    'Backend Developer',
-    'Data Scientist',
-    'Product Manager',
-    'DevOps Engineer'
-  ];
-
-  const quickPrompts = [
-    'Tell me about yourself',
-    'Why do you want this role?',
-    'Describe a challenge you faced',
-    'Where do you see yourself in 5 years?',
-    'What are your strengths?'
+  const topics = [
+    'JavaScript',
+    'React',
+    'System Design',
+    'Data Structures & Algorithms',
+    'Node.js',
+    'Database Design'
   ];
 
   const historyData = [
@@ -69,46 +64,246 @@ const AIInterview = () => {
     scrollToBottom();
   }, [messages]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  useEffect(() => {
+    const savedBatch = getTopicPracticeBatch();
 
-  const handleSendMessage = async () => {
-    const trimmedInput = inputText.trim();
-    if (!trimmedInput || isLoading) return;
+    if (!savedBatch.length) {
+      return;
+    }
 
-    const userMessage = createMessage('user', trimmedInput);
-    const conversation = [...messages, userMessage];
+    setQuestionBatchState(savedBatch);
+    setSelectedTopic(savedBatch[0]?.topic || 'JavaScript');
 
-    setMessages(conversation);
-    setInputText('');
-    setIsLoading(true);
+    const progress = getBatchProgress(savedBatch);
+    if (progress.completed) {
+      if (progress.averageRating >= 3.5) {
+        setAllowNextBatch(true);
+        setMessages(prev => [
+          ...prev,
+          createMessage(
+            'ai',
+            `Welcome back. Your previous ${savedBatch[0]?.topic || 'topic'} batch is complete with average rating ${progress.averageRating.toFixed(1)}/5. You can request a new set now.`
+          )
+        ]);
+      } else {
+        setMessages(prev => [
+          ...prev,
+          createMessage(
+            'ai',
+            `Welcome back. Your previous ${savedBatch[0]?.topic || 'topic'} batch is complete with average rating ${progress.averageRating.toFixed(1)}/5. Use Continue to unlock the next set, or review weak areas first.`
+          )
+        ]);
+      }
 
-    try {
-      const result = await generateInterviewResponse({
-        mode: selectedMode,
-        role: selectedRole,
-        userMessage: trimmedInput,
-        conversation
-      });
+      return;
+    }
 
-      const aiText = result.followUpQuestion
-        ? `${result.answer}\n\nFollow-up: ${result.followUpQuestion}`
-        : result.answer;
-
-      setMessages(prev => [...prev, createMessage('ai', aiText, { feedback: result.feedback })]);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown Groq error';
+    const nextIndex = savedBatch.findIndex(entry => !Number.isFinite(entry.userRating));
+    if (nextIndex >= 0) {
       setMessages(prev => [
         ...prev,
         createMessage(
           'ai',
-          `I couldn't reach Groq right now. ${errorMessage}`
+          `Resuming your saved batch for ${savedBatch[nextIndex].topic}.\n\nQuestion ${nextIndex + 1}/10: ${savedBatch[nextIndex].question}`
         )
       ]);
-    } finally {
-      setIsLoading(false);
     }
+  }, []);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const setQuestionBatch = (nextBatch) => {
+    setQuestionBatchState(nextBatch);
+    setTopicPracticeBatch(nextBatch);
+  };
+
+  const batchProgress = getBatchProgress(questionBatch);
+  const currentQuestionIndex = questionBatch.findIndex(entry => !Number.isFinite(entry.userRating));
+  const currentQuestion = currentQuestionIndex >= 0 ? questionBatch[currentQuestionIndex] : null;
+  const weakTopicSummary = Object.entries(getWeakTopicSummary())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  const handleGenerateBatch = async () => {
+    if (isBatchLoading) {
+      return;
+    }
+
+    const hasPendingBatch = questionBatch.length && !batchProgress.completed;
+    if (hasPendingBatch) {
+      setMessages(prev => [
+        ...prev,
+        createMessage('ai', 'Finish rating all 10 current questions before requesting another batch.')
+      ]);
+      return;
+    }
+
+    if (questionBatch.length && batchProgress.completed && !allowNextBatch && batchProgress.averageRating < 3.5) {
+      setMessages(prev => [
+        ...prev,
+        createMessage('ai', 'Your average rating is below 3.5. Click Continue Anyway if you still want a new batch.')
+      ]);
+      return;
+    }
+
+    setIsBatchLoading(true);
+
+    try {
+      clearTopicPracticeBatch();
+      const generatedBatch = await generateTopicQuestions({ topic: selectedTopic });
+
+      setQuestionBatch(generatedBatch);
+      setShowConceptByQuestion({});
+      setAllowNextBatch(false);
+
+      setMessages([
+        createMessage(
+          'ai',
+          `Great choice. I generated 10 ${selectedTopic} questions in one batch. We'll now practice locally with no further AI calls.`
+        ),
+        createMessage('ai', `Question 1/10: ${generatedBatch[0].question}`)
+      ]);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown Groq error';
+      setMessages(prev => [
+        ...prev,
+        createMessage('ai', `Could not generate the topic batch. ${errorMessage}`)
+      ]);
+    } finally {
+      setIsBatchLoading(false);
+    }
+  };
+
+  const handleSendMessage = () => {
+    const trimmedInput = inputText.trim();
+    if (!trimmedInput || isBatchLoading) return;
+
+    const userMessage = createMessage('user', trimmedInput);
+
+    if (!questionBatch.length || !currentQuestion) {
+      setMessages(prev => [
+        ...prev,
+        userMessage,
+        createMessage('ai', 'Please generate a 10-question topic batch first.')
+      ]);
+      setInputText('');
+      return;
+    }
+
+    if (currentQuestion.userAnswer?.trim()) {
+      setMessages(prev => [
+        ...prev,
+        userMessage,
+        createMessage('ai', 'You already answered this question. Reveal the concept and rate yourself to continue.')
+      ]);
+      setInputText('');
+      return;
+    }
+
+    const updatedBatch = updateQuestionEntry(currentQuestion.id, { userAnswer: trimmedInput });
+    setQuestionBatchState(updatedBatch);
+
+    setMessages(prev => [
+      ...prev,
+      userMessage,
+      createMessage('ai', 'Answer saved. Reveal the concept, then rate yourself from 1 to 5.')
+    ]);
+    setInputText('');
+  };
+
+  const handleRevealConcept = () => {
+    if (!currentQuestion || !currentQuestion.userAnswer?.trim()) {
+      return;
+    }
+
+    if (showConceptByQuestion[currentQuestion.id]) {
+      return;
+    }
+
+    setShowConceptByQuestion(prev => ({
+      ...prev,
+      [currentQuestion.id]: true
+    }));
+
+    setMessages(prev => [
+      ...prev,
+      createMessage('ai', `Concept: ${currentQuestion.concept}`)
+    ]);
+  };
+
+  const handleRateQuestion = (rating) => {
+    if (!currentQuestion || !currentQuestion.userAnswer?.trim()) {
+      return;
+    }
+
+    const updatedBatch = updateQuestionEntry(currentQuestion.id, { userRating: rating });
+    setQuestionBatchState(updatedBatch);
+
+    if (rating <= 2) {
+      addWeakQuestion({
+        topic: currentQuestion.topic,
+        questionId: currentQuestion.id,
+        rating,
+        createdAt: Date.now()
+      });
+    }
+
+    const nextIndex = updatedBatch.findIndex(entry => !Number.isFinite(entry.userRating));
+
+    if (nextIndex >= 0) {
+      setMessages(prev => [
+        ...prev,
+        createMessage('ai', `Rating saved (${rating}/5). Next question ${nextIndex + 1}/10: ${updatedBatch[nextIndex].question}`)
+      ]);
+      return;
+    }
+
+    const progress = getBatchProgress(updatedBatch);
+    const average = progress.averageRating.toFixed(1);
+
+    if (progress.averageRating >= 3.5) {
+      setAllowNextBatch(true);
+      setMessages(prev => [
+        ...prev,
+        createMessage('ai', `Batch completed. Average rating: ${average}/5. You can now generate a new batch.`)
+      ]);
+      return;
+    }
+
+    setAllowNextBatch(false);
+    setMessages(prev => [
+      ...prev,
+      createMessage(
+        'ai',
+        `Batch completed with average rating ${average}/5. Review weak topics or click Continue Anyway to request a new batch.`
+      )
+    ]);
+  };
+
+  const handleContinueAnyway = () => {
+    setAllowNextBatch(true);
+    setMessages(prev => [
+      ...prev,
+      createMessage('ai', 'Continue enabled. You can now generate a new 10-question batch.')
+    ]);
+  };
+
+  const handleRevisitWeakTopics = () => {
+    if (!weakTopicSummary.length) {
+      setMessages(prev => [
+        ...prev,
+        createMessage('ai', 'No weak topics have been recorded yet. Low ratings (<=2) will appear here.')
+      ]);
+      return;
+    }
+
+    const details = weakTopicSummary.map(([topic, count]) => `${topic} (${count})`).join(', ');
+    setMessages(prev => [
+      ...prev,
+      createMessage('ai', `Weak-topic recap: ${details}. Pick one of these topics for your next batch.`)
+    ]);
   };
 
   const handleKeyPress = (e) => {
@@ -116,30 +311,6 @@ const AIInterview = () => {
       e.preventDefault();
       handleSendMessage();
     }
-  };
-
-  const handleModeChange = (modeId) => {
-    setSelectedMode(modeId);
-    const modeMessages = {
-      general: "Great! Let's start with a general interview. I'll ask you common questions that interviewers typically ask.",
-      technical: "Switching to Technical mode. I'll ask you coding concepts, system design, and technical problem-solving questions.",
-      behavioral: "Switching to Behavioral mode. I'll ask about your past experiences, teamwork, leadership, and handling difficult situations.",
-      hr: "Switching to HR Round mode. We'll practice culture fit, career goals, and HR-specific questions."
-    };
-    
-    setMessages(prev => [...prev, createMessage('ai', modeMessages[modeId])]);
-  };
-
-  const handleRoleChange = (e) => {
-    setSelectedRole(e.target.value);
-  };
-
-  const handleQuickPrompt = (prompt) => {
-    setInputText(prompt);
-  };
-
-  const handleStartInterview = () => {
-    setMessages(prev => [...prev, createMessage('ai', `Alright, let's begin! I'll ask you a series of questions for the ${selectedRole} position. Take your time and respond thoughtfully. Here's your first question: "Can you tell me about yourself and why you're interested in this role?"`)]);
   };
 
   const handleToggleRecording = () => {
@@ -229,56 +400,97 @@ const AIInterview = () => {
             {/* Mode & Role Selection */}
             <div className="practice-controls">
               <div className="mode-selector">
-                <label>Practice Mode</label>
-                <div className="mode-grid">
-                  {modes.map(mode => (
-                    <button
-                      key={mode.id}
-                      className={`mode-btn ${selectedMode === mode.id ? 'active' : ''}`}
-                      onClick={() => handleModeChange(mode.id)}
-                    >
-                      <span className="mode-icon">{mode.label}</span>
-                      <span className="mode-desc">{mode.desc}</span>
-                    </button>
-                  ))}
+                <label>Practice Topic</label>
+                <div className="topic-selector-row">
+                  <select
+                    className="topic-select"
+                    value={selectedTopic}
+                    onChange={(event) => setSelectedTopic(event.target.value)}
+                    disabled={isBatchLoading}
+                  >
+                    {topics.map(topic => (
+                      <option key={topic} value={topic}>{topic}</option>
+                    ))}
+                  </select>
+                  <button className="btn btn-primary btn-small" onClick={handleGenerateBatch} disabled={isBatchLoading}>
+                    {isBatchLoading ? 'Generating...' : '⚡ Generate 10 Questions'}
+                  </button>
                 </div>
               </div>
 
               <div className="role-selector">
-                <label>Target Role</label>
-                <select 
-                  className="role-select"
-                  value={selectedRole}
-                  onChange={handleRoleChange}
-                >
-                  {roles.map(role => (
-                    <option key={role} value={role}>{role}</option>
-                  ))}
-                </select>
-                <button className="btn btn-primary btn-small" onClick={handleStartInterview}>
-                  🚀 Start Interview
-                </button>
+                <label>Batch Progress</label>
+                <div className="practice-status">
+                  <span>Answered: {batchProgress.answeredCount}/10</span>
+                  <span>Rated: {batchProgress.ratedCount}/10</span>
+                  <span>Average: {batchProgress.ratedCount ? batchProgress.averageRating.toFixed(1) : '0.0'}/5</span>
+                </div>
+
+                {batchProgress.completed && batchProgress.averageRating < 3.5 && !allowNextBatch && (
+                  <button className="btn btn-outline btn-small" onClick={handleContinueAnyway}>
+                    Continue Anyway
+                  </button>
+                )}
+
+                {weakTopicSummary.length > 0 && (
+                  <button className="btn btn-outline btn-small" onClick={handleRevisitWeakTopics}>
+                    Revisit Weak Topics
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* Quick Prompts */}
-            <div className="quick-prompts">
-              <span className="prompts-label">Quick practice prompts:</span>
-              {quickPrompts.map((prompt, index) => (
-                <button key={index} className="prompt-btn" onClick={() => handleQuickPrompt(prompt)}>
-                  {prompt}
-                </button>
-              ))}
-            </div>
+            {currentQuestion && (
+              <div className="current-question-card">
+                <div className="question-meta">Current topic: {currentQuestion.topic} • Question {currentQuestionIndex + 1}/10</div>
+                <div className="question-title">{currentQuestion.question}</div>
+                <div className="action-row">
+                  <button
+                    className="btn btn-outline btn-small"
+                    onClick={handleRevealConcept}
+                    disabled={!currentQuestion.userAnswer?.trim()}
+                  >
+                    Reveal Concept
+                  </button>
+                  <div className="rating-row">
+                    {[1, 2, 3, 4, 5].map(value => (
+                      <button
+                        key={value}
+                        className="rating-btn"
+                        onClick={() => handleRateQuestion(value)}
+                        disabled={!currentQuestion.userAnswer?.trim() || Number.isFinite(currentQuestion.userRating)}
+                      >
+                        {value}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {weakTopicSummary.length > 0 && (
+              <div className="weak-topics">
+                <span className="prompts-label">Weak topics:</span>
+                {weakTopicSummary.map(([topic, count]) => (
+                  <span key={topic} className="weak-pill">{topic}: {count}</span>
+                ))}
+              </div>
+            )}
+
+            {allowNextBatch && batchProgress.completed && (
+              <div className="quick-prompts">
+                <span className="prompts-label">You can request a fresh question set now.</span>
+              </div>
+            )}
 
             {/* Chat Container */}
             <div className="chat-container">
               <div className="chat-header">
                 <span className="chat-status">
-                  {isLoading ? '🤔 AI is thinking...' : '🟢 AI Coach is online'}
+                  {isBatchLoading ? '🤔 Generating topic set...' : '🟢 Practice mode is local'}
                 </span>
                 <span className="chat-mode">
-                  {modes.find(m => m.id === selectedMode)?.label || 'General'} • {selectedRole}
+                  {selectedTopic} • {batchProgress.ratedCount}/10 rated
                 </span>
               </div>
 
@@ -302,7 +514,7 @@ const AIInterview = () => {
                     </div>
                   </div>
                 ))}
-                {isLoading && (
+                {isBatchLoading && (
                   <div className="message ai">
                     <div className="message-avatar">🤖</div>
                     <div className="message-content-wrapper">
@@ -323,11 +535,11 @@ const AIInterview = () => {
                 <div className="chat-input-wrapper">
                   <input
                     type="text"
-                    placeholder="Type your response or use voice..."
+                    placeholder="Type your answer for the current question..."
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    disabled={isLoading}
+                    disabled={isBatchLoading}
                   />
                   <button 
                     className={`voice-btn ${isRecording ? 'recording' : ''}`}
@@ -339,13 +551,13 @@ const AIInterview = () => {
                   <button 
                     className="send-btn"
                     onClick={handleSendMessage}
-                    disabled={!inputText.trim() || isLoading}
+                    disabled={!inputText.trim() || isBatchLoading}
                   >
                     Send 📤
                   </button>
                 </div>
                 <div className="chat-tips">
-                  💡 Tip: Be specific and use examples. The AI evaluates structure, content, and delivery.
+                  💡 One AI call creates 10 questions. Answer, reveal concept, and self-rate locally.
                 </div>
               </div>
             </div>
