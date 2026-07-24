@@ -37,7 +37,6 @@ const AIInterview = () => {
   const [topicQuestions, setTopicQuestionsState] = useState([]);
   const [activeQuestionIds, setActiveQuestionIds] = useState([]);
   const [inputText, setInputText] = useState('');
-  const [showConceptByQuestion, setShowConceptByQuestion] = useState({});
   const [allowNextBatch, setAllowNextBatch] = useState(false);
   const [isReplayMode, setIsReplayMode] = useState(false);
   const [replayInitialWeakCount, setReplayInitialWeakCount] = useState(0);
@@ -201,7 +200,6 @@ const AIInterview = () => {
       const storedLabel = getStoredTopicLabel(cleanTopic);
       setSelectedTopic(storedLabel);
       setTopicSelectValue(storedLabel);
-      setShowConceptByQuestion({});
       setReplayInitialWeakCount(0);
       setAllowNextBatch(false);
 
@@ -270,7 +268,6 @@ const AIInterview = () => {
 
       setAllowNextBatch(false);
       setIsReplayMode(false);
-      setShowConceptByQuestion({});
 
       const currentTopicQuestions = syncTopicState(selectedTopic, getAllQuestions());
       const newQuestion = currentTopicQuestions.find(item => !Number.isFinite(item.userRating));
@@ -333,7 +330,6 @@ const AIInterview = () => {
     setIsReplayMode(true);
     setReplayInitialWeakCount(weakForTopic.length);
     setAllowNextBatch(false);
-    setShowConceptByQuestion({});
     setActiveQuestionIds(weakIds);
 
     const firstReplayQuestion = refreshed.find(item => item.id === weakIds[0]);
@@ -373,7 +369,9 @@ const AIInterview = () => {
       setMessages(prev => [
         ...prev,
         userMessage,
-        createMessage('ai', 'You already answered this question. Reveal concept and rate to continue.')
+        createMessage('ai', `You already answered this question. 
+            \nCompare it with actual answer and evaluate your response.
+            \nPlease rate yourself from 1 to 5 to continue.`)
       ]);
       setInputText('');
       return;
@@ -385,29 +383,10 @@ const AIInterview = () => {
     setMessages(prev => [
       ...prev,
       userMessage,
-      createMessage('ai', 'Answer saved. Reveal concept, then rate yourself 1 to 5.')
+      createMessage('ai', `Concept: ${currentQuestion.concept}`),
+      createMessage('ai', 'Now rate your answer from 1 to 5.')
     ]);
     setInputText('');
-  };
-
-  const handleRevealConcept = () => {
-    if (!currentQuestion || !currentQuestion.userAnswer?.trim()) {
-      return;
-    }
-
-    if (showConceptByQuestion[currentQuestion.id]) {
-      return;
-    }
-
-    setShowConceptByQuestion(prev => ({
-      ...prev,
-      [currentQuestion.id]: true
-    }));
-
-    setMessages(prev => [
-      ...prev,
-      createMessage('ai', `Concept: ${currentQuestion.concept}`)
-    ]);
   };
 
   const handleRateQuestion = (rating) => {
@@ -668,10 +647,12 @@ const AIInterview = () => {
                 </div>
                 {isReplayMode && <span className="replay-badge">Replay mode</span>}
                 <div className="question-title">{currentQuestion.question}</div>
+                {currentQuestion.userAnswer?.trim() && (
+                  <div className="concept-auto-reveal">
+                    <strong>Concept:</strong> {currentQuestion.concept}
+                  </div>
+                )}
                 <div className="action-row">
-                  <button className="btn btn-outline btn-small" onClick={handleRevealConcept} disabled={!currentQuestion.userAnswer?.trim()}>
-                    Reveal Concept
-                  </button>
                   <div className="rating-row">
                     {[1, 2, 3, 4, 5].map(value => (
                       <button

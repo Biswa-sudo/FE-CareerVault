@@ -11,7 +11,7 @@ export default function Navbar({ onMenuClick }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
-      <div className="text-lg font-semibold text-gray-700">CV Builder Pro</div>
+      <div className="text-lg font-semibold text-gray-700">Benture AI</div>
       <div className="flex items-center gap-4">
         {user && (
           <div className="flex items-center gap-3">

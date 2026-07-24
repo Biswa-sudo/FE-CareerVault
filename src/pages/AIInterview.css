@@ -245,6 +245,17 @@
   line-height: 1.45;
 }
 
+.concept-auto-reveal {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #eef6ff;
+  border: 1px solid #cfe2ff;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #1e3a8a;
+}
+
 .action-row {
   margin-top: 14px;
   display: flex;
