@@ -11,6 +11,7 @@ import elegantSplitDefaults from '../components/templates/ElegantSplit/defaultFo
 import cleanSidebarTimelineDefaults from '../components/templates/CleanSidebarTimeline/defaultFormData'
 import modernAccentDefaults from '../components/templates/ModernAccent/defaultFormData'
 import minimalistTechDefaults from '../components/templates/MinimalistTech/defaultFormData' // NEW // NEW // NEW // NEW
+import professionalDarkDefaults from '../components/templates/ProfessionalDark/defaultFormData' // NEW
 
 const templateDefaults = {
  'classic-professional': classicProfessionalDefaults,
@@ -26,6 +27,7 @@ const templateDefaults = {
  'clean-sidebar-timeline': cleanSidebarTimelineDefaults,
  'modern-accent': modernAccentDefaults,
  'minimalist-tech': minimalistTechDefaults, // NEW // NEW // NEW // NEW
+ 'professional-dark': professionalDarkDefaults, // NEW
 }
 
 export function getTemplateDefaults(templateId) {

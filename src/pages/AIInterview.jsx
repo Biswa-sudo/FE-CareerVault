@@ -17,6 +17,39 @@ import {
 } from '../lib/topicPracticeStore';
 
 const OTHER_TOPIC_VALUE = 'other';
+const CHAT_HISTORY_KEY = 'aiInterviewChatHistoryByTopic';
+
+function getTopicChatKey(topic) {
+  return String(topic || '__global__').trim().toLowerCase() || '__global__';
+}
+
+function readChatHistoryStore() {
+  try {
+    const raw = localStorage.getItem(CHAT_HISTORY_KEY);
+    if (!raw) {
+      return {};
+    }
+
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function getChatHistoryForTopic(topic) {
+  const store = readChatHistoryStore();
+  const key = getTopicChatKey(topic);
+  const history = store[key];
+  return Array.isArray(history) ? history : [];
+}
+
+function setChatHistoryForTopic(topic, messages) {
+  const store = readChatHistoryStore();
+  const key = getTopicChatKey(topic);
+  store[key] = Array.isArray(messages) ? messages : [];
+  localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(store));
+}
 
 const AIInterview = () => {
   const [activeTab, setActiveTab] = useState('practice');
@@ -37,10 +70,12 @@ const AIInterview = () => {
   const [topicQuestions, setTopicQuestionsState] = useState([]);
   const [activeQuestionIds, setActiveQuestionIds] = useState([]);
   const [inputText, setInputText] = useState('');
+  const [editingQuestionId, setEditingQuestionId] = useState(null);
   const [allowNextBatch, setAllowNextBatch] = useState(false);
   const [isReplayMode, setIsReplayMode] = useState(false);
   const [replayInitialWeakCount, setReplayInitialWeakCount] = useState(0);
   const messagesEndRef = useRef(null);
+  const skipNextChatPersistRef = useRef(false);
 
   // ---- Dynamic data from store ----
   const stats = useMemo(() => getOverallStats(), [topicQuestions, availableTopics]);
@@ -84,6 +119,15 @@ const AIInterview = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (skipNextChatPersistRef.current) {
+      skipNextChatPersistRef.current = false;
+      return;
+    }
+
+    setChatHistoryForTopic(selectedTopic || '__global__', messages);
+  }, [messages, selectedTopic]);
 
   useEffect(() => {
     const topics = getUsedTopics();
@@ -200,8 +244,16 @@ const AIInterview = () => {
       const storedLabel = getStoredTopicLabel(cleanTopic);
       setSelectedTopic(storedLabel);
       setTopicSelectValue(storedLabel);
+      setEditingQuestionId(null);
       setReplayInitialWeakCount(0);
       setAllowNextBatch(false);
+
+      const savedTopicMessages = getChatHistoryForTopic(storedLabel);
+      const hasSavedTopicMessages = savedTopicMessages.length > 0;
+      skipNextChatPersistRef.current = true;
+      setMessages(hasSavedTopicMessages ? savedTopicMessages : [
+        createMessage('ai', `Topic ${storedLabel} selected. Let's continue your practice.`)
+      ]);
 
       const updatedTopics = refreshAvailableTopics();
       if (!updatedTopics.includes(storedLabel)) {
@@ -209,7 +261,7 @@ const AIInterview = () => {
       }
 
       const currentTopicQuestions = syncTopicState(storedLabel, getAllQuestions());
-      setupQueueForTopic(storedLabel, currentTopicQuestions, options.appendMessage);
+      setupQueueForTopic(storedLabel, currentTopicQuestions, hasSavedTopicMessages ? false : options.appendMessage);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setMessages(prev => [
@@ -268,6 +320,7 @@ const AIInterview = () => {
 
       setAllowNextBatch(false);
       setIsReplayMode(false);
+      setEditingQuestionId(null);
 
       const currentTopicQuestions = syncTopicState(selectedTopic, getAllQuestions());
       const newQuestion = currentTopicQuestions.find(item => !Number.isFinite(item.userRating));
@@ -330,6 +383,7 @@ const AIInterview = () => {
     setIsReplayMode(true);
     setReplayInitialWeakCount(weakForTopic.length);
     setAllowNextBatch(false);
+    setEditingQuestionId(null);
     setActiveQuestionIds(weakIds);
 
     const firstReplayQuestion = refreshed.find(item => item.id === weakIds[0]);
@@ -365,13 +419,40 @@ const AIInterview = () => {
       return;
     }
 
-    if (currentQuestion.userAnswer?.trim()) {
+    const isWaitingForRating = Boolean(
+      currentQuestion.userAnswer?.trim() && !Number.isFinite(currentQuestion.userRating)
+    );
+
+    if (isWaitingForRating) {
+      if (editingQuestionId === currentQuestion.id) {
+        const updatedAll = updateQuestionEntry(currentQuestion.id, {
+          userAnswer: trimmedInput,
+          userRating: undefined
+        });
+
+        syncTopicState(selectedTopic, updatedAll);
+        setEditingQuestionId(null);
+        setMessages(prev => [
+          ...prev,
+          userMessage,
+          createMessage('ai', `Concept: ${currentQuestion.concept}`),
+          createMessage('ai', 'Answer updated. Please select rating 1 to 5 below, or reply with 1-5 in chat.')
+        ]);
+        setInputText('');
+        return;
+      }
+
+      if (/^[1-5]$/.test(trimmedInput)) {
+        setMessages(prev => [...prev, userMessage]);
+        setInputText('');
+        handleRateQuestion(Number(trimmedInput));
+        return;
+      }
+
       setMessages(prev => [
         ...prev,
         userMessage,
-        createMessage('ai', `You already answered this question. 
-            \nCompare it with actual answer and evaluate your response.
-            \nPlease rate yourself from 1 to 5 to continue.`)
+        createMessage('ai', 'Please rate this answer first. Click 1-5 below, reply with 1-5, or click Retry Answer to edit and resubmit.')
       ]);
       setInputText('');
       return;
@@ -379,14 +460,28 @@ const AIInterview = () => {
 
     const updatedAll = updateQuestionEntry(currentQuestion.id, { userAnswer: trimmedInput });
     syncTopicState(selectedTopic, updatedAll);
+    setEditingQuestionId(null);
 
     setMessages(prev => [
       ...prev,
       userMessage,
       createMessage('ai', `Concept: ${currentQuestion.concept}`),
-      createMessage('ai', 'Now rate your answer from 1 to 5.')
+      createMessage('ai', 'Now rate your answer from 1 to 5 below, or reply with 1-5 in chat.')
     ]);
     setInputText('');
+  };
+
+  const handleRetryAnswer = () => {
+    if (!currentQuestion || !currentQuestion.userAnswer?.trim() || Number.isFinite(currentQuestion.userRating)) {
+      return;
+    }
+
+    setEditingQuestionId(currentQuestion.id);
+    setInputText(currentQuestion.userAnswer);
+    setMessages(prev => [
+      ...prev,
+      createMessage('ai', 'Edit your answer and press Send to resubmit before rating.')
+    ]);
   };
 
   const handleRateQuestion = (rating) => {
@@ -653,6 +748,11 @@ const AIInterview = () => {
                   </div>
                 )}
                 <div className="action-row">
+                  {currentQuestion.userAnswer?.trim() && !Number.isFinite(currentQuestion.userRating) && (
+                    <button className="btn btn-outline btn-small" onClick={handleRetryAnswer}>
+                      Retry Answer
+                    </button>
+                  )}
                   <div className="rating-row">
                     {[1, 2, 3, 4, 5].map(value => (
                       <button
@@ -716,7 +816,11 @@ const AIInterview = () => {
                 <div className="chat-input-wrapper">
                   <input
                     type="text"
-                    placeholder={isReplayMode ? 'Type your improved answer for this weak question...' : 'Type your answer for the current question...'}
+                    placeholder={
+                      editingQuestionId === currentQuestion?.id
+                        ? 'Edit your answer and press Send...'
+                        : (isReplayMode ? 'Type your improved answer for this weak question...' : 'Type your answer for the current question...')
+                    }
                     value={inputText}
                     onChange={(event) => setInputText(event.target.value)}
                     onKeyPress={handleAnswerKeyPress}

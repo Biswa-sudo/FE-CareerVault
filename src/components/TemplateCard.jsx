@@ -1,13 +1,36 @@
 import executiveAssistantPreview from '../assets/executive-assistant-preview.jpg'
 import simpleAndElegantPreview from '../assets/simpleAndElegantPreview.jpg'
+import classicProfessional from '../assets/classicProfessional.jpg'
+import ExecutiveBlue from '../assets/ExecutiveBlue.jpg'
+import ExecutivePro from '../assets/ExecutivePro.jpg'
+import CreativeBlue from '../assets/CreativeBlue.jpg'
+import ModernDarkSidebar from '../assets/ModernDarkSidebar.jpg'
+import TimelineProfessional from '../assets/TimelineProfessional.jpg'
+import ElegantSplit from '../assets/ElegantSplit.jpg'
+import CenteredProfile from '../assets/CenteredProfile.jpg'
+import CleanSidebarTimeline from '../assets/CleanSidebarTimeline.jpg'
+import ModernAccent from '../assets/ModernAccent.jpg'
+import MinimalistTech from '../assets/MinimalistTech.jpg'
+import ProfessionalDark from '../assets/ProfessionalDark.jpg'
+
+
+
 
 const templatePreviewImages = {
   'template-executive-assistant': executiveAssistantPreview,
   'simple-and-elegant': simpleAndElegantPreview,
-  'executive-pro': simpleAndElegantPreview,
-  'executive-blue': simpleAndElegantPreview,
-  'classic-professional': simpleAndElegantPreview,
-  
+  'executive-blue': ExecutiveBlue,
+  'classic-professional': classicProfessional,
+  'executive-pro': ExecutivePro,
+  'creative-blue': CreativeBlue,
+  'modern-dark-sidebar': ModernDarkSidebar,
+  'timeline-professional': TimelineProfessional,
+  'elegant-split': ElegantSplit,
+  'centered-profile': CenteredProfile,
+  'clean-sidebar-timeline': CleanSidebarTimeline,
+  'modern-accent': ModernAccent,
+  'minimalist-tech': MinimalistTech,
+  'professional-dark': ProfessionalDark,
 }
 
 export default function TemplateCard({ template, onSelect }) {

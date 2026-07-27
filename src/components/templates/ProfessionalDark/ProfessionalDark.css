@@ -1,0 +1,394 @@
+.pd-container {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  font-size: 9.5pt;
+  line-height: 1.5;
+  display: flex;
+}
+
+.pd-container * {
+  box-sizing: border-box;
+}
+
+/* Sidebar */
+.pd-sidebar {
+  width: 35%;
+  background-color: #2b2e35;
+  color: #f5f6fa;
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-sidebar-header {
+  padding: 40px 30px 30px 30px;
+  background-color: #22252a;
+  text-align: center;
+  border-bottom: 3px solid #0097e6;
+}
+
+.pd-photo-wrap {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 20px auto;
+  border-radius: 50%;
+  border: 4px solid #353b45;
+  overflow: hidden;
+}
+
+.pd-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pd-name-sidebar {
+  font-size: 20pt;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 5px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+
+.pd-title-sidebar {
+  font-size: 11pt;
+  font-weight: 400;
+  color: #0097e6;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.pd-sidebar-content {
+  padding: 30px;
+  flex: 1;
+}
+
+/* Main Area */
+.pd-main {
+  width: 65%;
+  padding: 40px;
+  background-color: #ffffff;
+  color: #2f3640;
+}
+
+/* Sections */
+.pd-section {
+  margin-bottom: 25px;
+}
+
+.pd-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 5px;
+}
+
+.pd-section-header-dark {
+  border-bottom-color: #434852;
+}
+
+.pd-section-title {
+  font-size: 13pt;
+  font-weight: 700;
+  color: #2f3640;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.pd-section-title-dark {
+  color: #ffffff;
+}
+
+/* Sidebar Contents */
+.pd-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pd-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 9pt;
+  color: #dcdde1;
+  word-break: break-word;
+}
+
+.pd-contact-item svg {
+  color: #0097e6;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.pd-pre-line {
+  white-space: pre-line;
+}
+
+.pd-skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pd-skill-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9.5pt;
+  color: #dcdde1;
+}
+
+.pd-skill-bullet {
+  width: 6px;
+  height: 6px;
+  background-color: #0097e6;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pd-tech-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pd-tech-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-tech-label {
+  font-size: 8.5pt;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.pd-tech-val {
+  font-size: 9pt;
+  color: #dcdde1;
+}
+
+/* Main Contents */
+.pd-summary-section {
+  margin-bottom: 30px;
+}
+
+.pd-summary-text {
+  margin: 0;
+  font-size: 10pt;
+  line-height: 1.6;
+  text-align: justify;
+  color: #555;
+}
+
+.pd-experience-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pd-job-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-job-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2px;
+}
+
+.pd-job-title {
+  font-size: 11.5pt;
+  font-weight: 700;
+  color: #2f3640;
+  margin: 0;
+}
+
+.pd-job-date {
+  font-size: 9pt;
+  font-weight: 600;
+  color: #0097e6;
+  white-space: nowrap;
+}
+
+.pd-job-company {
+  font-size: 10pt;
+  font-weight: 600;
+  color: #718093;
+  margin-bottom: 8px;
+}
+
+.pd-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pd-bullets li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 5px;
+  font-size: 9.5pt;
+  color: #555;
+  line-height: 1.4;
+}
+
+.pd-bullets li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #0097e6;
+  font-weight: bold;
+}
+
+.pd-education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.pd-edu-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-edu-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2px;
+}
+
+.pd-edu-degree {
+  font-size: 10.5pt;
+  font-weight: 700;
+  color: #2f3640;
+  margin: 0;
+}
+
+.pd-edu-date {
+  font-size: 9pt;
+  font-weight: 600;
+  color: #0097e6;
+}
+
+.pd-edu-school {
+  font-size: 9.5pt;
+  color: #718093;
+}
+
+.pd-projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.pd-project-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-project-title {
+  font-size: 10.5pt;
+  font-weight: 700;
+  color: #2f3640;
+  margin: 0 0 4px 0;
+}
+
+.pd-project-desc {
+  margin: 0;
+  font-size: 9.5pt;
+  color: #555;
+}
+
+/* Controls */
+.pd-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.pd-controls button {
+  background: transparent;
+  border: 1px solid #bdc3c7;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 2px 5px;
+  font-size: 10px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.pd-controls-light button {
+  color: #7f8c8d;
+  border-color: #bdc3c7;
+}
+
+.pd-controls-light button:hover:not(:disabled) {
+  background: #ecf0f1;
+  color: #2c3e50;
+  border-color: #95a5a6;
+}
+
+.pd-controls-dark button {
+  color: #a4b0be;
+  border-color: #576574;
+}
+
+.pd-controls-dark button:hover:not(:disabled) {
+  background: #353b45;
+  color: #ffffff;
+  border-color: #a4b0be;
+}
+
+.pd-controls button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Responsive screen styles */
+@media screen and (max-width: 768px) {
+  .pd-container {
+    flex-direction: column;
+    width: 100%;
+    min-height: auto;
+  }
+  .pd-sidebar {
+    width: 100%;
+  }
+  .pd-main {
+    width: 100%;
+    padding: 25px;
+  }
+  .pd-job-title-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+/* Print Rules */
+@media print {
+  .pd-container {
+    width: 210mm;
+    margin: 0;
+    box-shadow: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+}   

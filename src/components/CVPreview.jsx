@@ -12,6 +12,7 @@ import ElegantSplit from './templates/ElegantSplit/ElegantSplit'
 import CleanSidebarTimeline from './templates/CleanSidebarTimeline/CleanSidebarTimeline'
 import ModernAccent from './templates/ModernAccent/ModernAccent'
 import MinimalistTech from './templates/MinimalistTech/MinimalistTech' // NEW // NEW // NEW // NEW
+import ProfessionalDark from './templates/ProfessionalDark/ProfessionalDark' // NEW
 
 const CVPreview = forwardRef(({ cvData, template, showLeftSidebar = true, onSectionAction }, ref) => {
  const templateId = template?.id || 'classic-professional'
@@ -42,6 +43,8 @@ const CVPreview = forwardRef(({ cvData, template, showLeftSidebar = true, onSect
    Renderer = ModernAccent;
   } else if (templateId === 'minimalist-tech') { // NEW
    Renderer = MinimalistTech;
+  } else if (templateId === 'professional-dark') { // NEW
+   Renderer = ProfessionalDark;
  } else {
    Renderer = ClassicProfessional;
  }

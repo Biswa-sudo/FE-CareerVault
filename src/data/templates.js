@@ -78,6 +78,12 @@ export const templates = [
    name: 'Minimalist Tech',
    description: 'Sleek tech-focused layout with a dark header block and clean light body.',
    category: 'professional'
+ },
+ {
+   id: 'professional-dark', // NEW
+   name: 'Professional Dark',
+   description: 'Elegant dual-column design with a dark slate sidebar and light blue accents.',
+   category: 'professional'
  }
 ]
 
