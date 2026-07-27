@@ -1,0 +1,163 @@
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import {
+  loadProgress,
+  saveProgress,
+  getUnlockedSubjectIds,
+  isSubjectCompleted,
+  isLessonCompleted,
+  markLessonComplete,
+  markChallengePassed,
+  getCurrentActivity,
+  advanceProgress,
+  getNextIncompleteActivity,
+  resetProgress,
+  resetLesson,
+  resetSubject
+} from '../services/progressService';
+import { courseData } from '../data/courseData';
+
+const SpokenEnglishContext = createContext();
+
+export const SpokenEnglishProvider = ({ children }) => {
+  const [progress, setProgress] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [unlockedSubjectIds, setUnlockedSubjectIds] = useState([]);
+
+  useEffect(() => {
+    const loaded = loadProgress();
+    setProgress(loaded);
+    setUnlockedSubjectIds(getUnlockedSubjectIds(loaded));
+    setLoading(false);
+  }, []);
+
+  const updateProgress = useCallback((newProgress) => {
+    setProgress(newProgress);
+    saveProgress(newProgress);
+    setUnlockedSubjectIds(getUnlockedSubjectIds(newProgress));
+  }, []);
+
+  const markLessonAsComplete = useCallback((subjectId, lessonId) => {
+    if (!progress) return;
+    const updated = { ...progress };
+    markLessonComplete(updated, subjectId, lessonId);
+    updateProgress(updated);
+  }, [progress, updateProgress]);
+
+  const markChallengeAsPassed = useCallback((subjectId) => {
+    if (!progress) return;
+    const updated = { ...progress };
+    markChallengePassed(updated, subjectId);
+    updateProgress(updated);
+  }, [progress, updateProgress]);
+
+  const advanceToNextActivity = useCallback(() => {
+    if (!progress) return;
+    const updated = { ...progress };
+    const advanced = advanceProgress(updated);
+    updateProgress(advanced);
+  }, [progress, updateProgress]);
+
+  const getCurrent = useCallback(() => {
+    if (!progress) return null;
+    return getCurrentActivity(progress);
+  }, [progress]);
+
+  const getNextIncomplete = useCallback(() => {
+    if (!progress) return null;
+    return getNextIncompleteActivity(progress);
+  }, [progress]);
+
+  const checkSubjectCompleted = useCallback((subjectId) => {
+    if (!progress) return false;
+    return isSubjectCompleted(progress, subjectId);
+  }, [progress]);
+
+  const checkLessonCompleted = useCallback((subjectId, lessonId) => {
+    if (!progress) return false;
+    return isLessonCompleted(progress, subjectId, lessonId);
+  }, [progress]);
+
+  const getSubject = useCallback((subjectId) => {
+    return courseData.subjects.find(s => s.id === subjectId);
+  }, []);
+
+  const getLesson = useCallback((subjectId, lessonId) => {
+    const subject = getSubject(subjectId);
+    if (!subject) return null;
+    return subject.lessons.find(l => l.id === lessonId);
+  }, [getSubject]);
+
+  const handleResetProgress = useCallback(() => {
+    if (window.confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+      const fresh = resetProgress();
+      setProgress(fresh);
+      setUnlockedSubjectIds(getUnlockedSubjectIds(fresh));
+    }
+  }, []);
+
+  const handleResetLesson = useCallback((subjectId, lessonId) => {
+    if (!progress) return;
+    const updated = { ...progress };
+    resetLesson(updated, subjectId, lessonId);
+    updateProgress(updated);
+  }, [progress, updateProgress]);
+
+  const handleResetSubject = useCallback((subjectId) => {
+  if (!progress) return;
+  if (window.confirm(`Reset all progress for "${getSubject(subjectId)?.title}"? All lessons and challenge will be reset.`)) {
+    const updated = { ...progress };
+    resetSubject(updated, subjectId);
+    updateProgress(updated);
+  }
+}, [progress, updateProgress, getSubject]);
+
+  // Compute global progress
+  const totalSubjects = courseData.subjects.length;
+  const completedSubjects = progress?.completedSubjects?.length || 0;
+  const totalLessons = courseData.subjects.reduce((acc, s) => acc + s.lessons.length, 0);
+  const completedLessons = progress?.completedLessons?.length || 0;
+  const overallProgress = totalSubjects > 0 ? Math.round((completedSubjects / totalSubjects) * 100) : 0;
+
+  const value = {
+    progress,
+    loading,
+    unlockedSubjectIds,
+    courseData,
+    getSubject,
+    getLesson,
+    markLessonAsComplete,
+    markChallengeAsPassed,
+    advanceToNextActivity,
+    getCurrentActivity: getCurrent,
+    getNextIncompleteActivity: getNextIncomplete,
+    isSubjectCompleted: checkSubjectCompleted,
+    isLessonCompleted: checkLessonCompleted,
+    resetProgress: handleResetProgress,
+    resetLesson: handleResetLesson,
+    resetSubject: handleResetSubject,
+    // Global stats
+    totalSubjects,
+    completedSubjects,
+    totalLessons,
+    completedLessons,
+    overallProgress,
+    // Expose raw functions if needed
+    loadProgress,
+    saveProgress,
+    getUnlockedSubjectIds,
+  };
+
+  return (
+    <SpokenEnglishContext.Provider value={value}>
+      {children}
+    </SpokenEnglishContext.Provider>
+  );
+};
+
+export const useSpokenEnglish = () => {
+  const context = useContext(SpokenEnglishContext);
+  if (!context) {
+    throw new Error('useSpokenEnglish must be used within a SpokenEnglishProvider');
+  }
+  return context;
+};
