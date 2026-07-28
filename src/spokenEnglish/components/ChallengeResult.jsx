@@ -41,11 +41,11 @@ const ChallengeResult = ({ subject, results, percentage, passed, onRetry, onBack
           <div className="mt-4 d-flex gap-3 justify-content-center">
             {!passed && (
               <button className="btn btn-primary" onClick={onRetry}>
-                🔄 Retry Challenge
+                Retry Challenge
               </button>
             )}
             <button className="btn btn-outline-secondary" onClick={onBack}>
-              Back to Subject
+              Back to All Subjects
             </button>
             {passed && (
               <button className="btn btn-success" onClick={onBack}>

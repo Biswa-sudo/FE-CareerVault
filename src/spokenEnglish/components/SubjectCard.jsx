@@ -4,7 +4,6 @@ import { useSpokenEnglish } from '../context';
 const SubjectCard = ({ subject, isUnlocked, onClick }) => {
   const { progress } = useSpokenEnglish();
   const completed = progress.completedLessons || [];
-  const subjectCompleted = progress.completedSubjects.includes(subject.id);
   
   // Compute lessons completed for this subject
   const subjectLessonsCompleted = completed
@@ -14,6 +13,9 @@ const SubjectCard = ({ subject, isUnlocked, onClick }) => {
   const totalLessons = subject.lessons.length;
   const done = subjectLessonsCompleted.length;
   const percent = totalLessons > 0 ? Math.round((done / totalLessons) * 100) : 0;
+  const subjectCompleted = totalLessons > 0
+    ? done >= totalLessons
+    : progress.completedSubjects.includes(subject.id);
   
   const challengePassed = progress.subjectProgress?.[subject.id]?.challengePassed || false;
 

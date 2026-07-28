@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { startListening } from '../services/speechService';
 import { isValidAnswer } from '../utils/helpers';
 
+const SPEECH_TYPES = ['listen_repeat', 'read_aloud', 'spell_word', 'revision', 'challenge_question'];
+
 const ActivityRenderer = ({ activity, onComplete, onError }) => {
   const [userAnswer, setUserAnswer] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -12,11 +14,20 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
   const [speechError, setSpeechError] = useState(null);
   const [showFallback, setShowFallback] = useState(false);
   const [listeningProgress, setListeningProgress] = useState(0);
+  const [autoSpeakEnabled, setAutoSpeakEnabled] = useState(true);
+  const [autoSpeakProgress, setAutoSpeakProgress] = useState(0);
+  const [autoSpeakStatus, setAutoSpeakStatus] = useState('idle');
   const listeningSessionRef = useRef(null);
   const listeningSessionIdRef = useRef(0);
   const listeningProgressTimerRef = useRef(null);
   const completionTimerRef = useRef(null);
+  const lastAutoSpokenActivityRef = useRef(null);
+  const autoSpeakVoicesTimerRef = useRef(null);
+  const autoSpeakProgressTimerRef = useRef(null);
+  const autoListenTimerRef = useRef(null);
   const maxAttempts = 3;
+  const isSpeechTypeActivity = SPEECH_TYPES.includes(activity.type);
+  const activityAutoSpeakKey = `${activity.type || 'unknown'}|${activity.id ?? 'no-id'}|${activity.content || ''}|${activity.instruction || ''}`;
 
   useEffect(() => {
     return () => {
@@ -26,6 +37,18 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
       }
       if (completionTimerRef.current) {
         window.clearTimeout(completionTimerRef.current);
+      }
+      if (autoSpeakVoicesTimerRef.current) {
+        window.clearTimeout(autoSpeakVoicesTimerRef.current);
+      }
+      if (autoSpeakProgressTimerRef.current) {
+        window.clearInterval(autoSpeakProgressTimerRef.current);
+      }
+      if (autoListenTimerRef.current) {
+        window.clearTimeout(autoListenTimerRef.current);
+      }
+      if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null;
       }
     };
   }, []);
@@ -52,6 +75,29 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
     }, 260);
   };
 
+  const stopAutoSpeakProgress = () => {
+    if (autoSpeakProgressTimerRef.current) {
+      window.clearInterval(autoSpeakProgressTimerRef.current);
+      autoSpeakProgressTimerRef.current = null;
+    }
+  };
+
+  const startAutoSpeakProgress = () => {
+    stopAutoSpeakProgress();
+    setAutoSpeakProgress(3);
+    setAutoSpeakStatus('loading');
+    autoSpeakProgressTimerRef.current = window.setInterval(() => {
+      setAutoSpeakProgress((currentProgress) => {
+        if (currentProgress >= 95) {
+          return currentProgress;
+        }
+
+        const nextProgress = currentProgress < 40 ? currentProgress + 10 : currentProgress < 75 ? currentProgress + 5 : currentProgress + 2;
+        return Math.min(95, nextProgress);
+      });
+    }, 220);
+  };
+
   const resetActivity = () => {
     listeningSessionIdRef.current += 1;
     listeningSessionRef.current?.cancel?.();
@@ -61,6 +107,21 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
       window.clearTimeout(completionTimerRef.current);
       completionTimerRef.current = null;
     }
+    stopAutoSpeakProgress();
+    if (autoSpeakVoicesTimerRef.current) {
+      window.clearTimeout(autoSpeakVoicesTimerRef.current);
+      autoSpeakVoicesTimerRef.current = null;
+    }
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.onvoiceschanged = null;
+    }
+    if (autoListenTimerRef.current) {
+      window.clearTimeout(autoListenTimerRef.current);
+      autoListenTimerRef.current = null;
+    }
+    setAutoSpeakProgress(0);
+    setAutoSpeakStatus(autoSpeakEnabled ? 'idle' : 'off');
     setListeningProgress(0);
     setUserAnswer('');
     setIsListening(false);
@@ -73,31 +134,178 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
   };
 
   // ----- Text-to-Speech -----
-  const handleSpeakText = () => {
-    if (!window.speechSynthesis) {
-      setFeedback('Text-to-speech is not supported in this browser.');
+  const handleSpeakText = ({ isAuto = false, retryCount = 0 } = {}) => {
+    const textToSpeak = (activity.content || activity.instruction || '').trim();
+
+    if (!textToSpeak) {
+      setFeedback('No text available to read aloud for this activity.');
+      if (isAuto) {
+        stopAutoSpeakProgress();
+        setAutoSpeakProgress(0);
+        setAutoSpeakStatus('error');
+      }
       return;
     }
+
+    if (!window.speechSynthesis) {
+      setFeedback('Text-to-speech is not supported in this browser.');
+      if (isAuto) {
+        stopAutoSpeakProgress();
+        setAutoSpeakProgress(0);
+        setAutoSpeakStatus('error');
+      }
+      return;
+    }
+
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(activity.content);
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.lang = 'en-US';
     utterance.rate = 0.9; // slightly slower for learners
     utterance.pitch = 1;
     utterance.volume = 1;
 
+    let started = false;
+    const startGuard = window.setTimeout(() => {
+      if (!started && retryCount < 1) {
+        handleSpeakText({ isAuto, retryCount: retryCount + 1 });
+      } else if (!started) {
+        setIsSpeaking(false);
+        if (isAuto) {
+          stopAutoSpeakProgress();
+          setAutoSpeakProgress(0);
+          setAutoSpeakStatus('error');
+        }
+        if (isAuto) {
+          setFeedback('🔈 Auto speak could not start. Use Listen to try again.');
+        } else {
+          setFeedback('Could not start audio. Please try again.');
+        }
+      }
+    }, 1200);
+
     setIsSpeaking(true);
+    utterance.onstart = () => {
+      started = true;
+      window.clearTimeout(startGuard);
+      if (isAuto) {
+        stopAutoSpeakProgress();
+        setAutoSpeakProgress(100);
+        setAutoSpeakStatus('speaking');
+      }
+    };
     utterance.onend = () => {
+      window.clearTimeout(startGuard);
       setIsSpeaking(false);
       setFeedback('🔊 Done listening.');
+      if (isAuto) {
+        setAutoSpeakStatus('done');
+        stopAutoSpeakProgress();
+        setAutoSpeakProgress(100);
+        if (autoListenTimerRef.current) {
+          window.clearTimeout(autoListenTimerRef.current);
+        }
+        autoListenTimerRef.current = window.setTimeout(() => {
+          autoListenTimerRef.current = null;
+          if (!isCorrect && autoSpeakEnabled) {
+            handleSpeak();
+          }
+        }, 300);
+      }
     };
     utterance.onerror = (event) => {
+      window.clearTimeout(startGuard);
       setIsSpeaking(false);
       setFeedback(`Error speaking: ${event.error}`);
+      if (isAuto) {
+        stopAutoSpeakProgress();
+        setAutoSpeakProgress(0);
+        setAutoSpeakStatus('error');
+        if (autoListenTimerRef.current) {
+          window.clearTimeout(autoListenTimerRef.current);
+          autoListenTimerRef.current = null;
+        }
+      }
     };
     window.speechSynthesis.speak(utterance);
-    setFeedback('🔊 Listening...');
+    setFeedback(isAuto ? '🔊 Auto speaking...' : '🔊 Listening...');
+  };
+
+  useEffect(() => {
+    if (!autoSpeakEnabled || !isSpeechTypeActivity || !activity?.content) {
+      return;
+    }
+
+    if (lastAutoSpokenActivityRef.current === activityAutoSpeakKey) {
+      return;
+    }
+
+    let didTriggerSpeak = false;
+    const triggerAutoSpeak = () => {
+      startAutoSpeakProgress();
+      autoSpeakVoicesTimerRef.current = window.setTimeout(() => {
+        didTriggerSpeak = true;
+        lastAutoSpokenActivityRef.current = activityAutoSpeakKey;
+        handleSpeakText({ isAuto: true });
+      }, 250);
+    };
+
+    const voiceCount = window.speechSynthesis ? window.speechSynthesis.getVoices().length : 0;
+    if (voiceCount === 0 && window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.onvoiceschanged = null;
+        triggerAutoSpeak();
+      };
+      triggerAutoSpeak();
+    } else {
+      triggerAutoSpeak();
+    }
+
+    return () => {
+      if (autoSpeakVoicesTimerRef.current) {
+        window.clearTimeout(autoSpeakVoicesTimerRef.current);
+        autoSpeakVoicesTimerRef.current = null;
+      }
+      if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+      if (!didTriggerSpeak) {
+        stopAutoSpeakProgress();
+        setAutoSpeakProgress(0);
+        setAutoSpeakStatus('idle');
+      }
+    };
+  }, [activityAutoSpeakKey, autoSpeakEnabled, isSpeechTypeActivity]);
+
+  const handleAutoSpeakToggle = () => {
+    setAutoSpeakEnabled((prev) => {
+      const next = !prev;
+      if (next && isSpeechTypeActivity && activity?.content) {
+        setAutoSpeakStatus('loading');
+        lastAutoSpokenActivityRef.current = activityAutoSpeakKey;
+        window.setTimeout(() => {
+          startAutoSpeakProgress();
+          handleSpeakText({ isAuto: true });
+        }, 120);
+      } else if (!next) {
+        stopAutoSpeakProgress();
+        if (window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+        }
+        if (autoListenTimerRef.current) {
+          window.clearTimeout(autoListenTimerRef.current);
+          autoListenTimerRef.current = null;
+        }
+        setAutoSpeakProgress(0);
+        setAutoSpeakStatus('off');
+      }
+      return next;
+    });
   };
 
   // ----- Speech-to-Text (listening) -----
@@ -135,7 +343,12 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
       setListeningProgress(0);
       setSpeechError(err.message);
       setFeedback(`❌ ${err.message}`);
-      if (err.message.includes('not supported') || err.message.includes('denied')) {
+      if (
+        err.message.includes('not supported') ||
+        err.message.includes('denied') ||
+        err.message.includes('No speech detected') ||
+        err.message.includes('timed out')
+      ) {
         setShowFallback(true);
       }
       onError && onError(err);
@@ -230,8 +443,7 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
 
   // ----- Render content -----
   const renderContent = () => {
-    const speechTypes = ['listen_repeat', 'read_aloud', 'spell_word', 'revision', 'challenge_question'];
-    const isSpeechType = speechTypes.includes(activity.type);
+    const isSpeechType = SPEECH_TYPES.includes(activity.type);
     const shouldShowFallback = (isSpeechType && showFallback) || (isSpeechType && speechError);
 
     const renderInteraction = () => {
@@ -249,8 +461,25 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
                          activity.type === 'revision' ? 'Revision' : 'Challenge'}</strong></p>
               <p className="lead">{activity.content}</p>
               <div className="d-flex flex-wrap gap-2 align-items-center">
-                <button className="btn btn-outline-info" onClick={handleSpeakText} disabled={isSpeaking || isCorrect}>
+                <button className="btn btn-outline-info" 
+                onClick={handleSpeakText} disabled={isSpeaking || isCorrect}>
                   {isSpeaking ? '🔊 Speaking...' : '🔊 Listen'}
+                </button>
+                <button
+                  className={`btn ${autoSpeakEnabled ? 'btn-success text-white' : 'btn-outline-secondary'}`}
+                  style={{backgroundColor: 'green'}}
+                  onClick={handleAutoSpeakToggle}
+                  disabled={isCorrect}
+                >
+                  {autoSpeakEnabled ? (
+                    <>
+                      <span className="spinner-grow spinner-grow-sm me-2"
+                       aria-hidden="true"></span>
+                      Auto Speak: ON
+                    </>
+                  ) : (
+                    'Auto Speak: OFF'
+                  )}
                 </button>
                 <button className="btn btn-primary" onClick={handleSpeak} disabled={isListening || isCorrect}>
                   {isListening ? `🎤 Listening ${listeningProgress}%` : '🎤 Speak'}
@@ -259,6 +488,24 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
                   ↻ Refresh
                 </button>
               </div>
+              {autoSpeakEnabled && (
+                <div className="mt-3">
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <small className="text-muted">
+                      Auto Speak: {autoSpeakStatus === 'loading' ? 'Loading...' : autoSpeakStatus === 'speaking' ? 'Speaking' : autoSpeakStatus === 'done' ? 'Completed' : autoSpeakStatus === 'error' ? 'Stopped' : 'Ready'}
+                    </small>
+                    <small className="fw-semibold">{autoSpeakProgress}%</small>
+                  </div>
+                  <div className="progress" role="progressbar" aria-valuenow={autoSpeakProgress} aria-valuemin="0" aria-valuemax="100">
+                    <div
+                      className={`progress-bar ${autoSpeakStatus === 'loading' || autoSpeakStatus === 'speaking' ? 'progress-bar-striped progress-bar-animated' : ''} ${autoSpeakStatus === 'error' ? 'bg-danger' : 'bg-success'}`}
+                      style={{ width: `${autoSpeakProgress}%` }}
+                    >
+                      {autoSpeakProgress}%
+                    </div>
+                  </div>
+                </div>
+              )}
               {isListening && (
                 <div className="mt-3">
                   <div className="progress" role="progressbar" aria-valuenow={listeningProgress} aria-valuemin="0" aria-valuemax="100">
@@ -313,7 +560,9 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
                   onKeyDown={handleKeyDown}
                   disabled={isCorrect}
                 />
-                <button className="btn btn-outline-secondary" onClick={handleSubmitText} disabled={isCorrect}>
+                <button className="btn btn-outline-secondary text-white"
+                style={{ backgroundColor: '#198754', borderColor: '#198754' }}
+                onClick={handleSubmitText} disabled={isCorrect}>
                   Submit
                 </button>
               </div>

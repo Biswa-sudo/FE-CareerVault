@@ -129,14 +129,17 @@ const LessonPlayer = ({
           </button>
           {nextLesson && (
             <button
-              className="btn btn-success"
+              className="btn btn-success text-white"
+              style={{ backgroundColor: '#198754', borderColor: '#198754' }}
               onClick={() => navigateToLesson(selectedSubjectId, nextLesson.id)}
             >
-              ➡️ Next Lesson: {nextLesson.title}
+              Next Lesson: {nextLesson.title}
             </button>
           )}
-          <button className="btn btn-outline-warning" onClick={handleRestartLesson}>
-            🔄 Restart Lesson
+          <button className="btn btn-outline-warning text-white"
+          style={{ backgroundColor: '#fc9856', borderColor: '#fc9856' }}
+           onClick={handleRestartLesson}>
+            Restart Lesson
           </button>
         </div>
       </div>

@@ -22,6 +22,7 @@ export function startListening({ timeoutMs = 20000 } = {}) {
 
   let settled = false;
   let timeoutId;
+  let stopReason = 'unknown';
 
   const cleanup = () => {
     if (timeoutId) {
@@ -53,6 +54,7 @@ export function startListening({ timeoutMs = 20000 } = {}) {
     };
 
     recognition.onresult = (event) => {
+      stopReason = 'result';
       const transcript = event.results[0][0].transcript;
       finishResolve(transcript);
     };
@@ -73,7 +75,11 @@ export function startListening({ timeoutMs = 20000 } = {}) {
           errorMessage = 'Network error occurred. Please check your internet connection.';
           break;
         case 'aborted':
-          errorMessage = 'Speech recognition was cancelled.';
+          if (stopReason === 'timeout') {
+            errorMessage = 'Speech recognition timed out. Please try again.';
+          } else {
+            errorMessage = 'Speech recognition was cancelled.';
+          }
           break;
         default:
           errorMessage = `Speech recognition error: ${event.error}. Please try again.`;
@@ -83,17 +89,23 @@ export function startListening({ timeoutMs = 20000 } = {}) {
 
     recognition.onend = () => {
       if (!settled) {
-        finishReject('Speech recognition stopped unexpectedly. Please try again.');
+        if (stopReason === 'timeout') {
+          finishReject('Speech recognition timed out. Please try again.');
+        } else {
+          finishReject('No speech detected. Please speak clearly and try again.');
+        }
       }
     };
 
     timeoutId = window.setTimeout(() => {
+      stopReason = 'timeout';
       try {
         recognition.abort();
       } catch {
-        // Ignore abort failures and fall through to the timeout error.
+        // If abort fails, reject directly with timeout.
+        finishReject('Speech recognition timed out. Please try again.');
+        return;
       }
-      finishReject('Speech recognition timed out. Please try again.');
     }, timeoutMs);
 
     try {
@@ -106,6 +118,7 @@ export function startListening({ timeoutMs = 20000 } = {}) {
   return {
     promise,
     cancel: () => {
+      stopReason = 'cancelled';
       try {
         recognition.abort();
       } catch {

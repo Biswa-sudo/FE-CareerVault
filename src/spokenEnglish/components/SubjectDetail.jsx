@@ -23,7 +23,7 @@ const SubjectDetail = ({
     return (
       <div className="container py-4">
         <button className="btn btn-link mb-3" onClick={navigateToDashboard}>
-          ← Back to Dashboard
+          ← Back to Lessons
         </button>
         <button className="btn btn-outline-danger btn-sm mb-3" onClick={() => resetSubject(subject.id)}>
   🔄 Reset Subject
@@ -42,6 +42,14 @@ const SubjectDetail = ({
   const subjectCompleted = isSubjectCompleted(subject.id);
   const challengePassed = progress.subjectProgress?.[subject.id]?.challengePassed || false;
   const hasChallenge = subject.challengeTest && subject.challengeTest.activities && subject.challengeTest.activities.length > 0;
+  const totalLessons = subject.lessons.length;
+  const completedLessonCount = subject.lessons.filter((lesson) => isLessonCompleted(subject.id, lesson.id)).length;
+  const lessonsCompleted = totalLessons > 0
+    ? completedLessonCount >= totalLessons
+    : subjectCompleted;
+  const progressPercent = totalLessons > 0
+    ? Math.round((completedLessonCount / totalLessons) * 100)
+    : (subjectCompleted ? 100 : 0);
 
   const handleResetLesson = (lessonId) => {
     if (window.confirm(`Reset "${subject.lessons.find(l => l.id === lessonId)?.title}"? Your progress for this lesson will be removed.`)) {
@@ -52,20 +60,26 @@ const SubjectDetail = ({
   return (
     <div className="container py-4">
       <button className="btn btn-link mb-3" onClick={navigateToDashboard}>
-        ← Back to Dashboard
-      </button>
+        ← Back to Lessons
+              </button>
       <h2>{subject.title}</h2>
       <p className="text-muted">{subject.description}</p>
 
-      {subjectCompleted && (
-        <div className="alert alert-success">✅ Subject completed!</div>
-      )}
+      <div className="mt-3">
+        <div className="d-flex justify-content-between align-items-center mb-1">
+          <small className="text-muted">Progress: {completedLessonCount}/{totalLessons} lessons</small>
+          <span className="fw-bold">{progressPercent}%</span>
+        </div>
+        <div className="progress" style={{ height: '8px' }}>
+          <div className="progress-bar bg-success" style={{ width: `${progressPercent}%` }}></div>
+        </div>
+      </div>
 
       <div className="list-group mt-3">
         {subject.lessons.map((lesson, index) => {
           const completed = isLessonCompleted(subject.id, lesson.id);
           const prevCompleted = index === 0 ? true : isLessonCompleted(subject.id, subject.lessons[index - 1].id);
-          const locked = !subjectCompleted && !completed && !prevCompleted;
+          const locked = !lessonsCompleted && !completed && !prevCompleted;
           
           // Debug: log each lesson's completion status
           console.log(`Lesson ${lesson.id} (${lesson.title}) completed:`, completed);
@@ -107,7 +121,7 @@ const SubjectDetail = ({
       {hasChallenge && (
         <div className="mt-4">
           <button className="btn btn-warning" onClick={() => navigateToChallenge(subject.id)}>
-            {challengePassed || subjectCompleted ? '🔄 Retake Challenge' : '🏆 Take Challenge Test'}
+            {challengePassed ? '🔄 Retake Challenge' : '🏆 Take Challenge Test'}
           </button>
           <small className="d-block text-muted mt-1">
             (You can take this test anytime. Score 90% or above to pass the subject.)
@@ -115,7 +129,7 @@ const SubjectDetail = ({
         </div>
       )}
 
-      {subject.lessons.length > 0 && subject.lessons.every(l => isLessonCompleted(subject.id, l.id)) && !challengePassed && !subjectCompleted && (
+      {lessonsCompleted && hasChallenge && !challengePassed && (
         <div className="alert alert-info mt-3">
           You have completed all lessons! Take the challenge test to complete the subject.
         </div>

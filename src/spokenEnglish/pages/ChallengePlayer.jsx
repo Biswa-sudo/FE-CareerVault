@@ -54,7 +54,7 @@ const ChallengePlayer = ({
     return (
       <div className="container py-4">
         <button className="btn btn-link mb-3" onClick={() => navigateToSubject(null)}>
-          ← Back to Dashboard
+          ← Back to All Subjects
         </button>
         <div className="alert alert-danger">Subject not found.</div>
       </div>
