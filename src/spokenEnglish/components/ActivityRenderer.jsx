@@ -68,6 +68,13 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
     setUserAnswer(e.target.value);
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !isCorrect) {
+      e.preventDefault();
+      handleSubmitText();
+    }
+  };
+
   const handleSubmitText = () => {
     if (userAnswer.trim()) {
       checkAnswer(userAnswer);
@@ -171,6 +178,7 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
                       placeholder="Type your answer..."
                       value={userAnswer}
                       onChange={handleTextChange}
+                      onKeyDown={handleKeyDown}
                       disabled={isCorrect}
                     />
                     <button className="btn btn-outline-secondary" onClick={handleSubmitText} disabled={isCorrect}>
@@ -199,6 +207,7 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
                   placeholder="Type your answer..."
                   value={userAnswer}
                   onChange={handleTextChange}
+                  onKeyDown={handleKeyDown}
                   disabled={isCorrect}
                 />
                 <button className="btn btn-outline-secondary" onClick={handleSubmitText} disabled={isCorrect}>
