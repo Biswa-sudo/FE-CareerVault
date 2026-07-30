@@ -10,19 +10,79 @@ export function normalizeText(text) {
     .trim();
 }
 
+function normalizePatternText(text) {
+  if (!text) return "";
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s\[\]]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function splitWords(text) {
   return normalizeText(text)
     .split(" ")
     .filter(Boolean);
 }
 
-function hasAllWords(sourceText, targetText) {
-  const sourceWords = splitWords(sourceText);
-  const targetWords = new Set(splitWords(targetText));
+function parseExpectedTokens(expected) {
+  const normalizedPattern = normalizePatternText(expected);
+  const rawTokens = normalizedPattern.match(/\[[^\]]+\]|\S+/g) || [];
 
-  if (sourceWords.length === 0) return false;
+  return rawTokens.map((token) => {
+    const isPlaceholder = token.startsWith("[") && token.endsWith("]");
+    return {
+      isPlaceholder,
+      word: isPlaceholder ? null : token,
+    };
+  });
+}
 
-  return sourceWords.every((word) => targetWords.has(word));
+function findWordInOrder(words, targetWord, startIndex) {
+  for (let i = startIndex; i < words.length; i += 1) {
+    if (words[i] === targetWord) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function matchExpectedTokens(spokenWords, tokens, spokenIndex = 0, tokenIndex = 0) {
+  if (tokenIndex >= tokens.length) {
+    return true;
+  }
+
+  if (spokenIndex > spokenWords.length) {
+    return false;
+  }
+
+  const token = tokens[tokenIndex];
+
+  if (!token.isPlaceholder) {
+    const wordIndex = findWordInOrder(spokenWords, token.word, spokenIndex);
+    if (wordIndex === -1) {
+      return false;
+    }
+    return matchExpectedTokens(spokenWords, tokens, wordIndex + 1, tokenIndex + 1);
+  }
+
+  // Placeholder segment is required: consume at least one word.
+  if (spokenIndex >= spokenWords.length) {
+    return false;
+  }
+
+  // If placeholder is the final token, at least one remaining spoken word satisfies it.
+  if (tokenIndex === tokens.length - 1) {
+    return spokenWords.length - spokenIndex >= 1;
+  }
+
+  for (let nextSpokenIndex = spokenIndex + 1; nextSpokenIndex <= spokenWords.length; nextSpokenIndex += 1) {
+    if (matchExpectedTokens(spokenWords, tokens, nextSpokenIndex, tokenIndex + 1)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**
@@ -31,27 +91,27 @@ function hasAllWords(sourceText, targetText) {
 export function isValidAnswer(spoken, expectedAnswers) {
   const normalizedSpoken = normalizeText(spoken);
   if (!normalizedSpoken) return false;
+  const spokenWords = splitWords(normalizedSpoken);
 
   return expectedAnswers.some(expected => {
-    const normalizedExpected = normalizeText(expected);
-    if (!normalizedExpected) return false;
+    const tokens = parseExpectedTokens(expected);
+    if (tokens.length === 0) return false;
 
-    // 1) Exact match (previous behavior)
-    if (normalizedSpoken === normalizedExpected) return true;
+    const hasPlaceholders = tokens.some((token) => token.isPlaceholder);
 
-    // 2) Phrase containment in either direction
-    if (normalizedSpoken.includes(normalizedExpected)) return true;
-    if (normalizedExpected.includes(normalizedSpoken)) {
-      // Avoid accepting very short one-word partials against long expected phrases.
-      return splitWords(normalizedSpoken).length >= 2;
+    if (!hasPlaceholders) {
+      const normalizedExpected = normalizeText(expected);
+      if (!normalizedExpected) return false;
+
+      // Exact match remains valid.
+      if (normalizedSpoken === normalizedExpected) return true;
+
+      // Accept when full expected phrase appears in spoken answer.
+      if (normalizedSpoken.includes(normalizedExpected)) return true;
     }
 
-    // 3) Word-level subset match in either direction
-    if (hasAllWords(normalizedExpected, normalizedSpoken)) return true;
-    if (splitWords(normalizedSpoken).length >= 2 && hasAllWords(normalizedSpoken, normalizedExpected)) {
-      return true;
-    }
-
-    return false;
+    // Strict full-coverage check: all required expected tokens must appear in order.
+    // This prevents accepting half-spoken long sentences.
+    return matchExpectedTokens(spokenWords, tokens);
   });
 }

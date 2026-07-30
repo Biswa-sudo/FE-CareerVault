@@ -22,17 +22,31 @@ export function startListening({ timeoutMs = 20000 } = {}) {
 
   let settled = false;
   let timeoutId;
+  let restartId;
   let stopReason = 'unknown';
+  let restartCount = 0;
+  let hadAnySpeech = false;
+
+  const maxAutoRestarts = 3;
+  const restartDelayMs = 180;
+  const safeTimeoutBufferMs = 500;
+  const transcriptChunks = [];
 
   const cleanup = () => {
     if (timeoutId) {
       window.clearTimeout(timeoutId);
       timeoutId = undefined;
     }
+    if (restartId) {
+      window.clearTimeout(restartId);
+      restartId = undefined;
+    }
     recognition.onresult = null;
     recognition.onerror = null;
     recognition.onend = null;
   };
+
+  const combinedTranscript = () => transcriptChunks.join(' ').replace(/\s+/g, ' ').trim();
 
   const promise = new Promise((resolve, reject) => {
     const finishResolve = (transcript) => {
@@ -55,8 +69,11 @@ export function startListening({ timeoutMs = 20000 } = {}) {
 
     recognition.onresult = (event) => {
       stopReason = 'result';
-      const transcript = event.results[0][0].transcript;
-      finishResolve(transcript);
+      const transcript = event.results?.[0]?.[0]?.transcript?.trim() || '';
+      if (transcript) {
+        transcriptChunks.push(transcript);
+        hadAnySpeech = true;
+      }
     };
 
     recognition.onerror = (event) => {
@@ -64,9 +81,6 @@ export function startListening({ timeoutMs = 20000 } = {}) {
       switch (event.error) {
         case 'not-allowed':
           errorMessage = 'Microphone access was denied. Please allow microphone access in your browser settings and try again.';
-          break;
-        case 'no-speech':
-          errorMessage = 'No speech detected. Please speak clearly and try again.';
           break;
         case 'audio-capture':
           errorMessage = 'Could not access your microphone. Please check your microphone connection.';
@@ -77,9 +91,21 @@ export function startListening({ timeoutMs = 20000 } = {}) {
         case 'aborted':
           if (stopReason === 'timeout') {
             errorMessage = 'Speech recognition timed out. Please try again.';
+          } else if (stopReason === 'cancelled') {
+            errorMessage = 'Speech recognition was cancelled.';
+          } else if (hadAnySpeech) {
+            // If we already captured speech, let onend resolve with combined transcript.
+            return;
           } else {
             errorMessage = 'Speech recognition was cancelled.';
           }
+          break;
+        case 'no-speech':
+          if (hadAnySpeech) {
+            // Keep the partial transcript and allow onend to decide restart/resolve.
+            return;
+          }
+          errorMessage = 'No speech detected. Please speak clearly and try again.';
           break;
         default:
           errorMessage = `Speech recognition error: ${event.error}. Please try again.`;
@@ -88,12 +114,55 @@ export function startListening({ timeoutMs = 20000 } = {}) {
     };
 
     recognition.onend = () => {
-      if (!settled) {
-        if (stopReason === 'timeout') {
-          finishReject('Speech recognition timed out. Please try again.');
+      if (settled) {
+        return;
+      }
+
+      const transcript = combinedTranscript();
+
+      if (stopReason === 'timeout') {
+        if (transcript) {
+          finishResolve(transcript);
         } else {
-          finishReject('No speech detected. Please speak clearly and try again.');
+          finishReject('Speech recognition timed out. Please try again.');
         }
+        return;
+      }
+
+      if (stopReason === 'cancelled') {
+        finishReject('Speech recognition was cancelled.');
+        return;
+      }
+
+      const shouldRestart = transcript && restartCount < maxAutoRestarts;
+
+      if (shouldRestart) {
+        restartCount += 1;
+        restartId = window.setTimeout(() => {
+          restartId = undefined;
+          if (settled) {
+            return;
+          }
+
+          stopReason = 'restarting';
+          try {
+            recognition.start();
+          } catch {
+            const fallbackTranscript = combinedTranscript();
+            if (fallbackTranscript) {
+              finishResolve(fallbackTranscript);
+            } else {
+              finishReject('Unable to continue speech recognition. Please try again.');
+            }
+          }
+        }, restartDelayMs);
+        return;
+      }
+
+      if (transcript) {
+        finishResolve(transcript);
+      } else {
+        finishReject('No speech detected. Please speak clearly and try again.');
       }
     };
 
@@ -106,7 +175,7 @@ export function startListening({ timeoutMs = 20000 } = {}) {
         finishReject('Speech recognition timed out. Please try again.');
         return;
       }
-    }, timeoutMs);
+    }, Math.max(1000, timeoutMs - safeTimeoutBufferMs));
 
     try {
       recognition.start();

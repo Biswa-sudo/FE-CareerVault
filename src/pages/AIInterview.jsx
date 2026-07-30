@@ -305,12 +305,12 @@ const AIInterview = () => {
     setCustomTopicInput('');
   };
 
-  const handleGetNewQuestions = async () => {
+  const handleGetNewQuestions = async ({ forceUnlock = false } = {}) => {
     if (!selectedTopic) {
       return;
     }
 
-    if (!canGetNewQuestions) {
+    if (!canGetNewQuestions && !forceUnlock) {
       setMessages(prev => [
         ...prev,
         createMessage('ai', 'Get new questions is locked until all current questions are rated and weak ones are improved (or you use Continue anyway).')
@@ -401,11 +401,13 @@ const AIInterview = () => {
     ]);
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     const trimmedInput = inputText.trim();
     if (!trimmedInput || isBatchLoading) return;
 
     const userMessage = createMessage('user', trimmedInput);
+    const normalizedInput = trimmedInput.toLowerCase();
+    const isContinueCommand = normalizedInput === 'continue' || normalizedInput === 'continue anyway';
 
     if (!selectedTopic || !topicQuestions.length) {
       setMessages(prev => [
@@ -414,6 +416,37 @@ const AIInterview = () => {
         createMessage('ai', 'Select a topic first.')
       ]);
       setInputText('');
+      return;
+    }
+
+    if (isContinueCommand && !currentQuestion) {
+      if (!batchProgress.completed) {
+        setMessages(prev => [
+          ...prev,
+          userMessage,
+          createMessage('ai', 'Please complete and rate all current questions first.')
+        ]);
+        setInputText('');
+        return;
+      }
+
+      if (batchProgress.averageRating <= 3) {
+        setMessages(prev => [
+          ...prev,
+          userMessage,
+          createMessage('ai', `Current average is ${batchProgress.averageRating.toFixed(1)}/5. Reach above 3.0 to unlock the next 10 questions from chat.`)
+        ]);
+        setInputText('');
+        return;
+      }
+
+      setMessages(prev => [
+        ...prev,
+        userMessage,
+        createMessage('ai', `Great work. Average is ${batchProgress.averageRating.toFixed(1)}/5. Fetching your next 10 questions now...`)
+      ]);
+      setInputText('');
+      await handleGetNewQuestions({ forceUnlock: true });
       return;
     }
 

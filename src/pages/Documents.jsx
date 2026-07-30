@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { getDocuments, saveDocument, deleteDocument } from '../lib/localStorage'
 import Button from '../components/ui/Button'
+import DocumentsHero from '../components/ui/DocumentsHero'
+import ErrorBoundary from '../components/ui/ErrorBoundary'
 
 export default function Documents() {
   const [docs, setDocs] = useState([])
@@ -31,28 +33,45 @@ export default function Documents() {
         <Button onClick={() => fileRef.current.click()}>Upload</Button>
         <input ref={fileRef} type="file" className="hidden" onChange={handleUpload} />
       </div>
-      {docs.length === 0 && (
-        <div className="text-center py-12 text-gray-400">No documents uploaded.</div>
-      )}
-      <div className="space-y-3">
-        {docs.map(doc => (
-          <div key={doc.id} className="flex items-center justify-between bg-white p-4 rounded-xl border">
-            <div className="flex items-center gap-3">
-              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <div>
-                <p className="font-medium text-sm">{doc.name}</p>
-                <p className="text-xs text-gray-400">{new Date(doc.uploadedAt).toLocaleDateString()}</p>
+
+      <ErrorBoundary
+        fallback={
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-700">
+            <h2 className="text-lg font-semibold">Something went wrong</h2>
+            <p className="mt-2 text-sm">We couldn’t load this documents view. Please refresh the page and try again.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white"
+            >
+              Reload page
+            </button>
+          </div>
+        }
+      >
+        <DocumentsHero />
+        {docs.length === 0 && (
+          <div className="text-center py-12 text-gray-400">No documents uploaded.</div>
+        )}
+        <div className="space-y-3">
+          {docs.map(doc => (
+            <div key={doc.id} className="flex items-center justify-between bg-white p-4 rounded-xl border">
+              <div className="flex items-center gap-3">
+                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <div>
+                  <p className="font-medium text-sm">{doc.name}</p>
+                  <p className="text-xs text-gray-400">{new Date(doc.uploadedAt).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <a href={doc.data} download={doc.name} className="text-primary-600 text-sm hover:underline">Download</a>
+                <button onClick={() => handleDelete(doc.id)} className="text-red-500 text-sm">Delete</button>
               </div>
             </div>
-            <div className="flex gap-2">
-              <a href={doc.data} download={doc.name} className="text-primary-600 text-sm hover:underline">Download</a>
-              <button onClick={() => handleDelete(doc.id)} className="text-red-500 text-sm">Delete</button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </ErrorBoundary>
     </div>
   )
 }
