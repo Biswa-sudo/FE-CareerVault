@@ -1757,7 +1757,7 @@ export default {
           type: "listen_repeat",
           instruction: "Listen and repeat this response.",
           content: "I am eight years old.",
-          expectedAnswers: ["i am eight years old"],
+          expectedAnswers: ["i am eight years old","i am 8 years old"],
           hint: "Say your age.",
           image: "https://via.placeholder.com/400x200?text=I+Am+Eight+Years+Old",
           audio: "https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"
@@ -1767,7 +1767,7 @@ export default {
           type: "read_aloud",
           instruction: "Read this response aloud.",
           content: "I am ten years old.",
-          expectedAnswers: ["i am ten years old"],
+          expectedAnswers: ["i am ten years old","i am 10 years old"],
           hint: "Say your age.",
           image: "https://via.placeholder.com/400x200?text=I+Am+Ten+Years+Old"
         },
@@ -1813,7 +1813,7 @@ export default {
           type: "listen_repeat",
           instruction: "Listen and repeat this question and answer.",
           content: "How old are you? I am nine.",
-          expectedAnswers: ["how old are you i am nine"],
+          expectedAnswers: ["how old are you i am nine","how old are you i am 9"],
           hint: "Ask and answer about age.",
           image: "https://via.placeholder.com/400x200?text=How+Old+Are+You+Nine",
           audio: "https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"
@@ -1823,7 +1823,7 @@ export default {
           type: "read_aloud",
           instruction: "Read this dialogue aloud.",
           content: "How old are you? I am seven years old.",
-          expectedAnswers: ["how old are you i am seven years old"],
+          expectedAnswers: ["how old are you i am seven years old","how old are you i am 7 years old"],
           hint: "Practice both parts.",
           image: "https://via.placeholder.com/400x200?text=Dialogue+Age"
         },
@@ -2238,7 +2238,7 @@ export default {
           type: "read_aloud",
           instruction: "Read this review dialogue aloud.",
           content: "How are you? I am fine, thank you. How old are you? I am nine years old.",
-          expectedAnswers: ["how are you i am fine thank you how old are you i am nine years old"],
+          expectedAnswers: ["how are you i am fine thank you how old are you i am nine years old","how are you i am fine thank you how old are you i am 9 years old"],
           hint: "Practice multiple questions.",
           image: "https://via.placeholder.com/400x200?text=Review+Dialogue"
         },
@@ -2332,7 +2332,7 @@ export default {
           type: "read_aloud",
           instruction: "Read this full conversation aloud.",
           content: "Hello! What is your name? My name is Kavya. How old are you? I am ten years old. Nice to meet you!",
-          expectedAnswers: ["hello what is your name my name is kavya how old are you i am ten years old nice to meet you"],
+          expectedAnswers: ["hello what is your name my name is kavya how old are you i am ten years old nice to meet you","hello what is your name my name is kavya how old are you i am 10 years old nice to meet you"],
           hint: "Combine all the phrases.",
           image: "https://via.placeholder.com/400x200?text=Review+Full+Conversation"
         },

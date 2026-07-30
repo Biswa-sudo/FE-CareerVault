@@ -190,7 +190,7 @@ const AIInterview = () => {
       const weakList = weakForTopic.slice(0, 5).map(item => item.question).join(' | ');
       setMessages(prev => [
         ...prev,
-        createMessage('ai', `Summary for ${topic}: average ${average}/5 with ${weakForTopic.length} weak questions (rating < 3). Replay weak questions or Continue anyway to unlock new batch.`),
+        createMessage('ai', `Summary for ${topic}: average ${average}/5 with ${weakForTopic.length} weak questions (rating < 3). Replay Continue to unlock new batch.`),
         createMessage('ai', `Weak list: ${weakList}${weakForTopic.length > 5 ? ' ...' : ''}`)
       ]);
       return;
@@ -638,7 +638,7 @@ const AIInterview = () => {
     // ]);
 
     try {
-      const controller = startListening({ timeoutMs: 15000 });
+      const controller = startListening({ timeoutMs: 30000 });
       voiceControllerRef.current = controller;
       const transcript = await controller.promise;
 
@@ -658,9 +658,15 @@ const AIInterview = () => {
       // ]);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to capture voice input.';
+      const isTimeoutError = typeof message === 'string' && message.toLowerCase().includes('timed out');
       setMessages(prev => [
         ...prev,
-        createMessage('ai', message)
+        createMessage(
+          'ai',
+          isTimeoutError
+            ? 'Listening timed out. Tap the mic and start speaking right away, or type your answer in the box.'
+            : message
+        )
       ]);
     } finally {
       voiceControllerRef.current = null;

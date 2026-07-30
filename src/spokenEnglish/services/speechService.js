@@ -64,7 +64,10 @@ export function startListening({ timeoutMs = 20000 } = {}) {
       }
       settled = true;
       cleanup();
-      reject(new Error(message));
+      const error = new Error(message);
+      error.capturedText = combinedTranscript();
+      error.stopReason = stopReason;
+      reject(error);
     };
 
     recognition.onresult = (event) => {
@@ -90,6 +93,10 @@ export function startListening({ timeoutMs = 20000 } = {}) {
           break;
         case 'aborted':
           if (stopReason === 'timeout') {
+            if (combinedTranscript()) {
+              return;
+            }
+
             errorMessage = 'Speech recognition timed out. Please try again.';
           } else if (stopReason === 'cancelled') {
             errorMessage = 'Speech recognition was cancelled.';

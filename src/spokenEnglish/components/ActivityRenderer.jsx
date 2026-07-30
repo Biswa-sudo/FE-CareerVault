@@ -341,8 +341,16 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
 
       stopListeningProgress();
       setListeningProgress(0);
+      const capturedText = typeof err.capturedText === 'string' ? err.capturedText.trim() : '';
       setSpeechError(err.message);
-      setFeedback(`❌ ${err.message}`);
+      if (capturedText) {
+        setUserAnswer(capturedText);
+      }
+      setFeedback(
+        capturedText
+          ? `❌ ${err.message} Captured text: "${capturedText}"`
+          : `❌ ${err.message}`
+      );
       if (
         err.message.includes('not supported') ||
         err.message.includes('denied') ||
@@ -411,13 +419,13 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
       if (newAttempts >= maxAttempts) {
-        setFeedback(`❌ Incorrect. The correct answer is: ${expected[0]}`);
+        setFeedback(`❌ Incorrect. You said: "${spoken}". The correct answer is: ${expected[0]}`);
         setIsCorrect(true);
         scheduleCompletion(() => {
           onComplete(false, spoken);
         }, 2000);
       } else {
-        setFeedback(`❌ Not quite. Try again (${newAttempts}/${maxAttempts})`);
+        setFeedback(`❌ Not quite. You said: "${spoken}". Try again (${newAttempts}/${maxAttempts})`);
         setUserAnswer('');
       }
     }
