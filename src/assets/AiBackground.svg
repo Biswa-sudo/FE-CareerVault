@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" style="background: transparent; overflow: hidden; pointer-events: none; user-select: none;">
+  <defs>
+    <style>
+      /* --- Base Watermark Styling --- */
+      .ai-mark {
+        font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+        font-weight: 200;
+        letter-spacing: 10px;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+        fill: #000000; /* Default light-mode faint gray */
+      }
+      
+      /* Auto-adapt to Dark Mode to ensure it stays visible but faint */
+      @media (prefers-color-scheme: dark) {
+        .ai-mark { fill: #ffffff; }
+      }
+
+      /* --- Animation Classes --- */
+      .anim-1 { animation-name: drift-1; }
+      .anim-2 { animation-name: drift-2; }
+      .anim-3 { animation-name: drift-3; }
+      .anim-4 { animation-name: drift-4; }
+      .anim-5 { animation-name: drift-5; }
+
+      /* --- Explicit Parallax Keyframes --- */
+      /* Each drift travels a different distance and angle, fading perfectly in and out */
+      @keyframes drift-1 {
+        0% { transform: translate(0, 150px) rotate(-5deg); opacity: 0; }
+        20% { opacity: 0.06; }
+        80% { opacity: 0.06; }
+        100% { transform: translate(80px, -250px) rotate(5deg); opacity: 0; }
+      }
+
+      @keyframes drift-2 {
+        0% { transform: translate(0, 100px) rotate(5deg); opacity: 0; }
+        20% { opacity: 0.04; }
+        80% { opacity: 0.04; }
+        100% { transform: translate(-60px, -300px) rotate(-10deg); opacity: 0; }
+      }
+
+      @keyframes drift-3 {
+        0% { transform: translate(0, 120px) scale(0.95); opacity: 0; }
+        20% { opacity: 0.08; }
+        80% { opacity: 0.08; }
+        100% { transform: translate(10px, -280px) scale(1.05); opacity: 0; }
+      }
+
+      @keyframes drift-4 {
+        0% { transform: translate(0, 180px) rotate(-10deg); opacity: 0; }
+        20% { opacity: 0.03; }
+        80% { opacity: 0.03; }
+        100% { transform: translate(-100px, -200px) rotate(0deg); opacity: 0; }
+      }
+
+      @keyframes drift-5 {
+        0% { transform: translate(0, 140px) rotate(10deg) scale(1.05); opacity: 0; }
+        20% { opacity: 0.07; }
+        80% { opacity: 0.07; }
+        100% { transform: translate(120px, -260px) rotate(-5deg) scale(0.95); opacity: 0; }
+      }
+    </style>
+  </defs>
+
+  <!-- 
+    16 Floating "AI" Watermarks.
+    The negative animation delays ensure that when the SVG loads, 
+    the screen is immediately filled with floating elements, rather than waiting for them to rise. 
+  -->
+  
+  <g transform="translate(50, 450)">
+    <text class="ai-mark anim-1" style="font-size: 140px; animation-duration: 30s; animation-delay: -12s;">AI</text>
+  </g>
+  <g transform="translate(150, 200)">
+    <text class="ai-mark anim-2" style="font-size: 60px; animation-duration: 22s; animation-delay: -5s;">AI</text>
+  </g>
+  <g transform="translate(250, 550)">
+    <text class="ai-mark anim-3" style="font-size: 90px; animation-duration: 26s; animation-delay: -18s;">AI</text>
+  </g>
+  <g transform="translate(350, 150)">
+    <text class="ai-mark anim-4" style="font-size: 110px; animation-duration: 28s; animation-delay: -9s;">AI</text>
+  </g>
+  <g transform="translate(450, 400)">
+    <text class="ai-mark anim-5" style="font-size: 50px; animation-duration: 20s; animation-delay: -2s;">AI</text>
+  </g>
+  <g transform="translate(550, 250)">
+    <text class="ai-mark anim-1" style="font-size: 130px; animation-duration: 32s; animation-delay: -15s;">AI</text>
+  </g>
+  <g transform="translate(650, 500)">
+    <text class="ai-mark anim-2" style="font-size: 75px; animation-duration: 24s; animation-delay: -7s;">AI</text>
+  </g>
+  <g transform="translate(750, 100)">
+    <text class="ai-mark anim-3" style="font-size: 100px; animation-duration: 27s; animation-delay: -22s;">AI</text>
+  </g>
+  <g transform="translate(850, 450)">
+    <text class="ai-mark anim-4" style="font-size: 85px; animation-duration: 25s; animation-delay: -11s;">AI</text>
+  </g>
+  <g transform="translate(950, 200)">
+    <text class="ai-mark anim-5" style="font-size: 150px; animation-duration: 35s; animation-delay: -19s;">AI</text>
+  </g>
+  <g transform="translate(100, 600)">
+    <text class="ai-mark anim-4" style="font-size: 65px; animation-duration: 21s; animation-delay: -3s;">AI</text>
+  </g>
+  <g transform="translate(300, 350)">
+    <text class="ai-mark anim-2" style="font-size: 120px; animation-duration: 29s; animation-delay: -14s;">AI</text>
+  </g>
+  <g transform="translate(500, 550)">
+    <text class="ai-mark anim-3" style="font-size: 80px; animation-duration: 23s; animation-delay: -8s;">AI</text>
+  </g>
+  <g transform="translate(700, 300)">
+    <text class="ai-mark anim-1" style="font-size: 55px; animation-duration: 19s; animation-delay: -1s;">AI</text>
+  </g>
+  <g transform="translate(900, 600)">
+    <text class="ai-mark anim-2" style="font-size: 95px; animation-duration: 26s; animation-delay: -17s;">AI</text>
+  </g>
+  <g transform="translate(400, 50)">
+    <text class="ai-mark anim-5" style="font-size: 105px; animation-duration: 31s; animation-delay: -25s;">AI</text>
+  </g>
+</svg>
