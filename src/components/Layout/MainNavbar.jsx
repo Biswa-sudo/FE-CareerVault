@@ -1,5 +1,5 @@
 import './MainNavbar.css';
-import BentureAILogo from "../../assets/BentureAILogoText.png";
+import BentureAILogo from "../../assets/BentureAILogoText.webp";
 const MainNavbar = () => {
   return (
     <header className="main-navbar">

@@ -181,7 +181,7 @@ const PortfolioPage = () => {
             )}
           </div>
           <h1 className="hero-quote-large2">"{data.heroQuote}"</h1>
-          <p className="hero-subtitle">{data.heroSub}</p>
+          <h5 className="hero-subtitle">{data.heroSub}</h5>
           <h2>{data.name}</h2>
           <p className="hero-title">{data.title}</p>
           <button className="btn-primary hero-btn" onClick={handleDownloadPrimaryCV}>

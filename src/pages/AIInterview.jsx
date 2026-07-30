@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './AIInterview.css';
+import { startListening } from '../spokenEnglish/services/speechService';
 import {
   addUsedTopic,
   getAllQuestions,
@@ -76,6 +77,7 @@ const AIInterview = () => {
   const [replayInitialWeakCount, setReplayInitialWeakCount] = useState(0);
   const messagesEndRef = useRef(null);
   const skipNextChatPersistRef = useRef(false);
+  const voiceControllerRef = useRef(null);
 
   // ---- Dynamic data from store ----
   const stats = useMemo(() => getOverallStats(), [topicQuestions, availableTopics]);
@@ -119,6 +121,12 @@ const AIInterview = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    return () => {
+      voiceControllerRef.current?.cancel?.();
+    };
+  }, []);
 
   useEffect(() => {
     if (skipNextChatPersistRef.current) {
@@ -466,7 +474,7 @@ const AIInterview = () => {
       ...prev,
       userMessage,
       createMessage('ai', `Concept: ${currentQuestion.concept}`),
-      createMessage('ai', 'Now rate your answer from 1 to 5 below, or reply with 1-5 in chat.')
+      createMessage('ai', 'Now rate your answer from 1 to 5 above, or reply with 1-5 in chat.')
     ]);
     setInputText('');
   };
@@ -501,13 +509,13 @@ const AIInterview = () => {
       if (isReplayMode) {
         setMessages(prev => [
           ...prev,
-          createMessage('ai', `Rating saved (${rating}/5). Re-answering question ${queueIndex + 1} of ${activeQuestionIds.length}: ${nextInQueue.question}`)
+          createMessage('ai', `Rating saved (${rating}/5). \nRe-answering question ${queueIndex + 1} of ${activeQuestionIds.length}: ${nextInQueue.question}`)
         ]);
       } else {
         const fullIndex = updatedTopicQuestions.findIndex(item => item.id === nextInQueue.id);
         setMessages(prev => [
           ...prev,
-          createMessage('ai', `Rating saved (${rating}/5). Next question ${fullIndex + 1}/${updatedTopicQuestions.length}: ${nextInQueue.question}`)
+          createMessage('ai', `Rating saved (${rating}/5). \nNext question ${fullIndex + 1}/${updatedTopicQuestions.length}: ${nextInQueue.question}`)
         ]);
       }
       return;
@@ -574,16 +582,56 @@ const AIInterview = () => {
     }
   };
 
-  const handleToggleRecording = () => {
-    setIsRecording(!isRecording);
-    if (!isRecording) {
-      setTimeout(() => {
-        setIsRecording(false);
+  const handleToggleRecording = async () => {
+    if (isRecording) {
+      voiceControllerRef.current?.cancel?.();
+      voiceControllerRef.current = null;
+      setIsRecording(false);
+      return;
+    }
+
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      setMessages(prev => [
+        ...prev,
+        createMessage('ai', 'Speech recognition is not supported in this browser. Please use Chrome or Edge.')
+      ]);
+      return;
+    }
+
+    setIsRecording(true);
+    // setMessages(prev => [
+    //   ...prev,
+    //   createMessage('ai', 'Listening… Speak now and your words will appear in the answer box.')
+    // ]);
+
+    try {
+      const controller = startListening({ timeoutMs: 15000 });
+      voiceControllerRef.current = controller;
+      const transcript = await controller.promise;
+
+      const cleanTranscript = transcript?.trim();
+      if (!cleanTranscript) {
         setMessages(prev => [
           ...prev,
-          createMessage('ai', 'Voice sample captured. Keep the same structure while typing your final answer.')
+          createMessage('ai', 'No speech detected. Please try again.')
         ]);
-      }, 3000);
+        return;
+      }
+
+      setInputText(prev => (prev ? `${prev} ${cleanTranscript}`.trim() : cleanTranscript));
+      // setMessages(prev => [
+      //   ...prev,
+      //   createMessage('ai', `Voice input captured: "${cleanTranscript}"`)
+      // ]);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to capture voice input.';
+      setMessages(prev => [
+        ...prev,
+        createMessage('ai', message)
+      ]);
+    } finally {
+      voiceControllerRef.current = null;
+      setIsRecording(false);
     }
   };
 
@@ -826,8 +874,13 @@ const AIInterview = () => {
                     onKeyPress={handleAnswerKeyPress}
                     disabled={isBatchLoading}
                   />
-                  <button className={`voice-btn ${isRecording ? 'recording' : ''}`} onClick={handleToggleRecording} title={isRecording ? 'Stop recording' : 'Start voice recording'}>
-                    {isRecording ? 'Stop' : 'Mic'}
+                  <button
+                    className={`voice-btn ${isRecording ? 'recording' : ''}`}
+                    onClick={handleToggleRecording}
+                    title={isRecording ? 'Stop recording' : 'Start voice recording'}
+                    disabled={isBatchLoading}
+                  >
+                    {isRecording ? '■' : '🎤'}
                   </button>
                   <button className="send-btn" onClick={handleSendMessage} disabled={!inputText.trim() || isBatchLoading}>
                     Send
