@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSpokenEnglish } from '../context';
 import ActivityRenderer from '../components/ActivityRenderer';
 import ChallengeResult from '../components/ChallengeResult';
+import { filterActivities } from '../services/progressService';
 
 const ChallengePlayer = ({
   selectedSubjectId,
@@ -17,8 +18,8 @@ const ChallengePlayer = ({
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (subject && subject.challengeTest && subject.challengeTest.activities) {
-      setActivities(subject.challengeTest.activities);
+    if (subject?.challengeTest?.activities) {
+      setActivities(filterActivities(subject.challengeTest.activities));
     } else {
       setActivities([]);
     }

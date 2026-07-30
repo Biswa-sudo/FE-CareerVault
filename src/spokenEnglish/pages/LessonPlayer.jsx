@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSpokenEnglish } from '../context';
 import ActivityRenderer from '../components/ActivityRenderer';
+import { filterActivities } from '../services/progressService';
+import lessonCompleteSvg from './lessonComplete.svg';
 
 const LessonPlayer = ({
   selectedSubjectId,
@@ -22,13 +24,39 @@ const LessonPlayer = ({
   const [currentActivity, setCurrentActivity] = useState(null);
   const [lessonComplete, setLessonComplete] = useState(false);
   const [error, setError] = useState(null);
+  const [failedActivities, setFailedActivities] = useState([]);
+  const [retrySkippedMode, setRetrySkippedMode] = useState(false);
+  const [retryIndex, setRetryIndex] = useState(0);
+  const [retryFailedActivities, setRetryFailedActivities] = useState([]);
+
+  const createActivityState = (subject, lesson, activity, activityIndex, totalActivities) => ({
+    subject,
+    lesson,
+    activity,
+    activityIndex,
+    totalActivities
+  });
+
+  useEffect(() => {
+    setFailedActivities([]);
+    setRetrySkippedMode(false);
+    setRetryIndex(0);
+    setRetryFailedActivities([]);
+  }, [selectedSubjectId, selectedLessonId]);
 
   // Load the correct lesson based on navigation props, NOT progress.currentLessonId
   useEffect(() => {
+    if (retrySkippedMode) {
+      return;
+    }
+
     // 1. Validate props
     if (!selectedSubjectId || !selectedLessonId) {
       setLessonComplete(false);
       setCurrentActivity(null);
+      setFailedActivities([]);
+      setRetryFailedActivities([]);
+      setRetryIndex(0);
       return;
     }
 
@@ -42,9 +70,15 @@ const LessonPlayer = ({
     // 3. Get the lesson data
     const subject = getSubject(selectedSubjectId);
     const lesson = getLesson(selectedSubjectId, selectedLessonId);
-    
-    if (!subject || !lesson || !lesson.activities || lesson.activities.length === 0) {
-      setLessonComplete(true); // No activities = completed
+    if (!subject || !lesson) {
+      setLessonComplete(true);
+      setCurrentActivity(null);
+      return;
+    }
+
+    const visibleActivities = filterActivities(lesson.activities);
+    if (visibleActivities.length === 0) {
+      setLessonComplete(true); // No visible activities = completed
       setCurrentActivity(null);
       return;
     }
@@ -56,7 +90,7 @@ const LessonPlayer = ({
         progress.currentLessonId === selectedLessonId) {
       activityIndex = progress.currentActivityIndex;
       // Ensure index is valid
-      if (activityIndex < 0 || activityIndex >= lesson.activities.length) {
+      if (activityIndex < 0 || activityIndex >= visibleActivities.length) {
         activityIndex = 0;
       }
     } else {
@@ -68,19 +102,58 @@ const LessonPlayer = ({
       saveProgress(fixedProgress);
     }
 
-    const activity = lesson.activities[activityIndex];
-    setCurrentActivity({
-      subject,
-      lesson,
-      activity,
-      activityIndex,
-      totalActivities: lesson.activities.length
-    });
+    const activity = visibleActivities[activityIndex];
+    setCurrentActivity(createActivityState(subject, lesson, activity, activityIndex, visibleActivities.length));
     setLessonComplete(false);
     setError(null);
-  }, [selectedSubjectId, selectedLessonId, progress, getSubject, getLesson, isLessonCompleted, saveProgress]);
+  }, [selectedSubjectId, selectedLessonId, progress, getSubject, getLesson, isLessonCompleted, saveProgress, retrySkippedMode]);
 
   const handleActivityComplete = (wasCorrect, userAnswer) => {
+    if (retrySkippedMode) {
+      const currentRetryActivity = failedActivities[retryIndex];
+      const alreadyRetriedFailed = retryFailedActivities.some((item) => item.id === currentRetryActivity?.id);
+      const nextRetryFailedActivities = (!wasCorrect && currentRetryActivity && !alreadyRetriedFailed)
+        ? [...retryFailedActivities, currentRetryActivity]
+        : retryFailedActivities;
+
+      if (nextRetryFailedActivities !== retryFailedActivities) {
+        setRetryFailedActivities(nextRetryFailedActivities);
+      }
+
+      const nextRetryIndex = retryIndex + 1;
+      if (nextRetryIndex < failedActivities.length) {
+        const nextActivity = failedActivities[nextRetryIndex];
+        if (currentActivity?.subject && currentActivity?.lesson && nextActivity) {
+          setRetryIndex(nextRetryIndex);
+          setCurrentActivity(
+            createActivityState(
+              currentActivity.subject,
+              currentActivity.lesson,
+              nextActivity,
+              nextRetryIndex,
+              failedActivities.length
+            )
+          );
+        }
+      } else {
+        setRetrySkippedMode(false);
+        setRetryIndex(0);
+        setFailedActivities(nextRetryFailedActivities);
+        setRetryFailedActivities([]);
+        setLessonComplete(true);
+        setCurrentActivity(null);
+      }
+      return;
+    }
+
+    if (!wasCorrect && currentActivity?.activity) {
+      setFailedActivities((prev) => {
+        const exists = prev.some((item) => item.id === currentActivity.activity.id);
+        if (exists) return prev;
+        return [...prev, currentActivity.activity];
+      });
+    }
+
     advanceToNextActivity();
     // After advancing, check if the lesson (from navigation props) is now completed
     if (isLessonCompleted(selectedSubjectId, selectedLessonId)) {
@@ -108,6 +181,36 @@ const LessonPlayer = ({
     }
   };
 
+  const handleRetrySkippedQuestions = () => {
+    if (!failedActivities.length || !currentActivity?.subject || !currentActivity?.lesson) {
+      const subject = getSubject(selectedSubjectId);
+      const lesson = getLesson(selectedSubjectId, selectedLessonId);
+      if (!subject || !lesson || !failedActivities.length) {
+        return;
+      }
+      setRetryFailedActivities([]);
+      setRetrySkippedMode(true);
+      setRetryIndex(0);
+      setLessonComplete(false);
+      setCurrentActivity(createActivityState(subject, lesson, failedActivities[0], 0, failedActivities.length));
+      return;
+    }
+
+    setRetryFailedActivities([]);
+    setRetrySkippedMode(true);
+    setRetryIndex(0);
+    setLessonComplete(false);
+    setCurrentActivity(
+      createActivityState(
+        currentActivity.subject,
+        currentActivity.lesson,
+        failedActivities[0],
+        0,
+        failedActivities.length
+      )
+    );
+  };
+
   // ----- RENDER: Lesson Complete -----
   if (lessonComplete) {
     const currentSubject = getSubject(selectedSubjectId);
@@ -121,12 +224,27 @@ const LessonPlayer = ({
 
     return (
       <div className="container py-5 text-center">
-        <h2>🎉 Lesson Complete!</h2>
+        <img
+          src={lessonCompleteSvg}
+          alt="Lesson Complete"
+          style={{ maxWidth: '320px', width: '100%', display: 'block', margin: '0 auto 1rem' }}
+        />
         <p>You've finished all activities in this lesson.</p>
+        {failedActivities.length > 0 && (
+          <p className="text-muted">You still have {failedActivities.length} skipped question(s) from failed attempts.</p>
+        )}
         <div className="mt-3 d-flex gap-3 justify-content-center flex-wrap">
           <button className="btn btn-primary" onClick={() => navigateToSubject(selectedSubjectId)}>
             Back to Subject
           </button>
+          {failedActivities.length > 0 && (
+            <button
+              className="btn btn-outline-primary"
+              onClick={handleRetrySkippedQuestions}
+            >
+              Finish Skipped Questions ({failedActivities.length})
+            </button>
+          )}
           {nextLesson && (
             <button
               className="btn btn-success text-white"
@@ -166,7 +284,9 @@ const LessonPlayer = ({
         <button className="btn btn-link" onClick={() => navigateToSubject(subject.id)}>
           ← Back to Subject
         </button>
-        <span className="badge bg-secondary">Lesson: {lesson.title}</span>
+        <span className="badge bg-secondary">
+          {retrySkippedMode ? 'Retry Skipped Questions' : `Lesson: ${lesson.title}`}
+        </span>
         <span className="badge bg-info">Activity {activityIndex+1}/{totalActivities}</span>
       </div>
       <h4>{subject.title} – {lesson.title}</h4>

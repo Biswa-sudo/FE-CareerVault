@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSpokenEnglish } from '../context';
+import { filterActivities } from '../services/progressService';
 
 const SubjectDetail = ({
   selectedSubjectId,
@@ -41,7 +42,8 @@ const SubjectDetail = ({
 
   const subjectCompleted = isSubjectCompleted(subject.id);
   const challengePassed = progress.subjectProgress?.[subject.id]?.challengePassed || false;
-  const hasChallenge = subject.challengeTest && subject.challengeTest.activities && subject.challengeTest.activities.length > 0;
+  const visibleChallengeActivities = filterActivities(subject.challengeTest?.activities || []);
+  const hasChallenge = visibleChallengeActivities.length > 0;
   const totalLessons = subject.lessons.length;
   const completedLessonCount = subject.lessons.filter((lesson) => isLessonCompleted(subject.id, lesson.id)).length;
   const lessonsCompleted = totalLessons > 0

@@ -12,6 +12,20 @@ const defaultProgress = {
   lastUpdated: new Date().toISOString()
 };
 
+const SKIPPED_ACTIVITY_TYPES = new Set(['sentence_completion', 'spell_word']);
+
+export function filterActivities(activities = []) {
+  if (!Array.isArray(activities)) return [];
+  return activities.filter((activity) => {
+    const type = activity?.type;
+    return !type || !SKIPPED_ACTIVITY_TYPES.has(type);
+  });
+}
+
+function hasVisibleChallengeActivities(subject) {
+  return filterActivities(subject?.challengeTest?.activities || []).length > 0;
+}
+
 export function loadProgress() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -73,8 +87,14 @@ export function markLessonComplete(progress, subjectId, lessonId) {
       const allLessonIds = subject.lessons.map(l => l.id);
       const completedLessonIds = progress.subjectProgress[subjectId].lessonsCompleted;
       const allDone = allLessonIds.every(id => completedLessonIds.includes(id));
-      if (allDone && !progress.completedSubjects.includes(subjectId)) {
+      const challengePassed = progress.subjectProgress[subjectId].challengePassed;
+      const canCompleteByLessons = !hasVisibleChallengeActivities(subject);
+      const subjectCompleted = canCompleteByLessons ? allDone : allDone && challengePassed;
+
+      if (subjectCompleted && !progress.completedSubjects.includes(subjectId)) {
         progress.completedSubjects.push(subjectId);
+      } else if (!subjectCompleted) {
+        progress.completedSubjects = progress.completedSubjects.filter(id => id !== subjectId);
       }
     }
   }
@@ -86,7 +106,14 @@ export function markChallengePassed(progress, subjectId) {
     progress.subjectProgress[subjectId] = { lessonsCompleted: [], challengePassed: false };
   }
   progress.subjectProgress[subjectId].challengePassed = true;
-  if (!progress.completedSubjects.includes(subjectId)) {
+
+  const subject = courseData.subjects.find(s => s.id === subjectId);
+  const allLessonIds = subject?.lessons?.map((lesson) => lesson.id) || [];
+  const completedLessonIds = progress.subjectProgress[subjectId]?.lessonsCompleted || [];
+  const allLessonsDone = allLessonIds.every((lessonId) => completedLessonIds.includes(lessonId));
+  const canComplete = subject && hasVisibleChallengeActivities(subject) ? allLessonsDone : true;
+
+  if (canComplete && !progress.completedSubjects.includes(subjectId)) {
     progress.completedSubjects.push(subjectId);
   }
   return progress;
@@ -120,13 +147,14 @@ export function resetLesson(progress, subjectId, lessonId) {
   if (subject) {
     const hasLessons = subject.lessons.length > 0;
     const challengePassed = progress.subjectProgress[subjectId]?.challengePassed || false;
+    const hasChallenge = hasVisibleChallengeActivities(subject);
 
     if (hasLessons) {
       const allLessonIds = subject.lessons.map(l => l.id);
       const completedLessonIds = progress.subjectProgress[subjectId]?.lessonsCompleted || [];
       const allDone = allLessonIds.every(id => completedLessonIds.includes(id));
-      // Subject is completed only if all lessons are done OR challenge passed
-      const isComplete = allDone || challengePassed;
+      // If challenge exists, completion requires all lessons and challenge pass.
+      const isComplete = hasChallenge ? (allDone && challengePassed) : allDone;
       if (!isComplete) {
         progress.completedSubjects = progress.completedSubjects.filter(id => id !== subjectId);
       }
@@ -170,9 +198,9 @@ export function getCurrentActivity(progress) {
   const { currentSubjectId, currentLessonId, currentActivityIndex } = progress;
   const subject = courseData.subjects.find(s => s.id === currentSubjectId);
   if (!subject) return null;
-  let lesson = subject.lessons.find(l => l.id === currentLessonId);
+  const lesson = subject.lessons.find(l => l.id === currentLessonId);
   if (!lesson) return null;
-  const activities = lesson.activities;
+  const activities = filterActivities(lesson.activities);
   if (currentActivityIndex >= 0 && currentActivityIndex < activities.length) {
     return {
       subject,
@@ -191,11 +219,11 @@ export function advanceProgress(progress) {
   if (!subject) return progress;
   const lesson = subject.lessons.find(l => l.id === currentLessonId);
   if (!lesson) return progress;
-  const activities = lesson.activities;
+  const activities = filterActivities(lesson.activities);
   if (currentActivityIndex + 1 < activities.length) {
     progress.currentActivityIndex = currentActivityIndex + 1;
   } else {
-    // Finished all activities in this lesson → mark lesson complete
+    // Finished all visible activities in this lesson → mark lesson complete
     markLessonComplete(progress, currentSubjectId, currentLessonId);
     // Find next lesson in this subject
     const lessonIndex = subject.lessons.findIndex(l => l.id === currentLessonId);
@@ -205,7 +233,8 @@ export function advanceProgress(progress) {
     } else {
       // All lessons done – check if challenge is passed; if not, we set to -1 (marker for challenge)
       const challengePassed = progress.subjectProgress?.[currentSubjectId]?.challengePassed || false;
-      if (!challengePassed && subject.challengeTest && subject.challengeTest.activities && subject.challengeTest.activities.length > 0) {
+      const visibleChallengeActivities = filterActivities(subject.challengeTest?.activities || []);
+      if (!challengePassed && visibleChallengeActivities.length > 0) {
         progress.currentActivityIndex = -1; // indicates challenge is next
       } else {
         // Subject is complete, move to next subject
@@ -236,7 +265,8 @@ function findNextIncompleteSubject(progress) {
     if (!allDone) return subject;
     // If all lessons done but challenge not passed, return subject
     const challengePassed = progress.subjectProgress?.[subject.id]?.challengePassed || false;
-    if (!challengePassed && subject.challengeTest && subject.challengeTest.activities && subject.challengeTest.activities.length > 0) {
+    const visibleChallengeActivities = filterActivities(subject.challengeTest?.activities || []);
+    if (!challengePassed && visibleChallengeActivities.length > 0) {
       return subject;
     }
   }
@@ -251,14 +281,15 @@ export function getNextIncompleteActivity(progress) {
   const { currentSubjectId, currentActivityIndex } = progress;
   if (currentActivityIndex === -1) {
     const subject = courseData.subjects.find(s => s.id === currentSubjectId);
-    if (subject && subject.challengeTest && subject.challengeTest.activities && subject.challengeTest.activities.length > 0) {
+    const visibleChallengeActivities = filterActivities(subject?.challengeTest?.activities || []);
+    if (subject && visibleChallengeActivities.length > 0) {
       return {
         subject,
         lesson: null,
         activity: null,
         isChallenge: true,
         activityIndex: -1,
-        totalActivities: subject.challengeTest.activities.length
+        totalActivities: visibleChallengeActivities.length
       };
     }
   }
@@ -269,26 +300,28 @@ export function getNextIncompleteActivity(progress) {
     const lessons = subject.lessons;
     for (let i = 0; i < lessons.length; i++) {
       const lesson = lessons[i];
-      if (!isLessonCompleted(progress, subject.id, lesson.id)) {
+      const visibleActivities = filterActivities(lesson.activities);
+      if (!isLessonCompleted(progress, subject.id, lesson.id) && visibleActivities.length > 0) {
         return {
           subject,
           lesson,
-          activity: lesson.activities[0] || null,
+          activity: visibleActivities[0] || null,
           activityIndex: 0,
-          totalActivities: lesson.activities.length,
+          totalActivities: visibleActivities.length,
           isChallenge: false
         };
       }
     }
     const challengePassed = progress.subjectProgress?.[subject.id]?.challengePassed || false;
-    if (!challengePassed && subject.challengeTest && subject.challengeTest.activities && subject.challengeTest.activities.length > 0) {
+    const visibleChallengeActivities = filterActivities(subject.challengeTest?.activities || []);
+    if (!challengePassed && visibleChallengeActivities.length > 0) {
       return {
         subject,
         lesson: null,
         activity: null,
         isChallenge: true,
         activityIndex: -1,
-        totalActivities: subject.challengeTest.activities.length
+        totalActivities: visibleChallengeActivities.length
       };
     }
   }
