@@ -1,10 +1,74 @@
 /**
  * Normalize text for validation: lowercase, remove extra spaces, remove punctuation.
  */
+const ONES = [
+  "zero",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+  "eleven",
+  "twelve",
+  "thirteen",
+  "fourteen",
+  "fifteen",
+  "sixteen",
+  "seventeen",
+  "eighteen",
+  "nineteen"
+];
+
+const TENS = [
+  "",
+  "",
+  "twenty",
+  "thirty",
+  "forty",
+  "fifty",
+  "sixty",
+  "seventy",
+  "eighty",
+  "ninety"
+];
+
+function numberToWords(value) {
+  const number = Number(value);
+  if (!Number.isInteger(number) || number < 0 || number > 9999) {
+    return String(value);
+  }
+
+  if (number < 20) {
+    return ONES[number];
+  }
+
+  if (number < 100) {
+    const ten = Math.floor(number / 10);
+    const rest = number % 10;
+    return rest ? `${TENS[ten]} ${ONES[rest]}` : TENS[ten];
+  }
+
+  if (number < 1000) {
+    const hundred = Math.floor(number / 100);
+    const rest = number % 100;
+    return rest ? `${ONES[hundred]} hundred ${numberToWords(rest)}` : `${ONES[hundred]} hundred`;
+  }
+
+  const thousand = Math.floor(number / 1000);
+  const rest = number % 1000;
+  return rest ? `${ONES[thousand]} thousand ${numberToWords(rest)}` : `${ONES[thousand]} thousand`;
+}
+
 export function normalizeText(text) {
   if (!text) return "";
   return text
     .toLowerCase()
+    .replace(/\b\d+\b/g, (match) => numberToWords(match))
     .replace(/[^\w\s]/g, "") // remove punctuation
     .replace(/\s+/g, " ")    // collapse multiple spaces
     .trim();

@@ -22,7 +22,7 @@ const LandingPageFinal = () => {
               <a href="/signup" className="btn btn-primary btn-large">
                 🚀 Get Started — It's Free
               </a>
-              <a href="#demo" className="btn btn-outline btn-large">
+              <a href="#features" className="btn btn-outline btn-large">
                 🎥 Watch Demo
               </a>
             </div>
@@ -298,7 +298,7 @@ const LandingPageFinal = () => {
                 <li>Skill Gap Analysis</li>
                 <li>Study Groups</li>
               </ul>
-              <a href="/subscribe" className="btn btn-primary">Subscribe Now</a>
+              <a href="/payment" className="btn btn-primary">Subscribe Now</a>
               <div className="pricing-annual">or ₹999/year (save 16%)</div>
             </div>
             <div className="pricing-card">
@@ -312,7 +312,7 @@ const LandingPageFinal = () => {
                 <li>Recruiter Discovery</li>
                 <li>All Starter Features</li>
               </ul>
-              <a href="/subscribe" className="btn btn-primary">Subscribe Now</a>
+              <a href="/payment" className="btn btn-primary">Subscribe Now</a>
               <div className="pricing-annual">or ₹2,499/year (save 16%)</div>
             </div>
             <div className="pricing-card">
@@ -325,7 +325,7 @@ const LandingPageFinal = () => {
                 <li>1-on-1 AI Coaching</li>
                 <li>All Pro Features</li>
               </ul>
-              <a href="/subscribe" className="btn btn-primary">Subscribe Now</a>
+              <a href="/payment" className="btn btn-primary">Subscribe Now</a>
               <div className="pricing-annual">or ₹4,999/year (save 16%)</div>
             </div>
           </div>
@@ -383,7 +383,7 @@ const LandingPageFinal = () => {
           </p>
           <div className="cta-actions">
             <a href="/signup" className="btn btn-primary btn-large">🚀 Get Started — It's Free</a>
-            <a href="#demo" className="btn btn-outline btn-light btn-large">🎥 Watch Demo</a>
+            <a href="#features" className="btn btn-outline btn-light btn-large">🎥 Watch Demo</a>
           </div>
           <div className="cta-trust">
             <span>⭐ 5,000+ Users</span>
@@ -408,32 +408,32 @@ const LandingPageFinal = () => {
             </div>
             <div className="footer-links">
               <h4>Product</h4>
-              <a href="#">Resume Builder</a>
-              <a href="#">AI Interview</a>
-              <a href="#">Spoken English</a>
-              <a href="#">Study Groups</a>
+              <a href="/signup">Resume Builder</a>
+              <a href="/ai-interview">AI Interview</a>
+              <a href="/spoken-english">Spoken English</a>
+              <a href="/study-groups">Study Groups</a>
             </div>
             <div className="footer-links">
               <h4>Company</h4>
-              <a href="#">About Us</a>
-              <a href="#">Careers</a>
-              <a href="#">Blog</a>
-              <a href="#">Contact</a>
+              <a href="/about-us">About Us</a>
+              <a href="/contact">Careers</a>
+              <a href="/faq">Blog</a>
+              <a href="/contact">Contact</a>
             </div>
             <div className="footer-links">
               <h4>Support</h4>
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Service</a>
-              <a href="#">FAQ</a>
-              <a href="#">Help Center</a>
+              <a href="/privacy-policy">Privacy Policy</a>
+              <a href="/terms-of-service">Terms of Service</a>
+              <a href="/faq">FAQ</a>
+              <a href="/faq">Help Center</a>
             </div>
             <div className="footer-social">
               <h4>Follow Us</h4>
               <div className="social-icons">
-                <a href="#">📘</a>
-                <a href="#">🐦</a>
-                <a href="#">📸</a>
-                <a href="#">▶️</a>
+                <a href="/contact">📘</a>
+                <a href="/contact">🐦</a>
+                <a href="/contact">📸</a>
+                <a href="/contact">▶️</a>
               </div>
             </div>
           </div>

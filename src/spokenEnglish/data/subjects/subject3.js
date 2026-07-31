@@ -1827,7 +1827,7 @@ export default {
           instruction: "Choose the correct answer to 'What time is it?' (assuming 9 AM)",
           content: "What time is it? (9 AM)",
           options: ["It is nine o'clock", "It is three o'clock", "It is twelve o'clock"],
-          expectedAnswers: ["it is nine o'clock"],
+          expectedAnswers: ["it is nine o'clock","it is 9 o'clock"],
           hint: "It is 9 AM.",
           image: "https://via.placeholder.com/400x200?text=Nine+O'clock"
         },
