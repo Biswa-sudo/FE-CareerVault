@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form'
+import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Input from '../components/ui/Input'
@@ -6,15 +7,19 @@ import Button from '../components/ui/Button'
 
 export default function Login() {
   const { login } = useAuth()
+  const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
   const { register, handleSubmit, setError, formState: { errors } } = useForm()
 
-  const onSubmit = (data) => {
-    const success = login(data.email, data.password)
-    if (success) {
+  const onSubmit = async (data) => {
+    setSubmitting(true)
+    try {
+      await login(data.email, data.password)
       navigate('/dashboard')
-    } else {
+    } catch {
       setError('email', { message: 'Invalid credentials' })
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -25,7 +30,7 @@ export default function Login() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Input label="Email" type="email" {...register('email')} error={errors.email?.message} />
           <Input label="Password" type="password" {...register('password')} />
-          <Button type="submit" className="w-full">Login</Button>
+          <Button type="submit" className="w-full" disabled={submitting}>{submitting ? 'Logging in...' : 'Login'}</Button>
         </form>
         <p className="text-sm text-gray-600 mt-4 text-center">
           Don’t have an account? <Link to="/signup" className="text-primary-600 hover:underline">Sign up</Link>

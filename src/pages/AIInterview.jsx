@@ -6,6 +6,7 @@ import {
   getAllQuestions,
   getBatchProgress,
   getOverallStats,
+  initTopicPracticeStore,
   getStoredTopicLabel,
   getStrengthsWeaknesses,
   getTopicHistory,
@@ -16,40 +17,34 @@ import {
   setTopicQuestions,
   updateQuestionEntry
 } from '../lib/topicPracticeStore';
+import { apiRequest } from '../lib/apiClient';
 
 const OTHER_TOPIC_VALUE = 'other';
-const CHAT_HISTORY_KEY = 'aiInterviewChatHistoryByTopic';
 
 function getTopicChatKey(topic) {
   return String(topic || '__global__').trim().toLowerCase() || '__global__';
 }
 
-function readChatHistoryStore() {
-  try {
-    const raw = localStorage.getItem(CHAT_HISTORY_KEY);
-    if (!raw) {
-      return {};
-    }
-
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? parsed : {};
-  } catch {
-    return {};
-  }
+async function readChatHistoryStore() {
+  const response = await apiRequest('/chat-history.php');
+  return response && typeof response.store === 'object' ? response.store : {};
 }
 
-function getChatHistoryForTopic(topic) {
-  const store = readChatHistoryStore();
+async function getChatHistoryForTopic(topic) {
+  const store = await readChatHistoryStore();
   const key = getTopicChatKey(topic);
   const history = store[key];
   return Array.isArray(history) ? history : [];
 }
 
-function setChatHistoryForTopic(topic, messages) {
-  const store = readChatHistoryStore();
+async function setChatHistoryForTopic(topic, messages) {
+  const store = await readChatHistoryStore();
   const key = getTopicChatKey(topic);
   store[key] = Array.isArray(messages) ? messages : [];
-  localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(store));
+  await apiRequest('/chat-history.php', {
+    method: 'PUT',
+    body: { store },
+  });
 }
 
 const AIInterview = () => {
@@ -75,6 +70,7 @@ const AIInterview = () => {
   const [allowNextBatch, setAllowNextBatch] = useState(false);
   const [isReplayMode, setIsReplayMode] = useState(false);
   const [replayInitialWeakCount, setReplayInitialWeakCount] = useState(0);
+  const [storeError, setStoreError] = useState('');
   const messagesEndRef = useRef(null);
   const skipNextChatPersistRef = useRef(false);
   const voiceControllerRef = useRef(null);
@@ -134,30 +130,41 @@ const AIInterview = () => {
       return;
     }
 
-    setChatHistoryForTopic(selectedTopic || '__global__', messages);
+    setChatHistoryForTopic(selectedTopic || '__global__', messages).catch((error) => {
+      setStoreError(error instanceof Error ? error.message : 'Failed to save chat history.');
+    });
   }, [messages, selectedTopic]);
 
   useEffect(() => {
-    const topics = getUsedTopics();
-    setAvailableTopics(topics);
+    const hydrate = async () => {
+      try {
+        await initTopicPracticeStore();
+        const topics = getUsedTopics();
+        setAvailableTopics(topics);
 
-    if (!topics.length) {
-      setTopicSelectValue(OTHER_TOPIC_VALUE);
-      return;
-    }
+        if (!topics.length) {
+          setTopicSelectValue(OTHER_TOPIC_VALUE);
+          return;
+        }
 
-    const all = getAllQuestions();
-    const latest = all.reduce((latestItem, current) => {
-      if (!latestItem) {
-        return current;
+        const all = getAllQuestions();
+        const latest = all.reduce((latestItem, current) => {
+          if (!latestItem) {
+            return current;
+          }
+
+          return current.createdAt > latestItem.createdAt ? current : latestItem;
+        }, null);
+
+        const nextTopic = latest?.topic || topics[0];
+        setTopicSelectValue(nextTopic);
+        await handleTopicSelect(nextTopic, { allowGenerate: false, appendMessage: true });
+      } catch (error) {
+        setStoreError(error instanceof Error ? error.message : 'Failed to load topic data.');
       }
+    };
 
-      return current.createdAt > latestItem.createdAt ? current : latestItem;
-    }, null);
-
-    const nextTopic = latest?.topic || topics[0];
-    setTopicSelectValue(nextTopic);
-    handleTopicSelect(nextTopic, { allowGenerate: false, appendMessage: true });
+    hydrate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -256,7 +263,7 @@ const AIInterview = () => {
       setReplayInitialWeakCount(0);
       setAllowNextBatch(false);
 
-      const savedTopicMessages = getChatHistoryForTopic(storedLabel);
+      const savedTopicMessages = await getChatHistoryForTopic(storedLabel);
       const hasSavedTopicMessages = savedTopicMessages.length > 0;
       skipNextChatPersistRef.current = true;
       setMessages(hasSavedTopicMessages ? savedTopicMessages : [
@@ -298,7 +305,7 @@ const AIInterview = () => {
       return;
     }
 
-    addUsedTopic(cleanTopic);
+    await addUsedTopic(cleanTopic);
     refreshAvailableTopics();
     setTopicSelectValue(cleanTopic);
     await handleTopicSelect(cleanTopic, { allowGenerate: true, appendMessage: true });
@@ -360,7 +367,7 @@ const AIInterview = () => {
     ]);
   };
 
-  const handleStartReplay = () => {
+  const handleStartReplay = async () => {
     if (!selectedTopic) {
       return;
     }
@@ -385,7 +392,7 @@ const AIInterview = () => {
         : question
     ));
 
-    setTopicQuestions(selectedTopic, resetBatch);
+    await setTopicQuestions(selectedTopic, resetBatch);
     const refreshed = syncTopicState(selectedTopic, getAllQuestions());
 
     setIsReplayMode(true);
@@ -466,7 +473,7 @@ const AIInterview = () => {
 
     if (isWaitingForRating) {
       if (editingQuestionId === currentQuestion.id) {
-        const updatedAll = updateQuestionEntry(currentQuestion.id, {
+        const updatedAll = await updateQuestionEntry(currentQuestion.id, {
           userAnswer: trimmedInput,
           userRating: undefined
         });
@@ -486,7 +493,7 @@ const AIInterview = () => {
       if (/^[1-5]$/.test(trimmedInput)) {
         setMessages(prev => [...prev, userMessage]);
         setInputText('');
-        handleRateQuestion(Number(trimmedInput));
+        await handleRateQuestion(Number(trimmedInput));
         return;
       }
 
@@ -499,7 +506,7 @@ const AIInterview = () => {
       return;
     }
 
-    const updatedAll = updateQuestionEntry(currentQuestion.id, { userAnswer: trimmedInput });
+    const updatedAll = await updateQuestionEntry(currentQuestion.id, { userAnswer: trimmedInput });
     syncTopicState(selectedTopic, updatedAll);
     setEditingQuestionId(null);
 
@@ -525,12 +532,12 @@ const AIInterview = () => {
     ]);
   };
 
-  const handleRateQuestion = (rating) => {
+  const handleRateQuestion = async (rating) => {
     if (!currentQuestion || !currentQuestion.userAnswer?.trim()) {
       return;
     }
 
-    const updatedAll = updateQuestionEntry(currentQuestion.id, { userRating: rating });
+    const updatedAll = await updateQuestionEntry(currentQuestion.id, { userRating: rating });
     const updatedTopicQuestions = syncTopicState(selectedTopic, updatedAll);
 
     const nextInQueue = activeQuestionIds
@@ -858,11 +865,17 @@ const AIInterview = () => {
 
             <div className="chat-container">
               <div className="chat-header">
-                <span className="chat-status">{isBatchLoading ? 'Loading topic...' : 'Local practice active'}</span>
+                <span className="chat-status">{isBatchLoading ? 'Loading topic...' : 'Cloud practice active'}</span>
                 <span className="chat-mode">
                   {selectedTopic || 'No topic'} • {isReplayMode ? `Replay ${currentQuestionIndex + 1}/${activeQuestionIds.length}` : `${batchProgress.ratedCount}/${topicQuestions.length || 0} rated`}
                 </span>
               </div>
+
+              {storeError && (
+                <div className="mx-4 my-2 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  {storeError}
+                </div>
+              )}
 
               <div className="chat-messages">
                 {messages.map(msg => (

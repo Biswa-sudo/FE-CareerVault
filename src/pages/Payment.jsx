@@ -7,16 +7,21 @@ import Input from '../components/ui/Input'
 export default function Payment() {
   const [step, setStep] = useState('form')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  const handlePay = (e) => {
+  const handlePay = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setTimeout(() => {
-      setSubscriptionActive()
-      setLoading(false)
+    setError('')
+    try {
+      await setSubscriptionActive()
       navigate('/payment/success')
-    }, 2000)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Payment activation failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -31,6 +36,7 @@ export default function Payment() {
         </div>
         <h2 className="text-2xl font-display font-bold mb-2">Complete Payment</h2>
         <p className="text-gray-600 mb-6">₹100/year · All features unlocked</p>
+        {error && <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
         <form onSubmit={handlePay}>
           <div className="space-y-4">
             <div>

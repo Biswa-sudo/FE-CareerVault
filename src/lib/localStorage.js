@@ -1,98 +1,106 @@
-const KEYS = {
-  SUBSCRIPTION: 'subscriptionStatus',
-  PAYMENT_DATE: 'paymentDate',
-  REGISTERED_USER: 'registeredUser',
-  LOGGED_IN: 'loggedIn',
-  CURRENT_USER: 'currentUser',
-  CVS: 'cvs',
-  DOCUMENTS: 'documents',
+import { apiRequest } from './apiClient';
+
+const CV_LIMIT = 10;
+
+export async function signUpUser(user) {
+  const response = await apiRequest('/auth.php?action=signup', {
+    method: 'POST',
+    body: user,
+  });
+  return response.user || null;
 }
 
-export function getSubscriptionStatus() {
-  return localStorage.getItem(KEYS.SUBSCRIPTION) === 'active'
+export async function loginUser(email, password) {
+  const response = await apiRequest('/auth.php?action=login', {
+    method: 'POST',
+    body: { email, password },
+  });
+  return response.user || null;
 }
 
-export function setSubscriptionActive() {
-  localStorage.setItem(KEYS.SUBSCRIPTION, 'active')
-  localStorage.setItem(KEYS.PAYMENT_DATE, new Date().toISOString())
+export async function getSession() {
+  const response = await apiRequest('/auth.php?action=session');
+  return {
+    authenticated: Boolean(response.authenticated),
+    user: response.user || null,
+  };
 }
 
-export function getPaymentDate() {
-  return localStorage.getItem(KEYS.PAYMENT_DATE)
+export async function getSubscriptionStatus() {
+  const response = await apiRequest('/subscription.php');
+  return response.status === 'active';
 }
 
-export function getRegisteredUser() {
-  const data = localStorage.getItem(KEYS.REGISTERED_USER)
-  return data ? JSON.parse(data) : null
+export async function setSubscriptionActive() {
+  await apiRequest('/subscription.php', {
+    method: 'POST',
+    body: { status: 'active' },
+  });
 }
 
-export function setRegisteredUser(user) {
-  localStorage.setItem(KEYS.REGISTERED_USER, JSON.stringify(user))
+export async function getPaymentDate() {
+  const response = await apiRequest('/subscription.php');
+  return response.paymentDate || null;
 }
 
-export function isLoggedIn() {
-  return localStorage.getItem(KEYS.LOGGED_IN) === 'true'
+export async function logout() {
+  await apiRequest('/auth.php?action=logout', { method: 'POST' });
 }
 
-export function setLoggedIn(user) {
-  localStorage.setItem(KEYS.LOGGED_IN, 'true')
-  localStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user))
+export async function isLoggedIn() {
+  const session = await getSession();
+  return session.authenticated;
 }
 
-export function logout() {
-  localStorage.removeItem(KEYS.LOGGED_IN)
-  localStorage.removeItem(KEYS.CURRENT_USER)
+export async function getCurrentUser() {
+  const session = await getSession();
+  return session.user;
 }
 
-export function getCurrentUser() {
-  const data = localStorage.getItem(KEYS.CURRENT_USER)
-  return data ? JSON.parse(data) : null
+export async function getCVs() {
+  const response = await apiRequest('/cvs.php');
+  return Array.isArray(response.items) ? response.items : [];
 }
 
-export function getCVs() {
-  const data = localStorage.getItem(KEYS.CVS)
-  return data ? JSON.parse(data) : []
-}
-
-export function saveCV(cv) {
-  const cvs = getCVs()
-  const normalizedId = cv.id && cv.id !== 'new' ? cv.id : undefined
-  const existingIndex = cvs.findIndex(c => c.id === cv.id)
-  let savedCv
-  if (existingIndex >= 0) {
-    savedCv = { ...cv, id: normalizedId || cv.id, updatedAt: new Date().toISOString() }
-    cvs[existingIndex] = savedCv
-  } else {
-    if (cvs.length >= 10) {
-      throw new Error('CV limit reached (10).')
-    }
-    savedCv = { ...cv, id: normalizedId || crypto.randomUUID(), updatedAt: new Date().toISOString() }
-    cvs.push(savedCv)
+export async function saveCV(cv) {
+  const current = await getCVs();
+  const isNew = !cv.id || cv.id === 'new';
+  if (isNew && current.length >= CV_LIMIT) {
+    throw new Error('CV limit reached (10).');
   }
-  localStorage.setItem(KEYS.CVS, JSON.stringify(cvs))
-  return savedCv
+
+  const response = await apiRequest('/cvs.php', {
+    method: isNew ? 'POST' : 'PUT',
+    body: cv,
+  });
+
+  return response.item;
 }
 
-export function deleteCV(cvId) {
-  const cvs = getCVs().filter(c => c.id !== cvId)
-  localStorage.setItem(KEYS.CVS, JSON.stringify(cvs))
-  return cvs
+export async function deleteCV(cvId) {
+  await apiRequest(`/cvs.php?id=${encodeURIComponent(cvId)}`, {
+    method: 'DELETE',
+  });
+
+  return getCVs();
 }
 
-export function getDocuments() {
-  const data = localStorage.getItem(KEYS.DOCUMENTS)
-  return data ? JSON.parse(data) : []
+export async function getDocuments() {
+  const response = await apiRequest('/documents.php');
+  return Array.isArray(response.items) ? response.items : [];
 }
 
-export function saveDocument(doc) {
-  const docs = getDocuments()
-  docs.push({ ...doc, id: crypto.randomUUID(), uploadedAt: new Date().toISOString() })
-  localStorage.setItem(KEYS.DOCUMENTS, JSON.stringify(docs))
-  return docs
+export async function saveDocument(doc) {
+  await apiRequest('/documents.php', {
+    method: 'POST',
+    body: doc,
+  });
+  return getDocuments();
 }
 
-export function deleteDocument(docId) {
-  const docs = getDocuments().filter(d => d.id !== docId)
-  localStorage.setItem(KEYS.DOCUMENTS, JSON.stringify(docs))
-  return docs
+export async function deleteDocument(docId) {
+  await apiRequest(`/documents.php?id=${encodeURIComponent(docId)}`, {
+    method: 'DELETE',
+  });
+  return getDocuments();
 }

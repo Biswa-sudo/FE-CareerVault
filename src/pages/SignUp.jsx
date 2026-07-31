@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form'
+import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate, Link } from 'react-router-dom'
@@ -18,12 +19,20 @@ const schema = z.object({
 
 export default function SignUp() {
   const { signUp } = useAuth()
+  const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
-  const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(schema) })
+  const { register, handleSubmit, setError, formState: { errors } } = useForm({ resolver: zodResolver(schema) })
 
-  const onSubmit = (data) => {
-    signUp({ name: data.name, email: data.email, password: data.password })
-    navigate('/dashboard')
+  const onSubmit = async (data) => {
+    setSubmitting(true)
+    try {
+      await signUp({ name: data.name, email: data.email, password: data.password })
+      navigate('/dashboard')
+    } catch (error) {
+      setError('email', { message: error instanceof Error ? error.message : 'Signup failed' })
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -35,7 +44,7 @@ export default function SignUp() {
           <Input label="Email" type="email" {...register('email')} error={errors.email?.message} />
           <Input label="Password" type="password" {...register('password')} error={errors.password?.message} />
           <Input label="Confirm Password" type="password" {...register('confirmPassword')} error={errors.confirmPassword?.message} />
-          <Button type="submit" className="w-full">Sign Up</Button>
+          <Button type="submit" className="w-full" disabled={submitting}>{submitting ? 'Creating account...' : 'Sign Up'}</Button>
         </form>
         <p className="text-sm text-gray-600 mt-4 text-center">
           Already have an account? <Link to="/login" className="text-primary-600 hover:underline">Log in</Link>

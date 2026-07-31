@@ -1,14 +1,47 @@
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { getCVs, getDocuments, getPaymentDate } from '../lib/localStorage'
 import { useAuth } from '../context/AuthContext'
 import Button from '../components/ui/Button'
 
 export default function Dashboard() {
   const { user } = useAuth()
-  const cvs = getCVs()
-  const docs = getDocuments()
-  const paymentDate = getPaymentDate()
+  const [cvs, setCvs] = useState([])
+  const [docs, setDocs] = useState([])
+  const [paymentDate, setPaymentDate] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [nextCvs, nextDocs, nextPaymentDate] = await Promise.all([
+          getCVs(),
+          getDocuments(),
+          getPaymentDate(),
+        ])
+        setCvs(nextCvs)
+        setDocs(nextDocs)
+        setPaymentDate(nextPaymentDate)
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load dashboard data.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [])
+
   const nextBilling = paymentDate ? new Date(new Date(paymentDate).setFullYear(new Date(paymentDate).getFullYear() + 1)).toLocaleDateString() : 'N/A'
+
+  if (loading) {
+    return <div className="p-4 text-sm text-gray-500">Loading dashboard...</div>
+  }
+
+  if (error) {
+    return <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
+  }
 
   return (
     <div className="space-y-8">

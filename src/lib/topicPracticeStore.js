@@ -1,37 +1,20 @@
 import { generateTopicQuestions } from '../services/interviewService';
-
-const TOPIC_QUESTIONS_KEY = 'topicPracticeQuestions';
-const USED_TOPICS_KEY = 'used_topics';
+import { apiRequest } from './apiClient';
 
 /**
  * @typedef {Object} QuestionEntry
- * @property {string} id - Unique ID for this topic question.
- * @property {string} topic - Selected topic for this question.
- * @property {string} question - Question text shown to the user.
- * @property {string} concept - Correct answer/explanation for the question.
- * @property {string=} userAnswer - User submitted answer.
- * @property {number=} userRating - Self-rating from 1 to 5.
- * @property {number} createdAt - Unix timestamp in milliseconds.
+ * @property {string} id
+ * @property {string} topic
+ * @property {string} question
+ * @property {string} concept
+ * @property {string=} userAnswer
+ * @property {number=} userRating
+ * @property {number} createdAt
  */
 
-function safeParseArray(raw) {
-  if (!raw) return [];
-
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function readJsonArray(key) {
-  return safeParseArray(localStorage.getItem(key));
-}
-
-function writeJsonArray(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
+let questionsCache = [];
+let usedTopicsCache = [];
+let initialized = false;
 
 function normalizeTopic(topic) {
   return String(topic || '').trim().toLowerCase();
@@ -51,18 +34,52 @@ function mergeTopicQuestions(allQuestions, topic, topicQuestions) {
   return [...others, ...topicQuestions];
 }
 
+function normalizeQuestions(value) {
+  if (!Array.isArray(value)) return [];
+  return value.filter(item => item && typeof item === 'object');
+}
+
+function normalizeUsedTopics(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map(topic => sanitizeTopic(topic))
+    .filter(Boolean);
+}
+
+async function persistStore() {
+  await apiRequest('/topic-practice.php', {
+    method: 'PUT',
+    body: {
+      questions: questionsCache,
+      usedTopics: usedTopicsCache,
+    },
+  });
+}
+
+export async function initTopicPracticeStore() {
+  if (initialized) {
+    return;
+  }
+
+  const response = await apiRequest('/topic-practice.php');
+  questionsCache = normalizeQuestions(response.questions);
+  usedTopicsCache = normalizeUsedTopics(response.usedTopics);
+  initialized = true;
+}
+
 /**
  * @returns {QuestionEntry[]}
  */
 export function getAllQuestions() {
-  return readJsonArray(TOPIC_QUESTIONS_KEY);
+  return questionsCache;
 }
 
 /**
  * @param {QuestionEntry[]} entries
  */
-export function saveQuestions(entries) {
-  writeJsonArray(TOPIC_QUESTIONS_KEY, entries);
+export async function saveQuestions(entries) {
+  questionsCache = normalizeQuestions(entries);
+  await persistStore();
 }
 
 /**
@@ -77,12 +94,12 @@ export function getQuestionsForTopic(topic) {
 /**
  * @param {string} topic
  * @param {QuestionEntry[]} topicQuestions
- * @returns {QuestionEntry[]}
+ * @returns {Promise<QuestionEntry[]>}
  */
-export function setTopicQuestions(topic, topicQuestions) {
+export async function setTopicQuestions(topic, topicQuestions) {
   const allQuestions = getAllQuestions();
   const merged = mergeTopicQuestions(allQuestions, topic, topicQuestions);
-  saveQuestions(merged);
+  await saveQuestions(merged);
   return topicQuestions;
 }
 
@@ -96,20 +113,21 @@ export function getTopicPracticeBatch() {
 /**
  * @param {QuestionEntry[]} entries
  */
-export function setTopicPracticeBatch(entries) {
-  saveQuestions(entries);
+export async function setTopicPracticeBatch(entries) {
+  await saveQuestions(entries);
 }
 
-export function clearTopicPracticeBatch() {
-  localStorage.removeItem(TOPIC_QUESTIONS_KEY);
+export async function clearTopicPracticeBatch() {
+  questionsCache = [];
+  await persistStore();
 }
 
 /**
  * @param {string} questionId
  * @param {Partial<QuestionEntry>} patch
- * @returns {QuestionEntry[]}
+ * @returns {Promise<QuestionEntry[]>}
  */
-export function updateQuestionEntry(questionId, patch) {
+export async function updateQuestionEntry(questionId, patch) {
   const current = getAllQuestions();
   const updated = current.map(entry => (
     entry.id === questionId
@@ -120,7 +138,7 @@ export function updateQuestionEntry(questionId, patch) {
       : entry
   ));
 
-  saveQuestions(updated);
+  await saveQuestions(updated);
   return updated;
 }
 
@@ -176,26 +194,22 @@ export function getWeakTopicSummary() {
 }
 
 export function getUsedTopics() {
-  return readJsonArray(USED_TOPICS_KEY)
-    .map(topic => sanitizeTopic(topic))
-    .filter(Boolean);
+  return usedTopicsCache;
 }
 
 /**
  * @param {string} topic
  */
-export function addUsedTopic(topic) {
+export async function addUsedTopic(topic) {
   const cleanTopic = sanitizeTopic(topic);
   if (!cleanTopic) {
     return getUsedTopics();
   }
 
-  const topics = getUsedTopics();
-  const exists = topics.some(item => normalizeTopic(item) === normalizeTopic(cleanTopic));
-
+  const exists = usedTopicsCache.some(item => normalizeTopic(item) === normalizeTopic(cleanTopic));
   if (!exists) {
-    topics.push(cleanTopic);
-    writeJsonArray(USED_TOPICS_KEY, topics);
+    usedTopicsCache = [...usedTopicsCache, cleanTopic];
+    await persistStore();
   }
 
   return getUsedTopics();
@@ -203,7 +217,6 @@ export function addUsedTopic(topic) {
 
 /**
  * Generates and stores a fresh 10-question batch.
- * If append is true, keeps existing topic history and appends new entries.
  * @param {string} topic
  * @param {boolean} append
  * @returns {Promise<QuestionEntry[]>}
@@ -218,21 +231,20 @@ export async function generateQuestionsBatch(topic, append = false) {
   const generated = await generateTopicQuestions({ topic: cleanTopic });
   const nextBatch = append ? [...existing, ...generated] : generated;
 
-  setTopicQuestions(cleanTopic, nextBatch);
-  addUsedTopic(cleanTopic);
+  await setTopicQuestions(cleanTopic, nextBatch);
+  await addUsedTopic(cleanTopic);
   return nextBatch;
 }
 
 /**
  * Local-first question source.
- * - append=true: always generates and appends a fresh batch.
- * - generateIfMissing=false: never generates if topic has no local rows.
- * - default: returns local rows, otherwise generates a new batch.
  * @param {string} topic
  * @param {{append?: boolean, generateIfMissing?: boolean}} options
  * @returns {Promise<QuestionEntry[]>}
  */
 export async function getTopicQuestions(topic, options = {}) {
+  await initTopicPracticeStore();
+
   const { append = false, generateIfMissing = true } = options;
   const cleanTopic = sanitizeTopic(topic);
   if (!cleanTopic) {
@@ -245,7 +257,7 @@ export async function getTopicQuestions(topic, options = {}) {
 
   const existing = getQuestionsForTopic(cleanTopic);
   if (existing.length) {
-    addUsedTopic(cleanTopic);
+    await addUsedTopic(cleanTopic);
     return existing;
   }
 
@@ -266,7 +278,6 @@ export function getStoredTopicLabel(topic) {
 }
 
 /**
- * Backward-compatible alias for replacing a topic batch.
  * @param {string} topic
  * @returns {Promise<QuestionEntry[]>}
  */
@@ -274,19 +285,6 @@ export async function regenerateTopicQuestions(topic) {
   return generateQuestionsBatch(topic, false);
 }
 
-// ============================================================================
-// NEW DYNAMIC STATS HELPERS (for dashboard)
-// ============================================================================
-
-/**
- * Compute overall statistics from all stored questions.
- * @returns {{
- *   sessions: number,
- *   avgScore: number,
- *   questionsAnswered: number,
- *   streak: number
- * }}
- */
 export function getOverallStats() {
   const all = getAllQuestions();
   const answered = all.filter(q => q.userAnswer?.trim());
@@ -297,7 +295,6 @@ export function getOverallStats() {
     ? rated.reduce((sum, q) => sum + q.userRating, 0) / rated.length
     : 0;
 
-  // Streak: count consecutive days with any activity (based on createdAt)
   const dateSet = new Set();
   all.forEach(q => {
     if (q.createdAt) {
@@ -307,7 +304,7 @@ export function getOverallStats() {
   const dates = Array.from(dateSet).sort((a, b) => new Date(b) - new Date(a));
   let streak = 0;
   const today = new Date().toDateString();
-  for (let d of dates) {
+  for (const d of dates) {
     const expected = new Date(Date.now() - streak * 86400000).toDateString();
     if (d === today || d === expected) {
       streak++;
@@ -318,14 +315,13 @@ export function getOverallStats() {
 
   return {
     sessions: topics.length,
-    avgScore: Math.round(avgRating * 20), // convert 0-5 to 0-100 percentage
+    avgScore: Math.round(avgRating * 20),
     questionsAnswered: answered.length,
     streak
   };
 }
 
 /**
- * Group questions by topic to build history entries.
  * @returns {Array<{date: string, role: string, score: number, duration: string, topic: string}>}
  */
 export function getTopicHistory() {
@@ -347,11 +343,9 @@ export function getTopicHistory() {
       entry.totalRating += q.userRating;
       entry.ratedCount++;
     }
-    // Keep the most recent createdAt for the topic
     if (q.createdAt > entry.createdAt) entry.createdAt = q.createdAt;
   });
 
-  // Convert to array and sort by most recent createdAt
   const history = Object.values(topicMap).map(item => ({
     date: new Date(item.createdAt).toLocaleDateString(),
     role: item.topic,
@@ -365,7 +359,6 @@ export function getTopicHistory() {
 }
 
 /**
- * Get performance breakdown per topic (for skill bars).
  * @returns {Array<{label: string, score: number}>}
  */
 export function getTopicPerformance() {
@@ -377,7 +370,6 @@ export function getTopicPerformance() {
 }
 
 /**
- * Extract strengths (score >= 70%) and weaknesses (score < 60%)
  * @returns {{ strengths: string[], weaknesses: string[] }}
  */
 export function getStrengthsWeaknesses() {

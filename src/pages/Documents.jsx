@@ -6,24 +6,55 @@ import ErrorBoundary from '../components/ui/ErrorBoundary'
 
 export default function Documents() {
   const [docs, setDocs] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const fileRef = useRef()
 
-  useEffect(() => setDocs(getDocuments()), [])
+  useEffect(() => {
+    const loadDocuments = async () => {
+      try {
+        const items = await getDocuments()
+        setDocs(items)
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load documents.')
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const handleUpload = (e) => {
+    loadDocuments()
+  }, [])
+
+  const handleUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = () => {
-      saveDocument({ name: file.name, type: file.type, data: reader.result })
-      setDocs(getDocuments())
+    reader.onload = async () => {
+      try {
+        setLoading(true)
+        const next = await saveDocument({ name: file.name, type: file.type, data: reader.result })
+        setDocs(next)
+        setError('')
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Upload failed.')
+      } finally {
+        setLoading(false)
+      }
     }
     reader.readAsDataURL(file)
   }
 
-  const handleDelete = (id) => {
-    deleteDocument(id)
-    setDocs(getDocuments())
+  const handleDelete = async (id) => {
+    try {
+      setLoading(true)
+      const next = await deleteDocument(id)
+      setDocs(next)
+      setError('')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Delete failed.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -49,6 +80,8 @@ export default function Documents() {
         }
       >
         <DocumentsHero />
+        {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {loading && <div className="mb-4 text-sm text-gray-500">Syncing documents...</div>}
         {docs.length === 0 && (
           <div className="text-center py-12 text-gray-400">No documents uploaded.</div>
         )}

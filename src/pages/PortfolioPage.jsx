@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './PortfolioPage.css';
+import { apiRequest } from '../lib/apiClient';
 
 const PortfolioPage = () => {
   const location = useLocation();
@@ -20,21 +21,6 @@ const PortfolioPage = () => {
       setShowPublicView(false);
     }
   }, [location.search]);
-
-  // ---------- DATA LOADING ----------
-  const loadData = () => {
-    const stored = localStorage.getItem('portfolio_data');
-    if (!stored) return null;
-    try {
-      const parsed = JSON.parse(stored);
-      ['skills', 'experience', 'education', 'services', 'projects', 'testimonials', 'cvs', 'documents', 'certificates', 'hobbies'].forEach(key => {
-        if (!Array.isArray(parsed[key])) parsed[key] = [];
-      });
-      return parsed;
-    } catch {
-      return null;
-    }
-  };
 
   const defaultData = {
     name: 'Biswaranjan Pradhan',
@@ -95,16 +81,47 @@ const PortfolioPage = () => {
     ]
   };
 
-  const [userData, setUserData] = useState(() => {
-    const saved = loadData();
-    return saved || defaultData;
-  });
+  const [userData, setUserData] = useState(defaultData);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const shareLink = `${window.location.origin}${window.location.pathname}?public=true`;
 
   useEffect(() => {
-    localStorage.setItem('portfolio_data', JSON.stringify(userData));
-  }, [userData]);
+    const loadData = async () => {
+      try {
+        const response = await apiRequest('/portfolio.php?type=data');
+        const parsed = response?.item?.data || null;
+        if (parsed && typeof parsed === 'object') {
+          ['skills', 'experience', 'education', 'services', 'projects', 'testimonials', 'cvs', 'documents', 'certificates', 'hobbies'].forEach(key => {
+            if (!Array.isArray(parsed[key])) parsed[key] = [];
+          });
+          setUserData(parsed);
+        }
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load portfolio data.');
+      } finally {
+        setLoading(false);
+        setIsInitialized(true);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    if (!isInitialized) {
+      return;
+    }
+
+    apiRequest('/portfolio.php?type=data', {
+      method: 'PUT',
+      body: { data: userData },
+    }).catch((e) => {
+      setError(e instanceof Error ? e.message : 'Failed to save portfolio data.');
+    });
+  }, [userData, isInitialized]);
 
   // ---------- HANDLERS ----------
   const handleSaveProfile = (updatedData) => {
@@ -150,9 +167,16 @@ const PortfolioPage = () => {
     }
   };
 
-  const handleSaveAsTemplate = () => {
-    localStorage.setItem('portfolio_template', JSON.stringify(userData));
-    alert('📁 Portfolio data saved as template for auto‑filling!');
+  const handleSaveAsTemplate = async () => {
+    try {
+      await apiRequest('/portfolio.php?type=template', {
+        method: 'PUT',
+        body: { data: userData },
+      });
+      alert('📁 Portfolio data saved as template for auto-filling!');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to save template.');
+    }
   };
 
   const handleBackToDashboard = () => {
@@ -611,6 +635,8 @@ const PortfolioPage = () => {
   // ---------- MAIN RENDER ----------
   return (
     <div className="portfolio-page">
+      {loading && <div className="p-3 text-sm text-gray-600">Loading portfolio data...</div>}
+      {error && <div className="m-3 rounded border border-red-300 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       {isEditing ? (
         <EditView
           data={userData}

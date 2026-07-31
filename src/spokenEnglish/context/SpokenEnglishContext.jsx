@@ -24,15 +24,19 @@ export const SpokenEnglishProvider = ({ children }) => {
   const [unlockedSubjectIds, setUnlockedSubjectIds] = useState([]);
 
   useEffect(() => {
-    const loaded = loadProgress();
-    setProgress(loaded);
-    setUnlockedSubjectIds(getUnlockedSubjectIds(loaded));
-    setLoading(false);
+    const hydrate = async () => {
+      const loaded = await loadProgress();
+      setProgress(loaded);
+      setUnlockedSubjectIds(getUnlockedSubjectIds(loaded));
+      setLoading(false);
+    };
+
+    hydrate();
   }, []);
 
-  const updateProgress = useCallback((newProgress) => {
+  const updateProgress = useCallback(async (newProgress) => {
     setProgress(newProgress);
-    saveProgress(newProgress);
+    await saveProgress(newProgress);
     setUnlockedSubjectIds(getUnlockedSubjectIds(newProgress));
   }, []);
 
@@ -40,21 +44,21 @@ export const SpokenEnglishProvider = ({ children }) => {
     if (!progress) return;
     const updated = { ...progress };
     markLessonComplete(updated, subjectId, lessonId);
-    updateProgress(updated);
+    void updateProgress(updated);
   }, [progress, updateProgress]);
 
   const markChallengeAsPassed = useCallback((subjectId) => {
     if (!progress) return;
     const updated = { ...progress };
     markChallengePassed(updated, subjectId);
-    updateProgress(updated);
+    void updateProgress(updated);
   }, [progress, updateProgress]);
 
   const advanceToNextActivity = useCallback(() => {
     if (!progress) return;
     const updated = { ...progress };
     const advanced = advanceProgress(updated);
-    updateProgress(advanced);
+    void updateProgress(advanced);
   }, [progress, updateProgress]);
 
   const getCurrent = useCallback(() => {
@@ -87,9 +91,9 @@ export const SpokenEnglishProvider = ({ children }) => {
     return subject.lessons.find(l => l.id === lessonId);
   }, [getSubject]);
 
-  const handleResetProgress = useCallback(() => {
+  const handleResetProgress = useCallback(async () => {
     if (window.confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
-      const fresh = resetProgress();
+      const fresh = await resetProgress();
       setProgress(fresh);
       setUnlockedSubjectIds(getUnlockedSubjectIds(fresh));
     }
@@ -99,7 +103,7 @@ export const SpokenEnglishProvider = ({ children }) => {
     if (!progress) return;
     const updated = { ...progress };
     resetLesson(updated, subjectId, lessonId);
-    updateProgress(updated);
+    void updateProgress(updated);
   }, [progress, updateProgress]);
 
   const handleResetSubject = useCallback((subjectId) => {
@@ -107,7 +111,7 @@ export const SpokenEnglishProvider = ({ children }) => {
   if (window.confirm(`Reset all progress for "${getSubject(subjectId)?.title}"? All lessons and challenge will be reset.`)) {
     const updated = { ...progress };
     resetSubject(updated, subjectId);
-    updateProgress(updated);
+    void updateProgress(updated);
   }
 }, [progress, updateProgress, getSubject]);
 

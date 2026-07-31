@@ -211,15 +211,32 @@ function LiveCVCardPreview({ cvData, template }) {
 
 export default function MyCVs() {
   const [cvs, setCvs] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  const load = () => setCvs(getCVs())
+  const load = async () => {
+    try {
+      setLoading(true)
+      const items = await getCVs()
+      setCvs(items)
+      setError('')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load CVs.')
+    } finally {
+      setLoading(false)
+    }
+  }
   useEffect(() => { load() }, [])
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Delete this CV?')) {
-      deleteCV(id)
-      load()
+      try {
+        await deleteCV(id)
+        await load()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Delete failed.')
+      }
     }
   }
 
@@ -233,6 +250,8 @@ export default function MyCVs() {
         <h1 className="text-2xl font-display font-bold">My CVs ({cvs.length}/10)</h1>
         <Link to="/templates"><Button>Create New</Button></Link>
       </div>
+      {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+      {loading && <div className="mb-4 text-sm text-gray-500">Loading CVs...</div>}
       {cvs.length === 0 && (
         <div className="text-center py-12 text-gray-400">
           <p className="text-lg">No CVs yet. Create your first one!</p>

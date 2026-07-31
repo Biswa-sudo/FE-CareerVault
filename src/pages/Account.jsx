@@ -1,5 +1,5 @@
 // Account.jsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getPaymentDate } from '../lib/localStorage';
 import Button from '../components/ui/Button';
@@ -15,7 +15,25 @@ const DUMMY_COURSES = [
 
 export default function Account() {
   const { user, logout } = useAuth();
-  const paymentDate = getPaymentDate();
+  const [paymentDate, setPaymentDate] = useState(null);
+  const [billingLoading, setBillingLoading] = useState(true);
+  const [billingError, setBillingError] = useState('');
+
+  useEffect(() => {
+    const loadPaymentDate = async () => {
+      try {
+        const date = await getPaymentDate();
+        setPaymentDate(date);
+      } catch (error) {
+        setBillingError(error instanceof Error ? error.message : 'Failed to load billing details.');
+      } finally {
+        setBillingLoading(false);
+      }
+    };
+
+    loadPaymentDate();
+  }, []);
+
   const nextBilling = paymentDate
     ? new Date(new Date(paymentDate).setFullYear(new Date(paymentDate).getFullYear() + 1)).toLocaleDateString()
     : 'N/A';
@@ -67,7 +85,7 @@ export default function Account() {
         )}
         {activeTab === 'courses' && <CoursesTab courses={DUMMY_COURSES} />}
         {activeTab === 'profile' && <ProfileTab user={user} logout={logout} />}
-        {activeTab === 'subscription' && <SubscriptionTab nextBilling={nextBilling} />}
+        {activeTab === 'subscription' && <SubscriptionTab nextBilling={nextBilling} billingLoading={billingLoading} billingError={billingError} />}
       </div>
     </div>
   );
@@ -193,11 +211,13 @@ const ProfileTab = ({ user, logout }) => {
   );
 };
 
-const SubscriptionTab = ({ nextBilling }) => {
+const SubscriptionTab = ({ nextBilling, billingLoading, billingError }) => {
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">Subscription</h2>
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-w-lg space-y-3">
+        {billingLoading && <p className="text-sm text-gray-500">Loading billing data...</p>}
+        {billingError && <p className="text-sm text-red-600">{billingError}</p>}
         <div>
           <span className="text-sm text-gray-500">Plan</span>
           <p className="font-medium text-green-600">Pro – Active</p>

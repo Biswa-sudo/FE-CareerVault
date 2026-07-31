@@ -1,10 +1,30 @@
+import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { getSubscriptionStatus, isLoggedIn } from '../lib/localStorage'
+import { getSubscriptionStatus } from '../lib/localStorage'
+import { useAuth } from '../context/AuthContext'
 
 export default function ProtectedRoute({ children }) {
   const location = useLocation()
-  const hasPaid = getSubscriptionStatus()
-  const authenticated = isLoggedIn()
+  const { authenticated, authLoading } = useAuth()
+  const [hasPaid, setHasPaid] = useState(false)
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true)
+
+  useEffect(() => {
+    const checkSubscription = async () => {
+      try {
+        const active = await getSubscriptionStatus()
+        setHasPaid(active)
+      } finally {
+        setSubscriptionLoading(false)
+      }
+    }
+
+    checkSubscription()
+  }, [authenticated])
+
+  if (authLoading || subscriptionLoading) {
+    return <div className="p-6 text-sm text-gray-500">Checking access...</div>
+  }
 
   if (!hasPaid) {
     return <Navigate to="/payment" state={{ from: location }} replace />

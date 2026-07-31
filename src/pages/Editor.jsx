@@ -146,11 +146,7 @@ export default function Editor() {
   const { cvId } = useParams()
   const [searchParams] = useSearchParams()
   const explicitTemplateId = searchParams.get('template')
-  const savedTemplateId = useMemo(() => {
-    if (!cvId || cvId === 'new') return null
-    const existing = getCVs().find(c => c.id === cvId)
-    return existing?.templateId || null
-  }, [cvId])
+  const [savedTemplateId, setSavedTemplateId] = useState(null)
   const templateId = explicitTemplateId || savedTemplateId || 'classic-professional'
   const template = getTemplateById(templateId)
   const navigate = useNavigate()
@@ -158,6 +154,8 @@ export default function Editor() {
   const didAutoPrint = useRef(false)
 
   const [cvName, setCvName] = useState('Untitled CV')
+  const [editorLoading, setEditorLoading] = useState(false)
+  const [editorError, setEditorError] = useState('')
   const [activePanel, setActivePanel] = useState('form')
   const { register, control, reset, getValues, setValue } = useForm({ defaultValues })
 
@@ -176,18 +174,31 @@ export default function Editor() {
   const formData = useWatch({ control }) || defaultValues
 
   useEffect(() => {
-    if (cvId && cvId !== 'new') {
-      const cvs = getCVs()
-      const existing = cvs.find(c => c.id === cvId)
-      if (existing) {
-        reset(normalizeLoadedData(existing.data))
-        setCvName(existing.name || 'Untitled CV')
+    const loadEditorData = async () => {
+      setEditorLoading(true)
+      setEditorError('')
+
+      try {
+        if (cvId && cvId !== 'new') {
+          const cvs = await getCVs()
+          const existing = cvs.find(c => c.id === cvId)
+          if (existing) {
+            setSavedTemplateId(existing.templateId || null)
+            reset(normalizeLoadedData(existing.data))
+            setCvName(existing.name || 'Untitled CV')
+          }
+        } else {
+          const defaults = getTemplateDefaults(templateId)
+          if (defaults) reset(normalizeLoadedData(defaults))
+        }
+      } catch (e) {
+        setEditorError(e instanceof Error ? e.message : 'Failed to load CV data.')
+      } finally {
+        setEditorLoading(false)
       }
-    } else {
-      // New CV — seed form with template's default demo data
-      const defaults = getTemplateDefaults(templateId)
-      if (defaults) reset(normalizeLoadedData(defaults))
     }
+
+    loadEditorData()
   }, [cvId, templateId, reset])
 
   useEffect(() => {
@@ -335,9 +346,10 @@ export default function Editor() {
     }
   }, [formData, templateId])
 
-  const onSave = useCallback(() => {
+  const onSave = useCallback(async () => {
     try {
-      const savedCv = saveCV({
+      setEditorLoading(true)
+      const savedCv = await saveCV({
         id: cvId && cvId !== 'new' ? cvId : undefined,
         name: cvName,
         templateId,
@@ -346,9 +358,14 @@ export default function Editor() {
       if (cvId === 'new' && savedCv?.id) {
         navigate(`/editor/${savedCv.id}?template=${templateId}`, { replace: true })
       }
+      setEditorError('')
       alert('CV saved!')
     } catch (e) {
-      alert(e.message)
+      const message = e instanceof Error ? e.message : 'Unable to save CV.'
+      setEditorError(message)
+      alert(message)
+    } finally {
+      setEditorLoading(false)
     }
   }, [cvId, cvName, templateId, getValues, navigate])
 
@@ -689,6 +706,12 @@ export default function Editor() {
 
   return (
     <div className="flex flex-col h-full">
+      {editorError && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {editorError}
+        </div>
+      )}
+
       {/* Header bar */}
       <div className="flex items-center justify-between mb-4">
         <input
@@ -717,7 +740,7 @@ export default function Editor() {
               Output CV
             </span>
           </div>
-          <Button onClick={onSave}>Save CV</Button>
+          <Button onClick={onSave} disabled={editorLoading}>{editorLoading ? 'Saving...' : 'Save CV'}</Button>
           <Button variant="secondary" onClick={() => window.print()}>Download PDF</Button>
         </div>
       </div>

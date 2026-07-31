@@ -1,4 +1,5 @@
 import { courseData } from "../data/courseData";
+import { apiRequest } from '../../lib/apiClient';
 
 const STORAGE_KEY = "benture_spoken_english_progress";
 
@@ -26,11 +27,12 @@ function hasVisibleChallengeActivities(subject) {
   return filterActivities(subject?.challengeTest?.activities || []).length > 0;
 }
 
-export function loadProgress() {
+export async function loadProgress() {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
+    const response = await apiRequest('/spoken-progress.php');
+    const stored = response?.item;
+    if (stored && typeof stored === 'object') {
+      const parsed = stored.data && typeof stored.data === 'object' ? stored.data : stored;
       return { ...defaultProgress, ...parsed };
     }
   } catch (e) {
@@ -39,10 +41,16 @@ export function loadProgress() {
   return { ...defaultProgress };
 }
 
-export function saveProgress(progress) {
+export async function saveProgress(progress) {
   try {
     progress.lastUpdated = new Date().toISOString();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    await apiRequest('/spoken-progress.php', {
+      method: 'PUT',
+      body: {
+        key: STORAGE_KEY,
+        data: progress,
+      },
+    });
     return true;
   } catch (e) {
     console.warn("Failed to save progress:", e);
@@ -50,9 +58,9 @@ export function saveProgress(progress) {
   }
 }
 
-export function resetProgress() {
+export async function resetProgress() {
   const fresh = { ...defaultProgress };
-  saveProgress(fresh);
+  await saveProgress(fresh);
   return fresh;
 }
 
