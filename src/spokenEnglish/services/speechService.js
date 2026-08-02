@@ -16,20 +16,20 @@ export function startListening({ timeoutMs = 20000 } = {}) {
 
   const recognition = new SpeechRecognition();
   recognition.lang = 'en-US';
-  recognition.continuous = false;
-  recognition.interimResults = false;
+  recognition.continuous = true;
+  recognition.interimResults = true;
   recognition.maxAlternatives = 1;
 
   let settled = false;
   let timeoutId;
-  let restartId;
+  let submitTimerId;
   let stopReason = 'unknown';
-  let restartCount = 0;
   let hadAnySpeech = false;
+  let interimTranscript = '';
+  let lastSpeechAt = 0;
 
-  const maxAutoRestarts = 3;
-  const restartDelayMs = 180;
   const safeTimeoutBufferMs = 500;
+  const submitAfterSilenceMs = 5000;
   const transcriptChunks = [];
 
   const cleanup = () => {
@@ -37,16 +37,41 @@ export function startListening({ timeoutMs = 20000 } = {}) {
       window.clearTimeout(timeoutId);
       timeoutId = undefined;
     }
-    if (restartId) {
-      window.clearTimeout(restartId);
-      restartId = undefined;
+    if (submitTimerId) {
+      window.clearTimeout(submitTimerId);
+      submitTimerId = undefined;
     }
     recognition.onresult = null;
     recognition.onerror = null;
     recognition.onend = null;
   };
 
-  const combinedTranscript = () => transcriptChunks.join(' ').replace(/\s+/g, ' ').trim();
+  const combinedTranscript = () => {
+    const finalTranscript = transcriptChunks.join(' ').replace(/\s+/g, ' ').trim();
+    const currentTranscript = interimTranscript.trim();
+    if (currentTranscript && finalTranscript) {
+      return `${finalTranscript} ${currentTranscript}`.replace(/\s+/g, ' ').trim();
+    }
+    return finalTranscript || currentTranscript;
+  };
+
+  const scheduleSubmit = () => {
+    if (submitTimerId) {
+      window.clearTimeout(submitTimerId);
+    }
+
+    submitTimerId = window.setTimeout(() => {
+      submitTimerId = undefined;
+      if (settled) {
+        return;
+      }
+
+      const transcript = combinedTranscript();
+      if (transcript) {
+        finishResolve(transcript);
+      }
+    }, submitAfterSilenceMs);
+  };
 
   const promise = new Promise((resolve, reject) => {
     const finishResolve = (transcript) => {
@@ -72,10 +97,30 @@ export function startListening({ timeoutMs = 20000 } = {}) {
 
     recognition.onresult = (event) => {
       stopReason = 'result';
-      const transcript = event.results?.[0]?.[0]?.transcript?.trim() || '';
-      if (transcript) {
-        transcriptChunks.push(transcript);
+      let sawSpeech = false;
+
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        const result = event.results[index];
+        const transcript = result?.[0]?.transcript?.trim() || '';
+
+        if (!transcript) {
+          continue;
+        }
+
+        sawSpeech = true;
         hadAnySpeech = true;
+        lastSpeechAt = Date.now();
+
+        if (result.isFinal) {
+          transcriptChunks.push(transcript);
+          interimTranscript = '';
+        } else {
+          interimTranscript = transcript;
+        }
+      }
+
+      if (sawSpeech) {
+        scheduleSubmit();
       }
     };
 
@@ -109,7 +154,7 @@ export function startListening({ timeoutMs = 20000 } = {}) {
           break;
         case 'no-speech':
           if (hadAnySpeech) {
-            // Keep the partial transcript and allow onend to decide restart/resolve.
+            // Keep listening and let the silence timeout resolve the transcript.
             return;
           }
           errorMessage = 'No speech detected. Please speak clearly and try again.';
@@ -141,36 +186,17 @@ export function startListening({ timeoutMs = 20000 } = {}) {
         return;
       }
 
-      const shouldRestart = transcript && restartCount < maxAutoRestarts;
-
-      if (shouldRestart) {
-        restartCount += 1;
-        restartId = window.setTimeout(() => {
-          restartId = undefined;
-          if (settled) {
-            return;
-          }
-
-          stopReason = 'restarting';
-          try {
-            recognition.start();
-          } catch {
-            const fallbackTranscript = combinedTranscript();
-            if (fallbackTranscript) {
-              finishResolve(fallbackTranscript);
-            } else {
-              finishReject('Unable to continue speech recognition. Please try again.');
-            }
-          }
-        }, restartDelayMs);
+      if (transcript) {
+        finishResolve(transcript);
         return;
       }
 
-      if (transcript) {
+      if (hadAnySpeech) {
         finishResolve(transcript);
-      } else {
-        finishReject('No speech detected. Please speak clearly and try again.');
+        return;
       }
+
+      finishReject('No speech detected. Please speak clearly and try again.');
     };
 
     timeoutId = window.setTimeout(() => {
@@ -183,6 +209,8 @@ export function startListening({ timeoutMs = 20000 } = {}) {
         return;
       }
     }, Math.max(1000, timeoutMs - safeTimeoutBufferMs));
+
+    lastSpeechAt = Date.now();
 
     try {
       recognition.start();

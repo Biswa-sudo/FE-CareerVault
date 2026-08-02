@@ -1,7 +1,10 @@
 import './MainNavbar.css';
 import { NavLink } from 'react-router-dom';
 import BentureAILogo from "../../assets/BentureAILogoText.webp";
+import { useAuth } from '../../context/AuthContext';
+
 const MainNavbar = () => {
+  const { authenticated, authLoading } = useAuth();
   const navLinks = [
     { to: '/about-us', label: 'About Us' },
     { to: '/contact', label: 'Contact' },
@@ -33,8 +36,16 @@ const MainNavbar = () => {
           ))}
         </nav>
         <div className="main-navbar__actions">
-          <NavLink to="/login" className="main-navbar__btn main-navbar__btn--outline">Login</NavLink>
-          <NavLink to="/signup" className="main-navbar__btn main-navbar__btn--primary">Get Started</NavLink>
+          {!authLoading && authenticated ? (
+            <NavLink to="/dashboard" className="main-navbar__btn main-navbar__btn--primary">My Dashboard</NavLink>
+          ) : null}
+
+          {!authLoading && !authenticated ? (
+            <>
+              <NavLink to="/login" className="main-navbar__btn main-navbar__btn--outline">Login</NavLink>
+              <NavLink to="/signup" className="main-navbar__btn main-navbar__btn--primary">Get Started</NavLink>
+            </>
+          ) : null}
         </div>
       </div>
     </header>
