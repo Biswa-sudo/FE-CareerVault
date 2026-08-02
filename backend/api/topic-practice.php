@@ -81,6 +81,7 @@ if ($method === 'PUT') {
 
         $pdo->commit();
     } catch (Throwable $e) {
+        error_log('[topic-practice.php] ' . $e->getMessage());
         $pdo->rollBack();
         respond(['error' => 'Failed to update topic practice data.'], 500);
     }

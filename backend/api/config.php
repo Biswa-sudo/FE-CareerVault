@@ -5,14 +5,7 @@ declare(strict_types=1);
 session_start();
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-$allowedOrigins = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-];
-
-if (in_array($origin, $allowedOrigins, true)) {
-    header('Access-Control-Allow-Origin: ' . $origin);
-}
+header('Access-Control-Allow-Origin: ' . (preg_match('~^https?://(localhost|127\.0\.0\.1)(:\d+)?$~', $origin) ? $origin : ((($_SERVER['HTTPS'] ?? 'off') !== 'off') ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? '')));
 
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
@@ -39,9 +32,9 @@ function db(): PDO
     }
 
     $host = envValue('DB_HOST', 'localhost');
-    $name = envValue('DB_NAME', 'bentureai');
-    $user = envValue('DB_USER', 'root');
-    $pass = envValue('DB_PASS', '');
+    $name = envValue('DB_NAME', 'u181031192_bentureai');
+    $user = envValue('DB_USER', 'u181031192_bentureai');
+    $pass = envValue('DB_PASS', '+99biswaK88@12');
 
     $dsn = sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', $host, $name);
     $pdo = new PDO($dsn, $user, $pass, [
