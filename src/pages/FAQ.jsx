@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './FAQ.css';
 import MainNavbar from '../components/Layout/MainNavbar';
 
@@ -164,7 +165,7 @@ const FAQ = () => {
             </h1>
             <p className="faq-subtitle">
               Find answers to the most common questions about Benture AI.
-              Can't find what you're looking for? <a href="/contact">Contact us</a>
+              Can't find what you're looking for? <Link to="/contact">Contact us</Link>
             </p>
             {/* <div className="faq-search">
               <input type="text" placeholder="Search your question..." />
@@ -217,8 +218,8 @@ const FAQ = () => {
           <div className="faq-more">
             <p>Still have questions?</p>
             <div className="faq-contact-options">
-              <a href="/contact" className="btn btn-primary">📧 Contact Support</a>
-              <a href="/chat" className="btn btn-outline">💬 Live Chat</a>
+              <Link to="/contact" className="btn btn-primary">📧 Contact Support</Link>
+              {/* <Link to="/chat" className="btn btn-outline">💬 Live Chat</Link> */}
             </div>
           </div>
         </div>
@@ -266,7 +267,7 @@ const FAQ = () => {
           <h2>Still Have Questions?</h2>
           <p>Our team is here to help. Reach out to us anytime.</p>
           <div className="faq-cta-actions">
-            <a href="/contact" className="btn btn-primary btn-large">📧 Contact Us</a>
+            <Link to="/contact" className="btn btn-primary btn-large">📧 Contact Us</Link>
             <a href="mailto:support@benture.ai" className="btn btn-outline btn-light btn-large">
               ✉️ support@benture.ai
             </a>
