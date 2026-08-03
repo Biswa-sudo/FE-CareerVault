@@ -1,15 +1,21 @@
 import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 
 export default function Login() {
-  const { login } = useAuth()
+  const { login, authenticated, authLoading } = useAuth()
   const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
   const { register, handleSubmit, setError, formState: { errors } } = useForm()
+
+  useEffect(() => {
+    if (!authLoading && authenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [authLoading, authenticated, navigate])
 
   const onSubmit = async (data) => {
     setSubmitting(true)

@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate, Link } from 'react-router-dom'
@@ -18,10 +18,16 @@ const schema = z.object({
 })
 
 export default function SignUp() {
-  const { signUp } = useAuth()
+  const { signUp, authenticated, authLoading } = useAuth()
   const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
   const { register, handleSubmit, setError, formState: { errors } } = useForm({ resolver: zodResolver(schema) })
+
+  useEffect(() => {
+    if (!authLoading && authenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [authLoading, authenticated, navigate])
 
   const onSubmit = async (data) => {
     setSubmitting(true)

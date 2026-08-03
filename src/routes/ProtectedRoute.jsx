@@ -11,6 +11,12 @@ export default function ProtectedRoute({ children }) {
 
   useEffect(() => {
     const checkSubscription = async () => {
+      if (!authenticated) {
+        setHasPaid(false)
+        setSubscriptionLoading(false)
+        return
+      }
+
       try {
         const active = await getSubscriptionStatus()
         setHasPaid(active)

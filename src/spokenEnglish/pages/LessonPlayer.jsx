@@ -28,6 +28,7 @@ const LessonPlayer = ({
   const [retrySkippedMode, setRetrySkippedMode] = useState(false);
   const [retryIndex, setRetryIndex] = useState(0);
   const [retryFailedActivities, setRetryFailedActivities] = useState([]);
+  const [autoSpeakEnabled, setAutoSpeakEnabled] = useState(true);
 
   const createActivityState = (subject, lesson, activity, activityIndex, totalActivities) => ({
     subject,
@@ -302,6 +303,8 @@ const LessonPlayer = ({
         activity={activity}
         onComplete={handleActivityComplete}
         onError={handleError}
+        autoSpeakEnabled={autoSpeakEnabled}
+        onAutoSpeakModeChange={setAutoSpeakEnabled}
       />
     </div>
   );

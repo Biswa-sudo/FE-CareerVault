@@ -16,6 +16,7 @@ const ChallengePlayer = ({
   const [results, setResults] = useState([]);
   const [testComplete, setTestComplete] = useState(false);
   const [error, setError] = useState(null);
+  const [autoSpeakEnabled, setAutoSpeakEnabled] = useState(true);
 
   useEffect(() => {
     if (subject?.challengeTest?.activities) {
@@ -117,10 +118,12 @@ const ChallengePlayer = ({
         </div>
       )}
       <ActivityRenderer
-         key={currentActivity.id}
-  activity={currentActivity}
-  onComplete={handleActivityComplete}
-  onError={handleError}
+        key={currentActivity.id}
+        activity={currentActivity}
+        onComplete={handleActivityComplete}
+        onError={handleError}
+        autoSpeakEnabled={autoSpeakEnabled}
+        onAutoSpeakModeChange={setAutoSpeakEnabled}
       />
     </div>
   );

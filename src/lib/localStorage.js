@@ -19,16 +19,33 @@ export async function loginUser(email, password) {
 }
 
 export async function getSession() {
-  const response = await apiRequest('/auth.php?action=session');
-  return {
-    authenticated: Boolean(response.authenticated),
-    user: response.user || null,
-  };
+  try {
+    const response = await apiRequest('/auth.php?action=session');
+    return {
+      authenticated: Boolean(response.authenticated),
+      user: response.user || null,
+    };
+  } catch (error) {
+    if (error instanceof Error && /401|Unauthorized/.test(error.message)) {
+      return {
+        authenticated: false,
+        user: null,
+      };
+    }
+    throw error;
+  }
 }
 
 export async function getSubscriptionStatus() {
-  const response = await apiRequest('/subscription.php');
-  return response.status === 'active';
+  try {
+    const response = await apiRequest('/subscription.php');
+    return response.status === 'active';
+  } catch (error) {
+    if (error instanceof Error && /401|Unauthorized/.test(error.message)) {
+      return false;
+    }
+    throw error;
+  }
 }
 
 export async function setSubscriptionActive() {

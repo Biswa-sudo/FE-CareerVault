@@ -3,7 +3,7 @@
  * Provides clear error messages for various failure scenarios.
  */
 
-export function startListening({ timeoutMs = 20000 } = {}) {
+export function startListening({ timeoutMs = 20000, silenceMs = 4000 } = {}) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
     return {
@@ -29,7 +29,7 @@ export function startListening({ timeoutMs = 20000 } = {}) {
   let lastSpeechAt = 0;
 
   const safeTimeoutBufferMs = 500;
-  const submitAfterSilenceMs = 5000;
+  const submitAfterSilenceMs = Math.max(1500, silenceMs);
   const transcriptChunks = [];
 
   const cleanup = () => {
@@ -68,6 +68,12 @@ export function startListening({ timeoutMs = 20000 } = {}) {
 
       const transcript = combinedTranscript();
       if (transcript) {
+        stopReason = 'silence';
+        try {
+          recognition.stop();
+        } catch {
+          // Ignore stop failures and resolve the transcript anyway.
+        }
         finishResolve(transcript);
       }
     }, submitAfterSilenceMs);

@@ -4,7 +4,13 @@ import { isValidAnswer } from '../utils/helpers';
 
 const SPEECH_TYPES = ['listen_repeat', 'read_aloud', 'spell_word', 'revision', 'challenge_question'];
 
-const ActivityRenderer = ({ activity, onComplete, onError }) => {
+const ActivityRenderer = ({
+  activity,
+  onComplete,
+  onError,
+  autoSpeakEnabled = true,
+  onAutoSpeakModeChange,
+}) => {
   const [userAnswer, setUserAnswer] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -14,7 +20,6 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
   const [speechError, setSpeechError] = useState(null);
   const [showFallback, setShowFallback] = useState(false);
   const [listeningProgress, setListeningProgress] = useState(0);
-  const [autoSpeakEnabled, setAutoSpeakEnabled] = useState(true);
   const [autoSpeakProgress, setAutoSpeakProgress] = useState(0);
   const [autoSpeakStatus, setAutoSpeakStatus] = useState('idle');
   const listeningSessionRef = useRef(null);
@@ -136,6 +141,14 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
   // ----- Text-to-Speech -----
   const handleSpeakText = ({ isAuto = false, retryCount = 0 } = {}) => {
     const textToSpeak = (activity.content || activity.instruction || '').trim();
+
+    if (listeningSessionRef.current) {
+      listeningSessionRef.current.cancel?.();
+      listeningSessionRef.current = null;
+    }
+    stopListeningProgress();
+    setIsListening(false);
+    setListeningProgress(0);
 
     if (!textToSpeak) {
       setFeedback('No text available to read aloud for this activity.');
@@ -283,35 +296,41 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
   }, [activityAutoSpeakKey, autoSpeakEnabled, isSpeechTypeActivity]);
 
   const handleAutoSpeakToggle = () => {
-    setAutoSpeakEnabled((prev) => {
-      const next = !prev;
-      if (next && isSpeechTypeActivity && activity?.content) {
-        setAutoSpeakStatus('loading');
-        lastAutoSpokenActivityRef.current = activityAutoSpeakKey;
-        window.setTimeout(() => {
-          startAutoSpeakProgress();
-          handleSpeakText({ isAuto: true });
-        }, 120);
-      } else if (!next) {
-        stopAutoSpeakProgress();
-        if (window.speechSynthesis) {
-          window.speechSynthesis.cancel();
-        }
-        if (autoListenTimerRef.current) {
-          window.clearTimeout(autoListenTimerRef.current);
-          autoListenTimerRef.current = null;
-        }
-        setAutoSpeakProgress(0);
-        setAutoSpeakStatus('off');
+    const next = !autoSpeakEnabled;
+    if (onAutoSpeakModeChange) {
+      onAutoSpeakModeChange(next);
+    }
+
+    if (next && isSpeechTypeActivity && activity?.content) {
+      setAutoSpeakStatus('loading');
+      lastAutoSpokenActivityRef.current = activityAutoSpeakKey;
+      window.setTimeout(() => {
+        startAutoSpeakProgress();
+        handleSpeakText({ isAuto: true });
+      }, 120);
+    } else if (!next) {
+      stopAutoSpeakProgress();
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
       }
-      return next;
-    });
+      if (autoListenTimerRef.current) {
+        window.clearTimeout(autoListenTimerRef.current);
+        autoListenTimerRef.current = null;
+      }
+      setAutoSpeakProgress(0);
+      setAutoSpeakStatus('off');
+    }
   };
 
   // ----- Speech-to-Text (listening) -----
   const handleSpeak = async () => {
     setSpeechError(null);
     setShowFallback(false);
+
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+
     setIsListening(true);
     setFeedback('Listening...');
     startListeningProgress();
@@ -319,7 +338,7 @@ const ActivityRenderer = ({ activity, onComplete, onError }) => {
     const sessionId = listeningSessionIdRef.current + 1;
     listeningSessionIdRef.current = sessionId;
 
-    const listeningSession = startListening({ timeoutMs: 20000 });
+    const listeningSession = startListening({ timeoutMs: 20000, silenceMs: 4000 });
     listeningSessionRef.current = listeningSession;
 
     try {
