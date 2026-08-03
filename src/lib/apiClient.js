@@ -1,11 +1,26 @@
-const DEFAULT_BASE_URL = 'https://bentureai.com/bentureai/api';
+const PRODUCTION_BASE_URL = 'https://bentureai.com/bentureai/api';
+const LOCAL_DEV_BASE_URL = '/bentureai/api';
 
 function trimTrailingSlash(value) {
   return String(value || '').replace(/\/+$/, '');
 }
 
+function isLocalDevelopmentHost() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  const hostname = window.location.hostname;
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
+}
+
 export function getApiBaseUrl() {
-  return trimTrailingSlash(import.meta.env.VITE_API_BASE_URL || DEFAULT_BASE_URL);
+  const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+  if (configuredBaseUrl) {
+    return trimTrailingSlash(configuredBaseUrl);
+  }
+
+  return isLocalDevelopmentHost() ? LOCAL_DEV_BASE_URL : PRODUCTION_BASE_URL;
 }
 
 function buildUrl(path) {

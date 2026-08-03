@@ -15,6 +15,7 @@ Options -Indexes
   </IfModule>
 </FilesMatch>
 
-RewriteEngine On
-RewriteCond %{REQUEST_METHOD} OPTIONS
-RewriteRule ^(.*)$ $1 [R=204,L]
+# The following block is COMMENTED OUT to allow PHP to handle OPTIONS
+# RewriteEngine On
+# RewriteCond %{REQUEST_METHOD} OPTIONS
+# RewriteRule ^(.*)$ $1 [R=204,L]

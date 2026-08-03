@@ -70,7 +70,7 @@ function db(): PDO
     $host = envValue('DB_HOST', 'localhost');
     $name = envValue('DB_NAME', 'u181031192_bentureai');
     $user = envValue('DB_USER', 'u181031192_bentureai');
-    $pass = envValue('DB_PASS', '+99biswaK88@12');
+    $pass = envValue('DB_PASS', '');
 
     $dsn = sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', $host, $name);
     $pdo = new PDO($dsn, $user, $pass, [
