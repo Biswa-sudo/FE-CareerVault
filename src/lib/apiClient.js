@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = 'https://magenta-sardine-631695.hostingersite.com/bentureai/api';
+const DEFAULT_BASE_URL = 'https://bentureai.com/bentureai/api';
 
 function trimTrailingSlash(value) {
   return String(value || '').replace(/\/+$/, '');

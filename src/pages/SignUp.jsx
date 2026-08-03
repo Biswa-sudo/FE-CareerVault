@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
@@ -21,19 +21,21 @@ export default function SignUp() {
   const { signUp, authenticated, authLoading } = useAuth()
   const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/dashboard'
   const { register, handleSubmit, setError, formState: { errors } } = useForm({ resolver: zodResolver(schema) })
 
   useEffect(() => {
     if (!authLoading && authenticated) {
-      navigate('/dashboard', { replace: true })
+      navigate(redirectTo, { replace: true })
     }
-  }, [authLoading, authenticated, navigate])
+  }, [authLoading, authenticated, navigate, redirectTo])
 
   const onSubmit = async (data) => {
     setSubmitting(true)
     try {
       await signUp({ name: data.name, email: data.email, password: data.password })
-      navigate('/dashboard')
+      navigate(redirectTo)
     } catch (error) {
       setError('email', { message: error instanceof Error ? error.message : 'Signup failed' })
     } finally {

@@ -48,13 +48,6 @@ export async function getSubscriptionStatus() {
   }
 }
 
-export async function setSubscriptionActive() {
-  await apiRequest('/subscription.php', {
-    method: 'POST',
-    body: { status: 'active' },
-  });
-}
-
 export async function getPaymentDate() {
   const response = await apiRequest('/subscription.php');
   return response.paymentDate || null;

@@ -23,6 +23,23 @@ CREATE TABLE IF NOT EXISTS subscriptions (
   CONSTRAINT fk_subscriptions_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS payments (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  razorpay_order_id VARCHAR(64) NOT NULL,
+  razorpay_payment_id VARCHAR(64) NULL,
+  amount_paise INT UNSIGNED NOT NULL,
+  currency CHAR(3) NOT NULL DEFAULT 'INR',
+  status ENUM('created', 'paid', 'failed') NOT NULL DEFAULT 'created',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  paid_at TIMESTAMP NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_payments_order (razorpay_order_id),
+  UNIQUE KEY uq_payments_payment (razorpay_payment_id),
+  KEY idx_payments_user (user_id),
+  CONSTRAINT fk_payments_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS cvs (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,

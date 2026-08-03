@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { useEffect, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
@@ -9,19 +9,21 @@ export default function Login() {
   const { login, authenticated, authLoading } = useAuth()
   const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/dashboard'
   const { register, handleSubmit, setError, formState: { errors } } = useForm()
 
   useEffect(() => {
     if (!authLoading && authenticated) {
-      navigate('/dashboard', { replace: true })
+      navigate(redirectTo, { replace: true })
     }
-  }, [authLoading, authenticated, navigate])
+  }, [authLoading, authenticated, navigate, redirectTo])
 
   const onSubmit = async (data) => {
     setSubmitting(true)
     try {
       await login(data.email, data.password)
-      navigate('/dashboard')
+      navigate(redirectTo)
     } catch {
       setError('email', { message: 'Invalid credentials' })
     } finally {

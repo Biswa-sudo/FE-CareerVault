@@ -32,11 +32,11 @@ export default function ProtectedRoute({ children }) {
     return <div className="p-6 text-sm text-gray-500">Checking access...</div>
   }
 
-  if (!hasPaid) {
-    return <Navigate to="/payment" state={{ from: location }} replace />
-  }
   if (!authenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />
+  }
+  if (!hasPaid) {
+    return <Navigate to="/payment" state={{ from: location }} replace />
   }
   return children
 }

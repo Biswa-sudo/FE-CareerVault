@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useAuth } from '../context/AuthContext'
 import Button from '../components/ui/Button'
 
 export default function PaymentSuccess() {
+  const { authenticated } = useAuth()
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <motion.div
@@ -21,14 +24,22 @@ export default function PaymentSuccess() {
           </svg>
         </motion.div>
         <h2 className="text-2xl font-display font-bold text-gray-800">Payment Successful!</h2>
-        <p className="text-gray-600 mt-2">You’re now a premium member.</p>
+        <p className="text-gray-600 mt-2">Your premium subscription is now active.</p>
         <div className="mt-8 space-y-3">
-          <Link to="/signup">
-            <Button className="w-full">Create Your Account</Button>
-          </Link>
-          <Link to="/login" className="block">
-            <Button variant="secondary" className="w-full">Go to Login</Button>
-          </Link>
+          {authenticated ? (
+            <Link to="/dashboard">
+              <Button className="w-full">Go to Dashboard</Button>
+            </Link>
+          ) : (
+            <>
+              <Link to="/signup">
+                <Button className="w-full">Create Your Account</Button>
+              </Link>
+              <Link to="/login" className="block">
+                <Button variant="secondary" className="w-full">Go to Login</Button>
+              </Link>
+            </>
+          )}
         </div>
       </motion.div>
     </div>
