@@ -166,10 +166,10 @@ const FAQ = () => {
               Find answers to the most common questions about Benture AI.
               Can't find what you're looking for? <a href="/contact">Contact us</a>
             </p>
-            <div className="faq-search">
+            {/* <div className="faq-search">
               <input type="text" placeholder="Search your question..." />
               <button className="search-btn">🔍</button>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>

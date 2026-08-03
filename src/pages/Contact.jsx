@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './Contact.css';
 import MainNavbar from '../components/Layout/MainNavbar';
+import { apiRequest } from '../lib/apiClient';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -11,25 +12,32 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError('');
+    setSubmitSuccess(false);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await apiRequest('/contact.php', {
+        method: 'POST',
+        body: formData,
+      });
+
       setSubmitSuccess(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
-
-      // Reset success message after 5 seconds
-      setTimeout(() => setSubmitSuccess(false), 5000);
-    }, 1500);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Unable to send message right now.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -94,6 +102,12 @@ const Contact = () => {
               {submitSuccess && (
                 <div className="success-message">
                   ✅ Thank you! Your message has been sent. We'll reply within 24 hours.
+                </div>
+              )}
+
+              {submitError && (
+                <div className="error-message">
+                  ⚠️ {submitError}
                 </div>
               )}
 
