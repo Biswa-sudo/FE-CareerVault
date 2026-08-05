@@ -4,7 +4,7 @@ import BentureAILogo from "../../assets/BentureAILogoText.webp";
 import { useAuth } from '../../context/AuthContext';
 
 const MainNavbar = () => {
-  const { authenticated, authLoading } = useAuth();
+  const { authenticated, authLoading, logout } = useAuth();
   const navLinks = [
     { to: '/about-us', label: 'About Us' },
     { to: '/contact', label: 'Contact' },
@@ -13,6 +13,10 @@ const MainNavbar = () => {
     { to: '/privacy-policy', label: 'Privacy Policy' },
     { to: '/account-settings', label: 'Account Settings' },
   ];
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <header className="main-navbar">
@@ -37,7 +41,19 @@ const MainNavbar = () => {
         </nav>
         <div className="main-navbar__actions">
           {!authLoading && authenticated ? (
-            <NavLink to="/dashboard" className="main-navbar__btn main-navbar__btn--primary">My Dashboard</NavLink>
+            <>
+              <NavLink to="/dashboard" className="main-navbar__btn main-navbar__btn--primary">My Dashboard</NavLink>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="main-navbar__btn main-navbar__btn--outline navbar_logout"
+                aria-label="Logout"
+                title="Logout"
+                style={{color:'red',borderColor:'red',borderWidth:'1px'}}
+              >
+                <span aria-hidden="true" style={{color:'red'}}>⎋</span>
+              </button>
+            </>
           ) : null}
 
           {!authLoading && !authenticated ? (

@@ -79,6 +79,11 @@
   transition: transform 0.28s ease;
 }
 
+navbar_logout:hover {
+  background-color: red;
+color: white;
+}
+
 .main-navbar__nav-link:hover {
   color: #1d4ed8;
 }
@@ -113,6 +118,14 @@
   text-decoration: none;
   border: 1px solid transparent;
   transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.main-navbar__btn--icon {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0.5rem;
+  font-size: 1rem;
 }
 
 .main-navbar__btn--outline {
@@ -143,6 +156,10 @@
     flex-wrap: wrap;
     padding: 0.65rem 0;
   }
+  navbar_logout:hover {
+  background-color: red;
+color: white;
+}
 
   .main-navbar__nav {
     order: 3;

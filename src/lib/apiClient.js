@@ -15,12 +15,16 @@ function isLocalDevelopmentHost() {
 }
 
 export function getApiBaseUrl() {
+  if (isLocalDevelopmentHost()) {
+    return LOCAL_DEV_BASE_URL;
+  }
+
   const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
   if (configuredBaseUrl) {
     return trimTrailingSlash(configuredBaseUrl);
   }
 
-  return isLocalDevelopmentHost() ? LOCAL_DEV_BASE_URL : PRODUCTION_BASE_URL;
+  return PRODUCTION_BASE_URL;
 }
 
 function buildUrl(path) {
