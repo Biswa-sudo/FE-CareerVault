@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import {
   loadProgress,
   saveProgress,
@@ -15,8 +15,37 @@ import {
   resetSubject
 } from '../services/progressService';
 import { courseData } from '../data/courseData';
+import odiaInstructions from '../data/odiaSubjects/odia1';
 
 const SpokenEnglishContext = createContext();
+
+const SUPPORTED_LANGUAGES = ['english', 'odia', 'hindi'];
+
+const normalizeLanguagePreference = (language) => {
+  const normalized = String(language || 'english').trim().toLowerCase();
+  return SUPPORTED_LANGUAGES.includes(normalized) ? normalized : 'english';
+};
+
+const localizeCourseData = (language) => {
+  if (language !== 'odia') {
+    return courseData;
+  }
+
+  return {
+    subjects: courseData.subjects.map((subject) => ({
+      ...subject,
+      lessons: subject.lessons.map((lesson) => ({
+        ...lesson,
+        activities: lesson.activities.map((activity) => {
+          const translatedInstruction = odiaInstructions[activity.id];
+          return translatedInstruction
+            ? { ...activity, instruction: translatedInstruction }
+            : activity;
+        }),
+      })),
+    })),
+  };
+};
 
 export const SpokenEnglishProvider = ({ children }) => {
   const [progress, setProgress] = useState(null);
@@ -39,6 +68,13 @@ export const SpokenEnglishProvider = ({ children }) => {
     await saveProgress(newProgress);
     setUnlockedSubjectIds(getUnlockedSubjectIds(newProgress));
   }, []);
+
+  const setLanguagePreference = useCallback(async (language) => {
+    if (!progress) return;
+    const normalized = normalizeLanguagePreference(language);
+    const updated = { ...progress, languagePreference: normalized };
+    await updateProgress(updated);
+  }, [progress, updateProgress]);
 
   const markLessonAsComplete = useCallback((subjectId, lessonId) => {
     if (!progress) return;
@@ -81,9 +117,12 @@ export const SpokenEnglishProvider = ({ children }) => {
     return isLessonCompleted(progress, subjectId, lessonId);
   }, [progress]);
 
+  const languagePreference = normalizeLanguagePreference(progress?.languagePreference);
+  const localizedCourseData = useMemo(() => localizeCourseData(languagePreference), [languagePreference]);
+
   const getSubject = useCallback((subjectId) => {
-    return courseData.subjects.find(s => s.id === subjectId);
-  }, []);
+    return localizedCourseData.subjects.find(s => s.id === subjectId);
+  }, [localizedCourseData]);
 
   const getLesson = useCallback((subjectId, lessonId) => {
     const subject = getSubject(subjectId);
@@ -126,7 +165,9 @@ export const SpokenEnglishProvider = ({ children }) => {
     progress,
     loading,
     unlockedSubjectIds,
-    courseData,
+    languagePreference,
+    setLanguagePreference,
+    courseData: localizedCourseData,
     getSubject,
     getLesson,
     markLessonAsComplete,

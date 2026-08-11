@@ -10,6 +10,7 @@ const defaultProgress = {
   completedLessons: [],
   completedSubjects: [],
   subjectProgress: {},
+  languagePreference: 'english',
   lastUpdated: new Date().toISOString()
 };
 
@@ -33,7 +34,8 @@ export async function loadProgress() {
     const stored = response?.item;
     if (stored && typeof stored === 'object') {
       const parsed = stored.data && typeof stored.data === 'object' ? stored.data : stored;
-      return { ...defaultProgress, ...parsed };
+      const languagePreference = stored.languagePreference || stored.language_preference || parsed.languagePreference || parsed.language_preference;
+      return { ...defaultProgress, ...parsed, ...(languagePreference ? { languagePreference } : {}) };
     }
   } catch (e) {
     console.warn("Failed to load progress:", e);
@@ -49,6 +51,7 @@ export async function saveProgress(progress) {
       body: {
         key: STORAGE_KEY,
         data: progress,
+        languagePreference: progress.languagePreference ?? 'english',
       },
     });
     return true;

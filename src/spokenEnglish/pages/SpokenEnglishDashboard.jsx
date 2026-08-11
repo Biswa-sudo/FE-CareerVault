@@ -6,10 +6,9 @@ import ProgressSummary from '../components/ProgressSummary';
 import SubjectDetail from '../components/SubjectDetail';
 import LessonPlayer from '../pages/LessonPlayer';
 import ChallengePlayer from '../pages/ChallengePlayer';
-import { courseData } from '../data/courseData';
 
 const SpokenEnglishDashboard = () => {
-  const { unlockedSubjectIds, progress, loading, getNextIncompleteActivity, resetProgress } = useSpokenEnglish();
+  const { unlockedSubjectIds, progress, loading, getNextIncompleteActivity, resetProgress, languagePreference, setLanguagePreference, courseData } = useSpokenEnglish();
   const {
     currentView,
     selectedSubjectId,
@@ -76,8 +75,26 @@ const SpokenEnglishDashboard = () => {
   // Default: Dashboard view
   return (
     <div className="container py-4">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+          <h1>🗣️ Spoken English</h1>
+          <p className="text-muted mb-0">Select your spoken-language preference and follow the instructions.</p>
+        </div>
+        <div className="d-flex flex-column flex-sm-row align-items-sm-center gap-2">
+          <label htmlFor="spoken-language-select" className="mb-0 fw-semibold">Language:</label>
+          <select
+            id="spoken-language-select"
+            className="form-select"
+            value={languagePreference}
+            onChange={(e) => setLanguagePreference(e.target.value)}
+          >
+            <option value="english">English</option>
+            <option value="odia">Odia</option>
+            <option value="hindi">Hindi</option>
+          </select>
+        </div>
+      </div>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>🗣️ Spoken English</h1>
         <div>
           <button className="btn btn-primary me-2" onClick={handleContinue}>
             ▶ Continue Learning
@@ -86,6 +103,11 @@ const SpokenEnglishDashboard = () => {
             🔄 Reset Progress
           </button>
         </div>
+        {languagePreference === 'hindi' && (
+          <div className="alert alert-info mb-0 py-2 px-3">
+            Hindi mode selected. English fallback is used until full Hindi lesson text is available.
+          </div>
+        )}
       </div>
 
       <ProgressSummary />

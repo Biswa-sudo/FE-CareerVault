@@ -43,6 +43,33 @@ function loadDotEnv(string $projectRoot): void {
 loadDotEnv(dirname(__DIR__, 2));
 
 // ─── SESSION & CORS ─────────────────────────────────────────
+// Ensure session cookie allows cross-site requests (e.g. localhost -> deployed API).
+// Set cookie params before starting the session so `PHPSESSID` can be sent when
+// the frontend is on a different origin. We enable `SameSite=None` and `Secure`
+// when running over HTTPS or when the host indicates the production domain.
+$existing = session_get_cookie_params();
+$isSecure = (($_SERVER['HTTPS'] ?? 'off') !== 'off');
+$host = $_SERVER['HTTP_HOST'] ?? '';
+$cookieDomain = '';
+if ($host !== '' && (str_ends_with($host, 'bentureai.com') || str_contains($host, '.bentureai.com'))) {
+    $cookieDomain = '.' . preg_replace('/^www\./', '', $host);
+}
+
+if (PHP_VERSION_ID >= 70300) {
+    session_set_cookie_params([
+        'lifetime' => $existing['lifetime'] ?? 0,
+        'path' => $existing['path'] ?? '/',
+        'domain' => $cookieDomain !== '' ? $cookieDomain : ($existing['domain'] ?? ''),
+        'secure' => $isSecure,
+        'httponly' => true,
+        'samesite' => 'None',
+    ]);
+} else {
+    // Fallback: try to append samesite via path (best-effort for older PHP).
+    $path = ($existing['path'] ?? '/') . '; SameSite=None';
+    session_set_cookie_params($existing['lifetime'] ?? 0, $path, $cookieDomain !== '' ? $cookieDomain : ($existing['domain'] ?? ''), $isSecure, true);
+}
+
 session_start();
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';

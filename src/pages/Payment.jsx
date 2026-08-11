@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getPaymentConfig, startUpiPayment } from '../lib/paymentService'
+import { getSubscriptionStatus } from '../lib/localStorage'
 import Button from '../components/ui/Button'
 
 export default function Payment() {
@@ -38,6 +39,30 @@ export default function Payment() {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    const checkActiveSubscription = async () => {
+      if (!authenticated) {
+        return
+      }
+
+      try {
+        const active = await getSubscriptionStatus()
+        if (!cancelled && active) {
+          navigate('/dashboard', { replace: true })
+        }
+      } catch (e) {
+        // Ignore; payment page is still allowed if subscription check fails.
+      }
+    }
+
+    checkActiveSubscription()
+    return () => {
+      cancelled = true
+    }
+  }, [authenticated, navigate])
 
   const handlePay = async () => {
     setLoading(true)
