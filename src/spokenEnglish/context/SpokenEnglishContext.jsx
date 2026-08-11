@@ -15,11 +15,94 @@ import {
   resetSubject
 } from '../services/progressService';
 import { courseData } from '../data/courseData';
-import odiaInstructions from '../data/odiaSubjects/odia1';
+import odia1 from '../data/odiaSubjects/odia1';
+import odia2 from '../data/odiaSubjects/odia2';
+import odia3 from '../data/odiaSubjects/odia3';
+import odia4 from '../data/odiaSubjects/odia4';
+import odia5 from '../data/odiaSubjects/odia5';
+import odia6 from '../data/odiaSubjects/odia6';
+import odia7 from '../data/odiaSubjects/odia7';
+import odia8 from '../data/odiaSubjects/odia8';
+import odia9 from '../data/odiaSubjects/odia9';
+import odia10 from '../data/odiaSubjects/odia10';
+import odia11 from '../data/odiaSubjects/odia11';
+import odia12 from '../data/odiaSubjects/odia12';
+import odia13 from '../data/odiaSubjects/odia13';
+import odia14 from '../data/odiaSubjects/odia14';
+import odia15 from '../data/odiaSubjects/odia15';
+import odia16 from '../data/odiaSubjects/odia16';
+import odia17 from '../data/odiaSubjects/odia17';
+import odia18 from '../data/odiaSubjects/odia18';
+import odia19 from '../data/odiaSubjects/odia19';
+import odia20 from '../data/odiaSubjects/odia20';
+import odia21 from '../data/odiaSubjects/odia21';
+import odia22 from '../data/odiaSubjects/odia22';
+import odia23 from '../data/odiaSubjects/odia23';
+import odia24 from '../data/odiaSubjects/odia24';
+import odia25 from '../data/odiaSubjects/odia25';
+import hindi1 from '../data/hindiSubjects/hindi1';
+import hindi2 from '../data/hindiSubjects/hindi2';
+import hindi3 from '../data/hindiSubjects/hindi3';
+import hindi4 from '../data/hindiSubjects/hindi4';
+import hindi5 from '../data/hindiSubjects/hindi5';
+import hindi6 from '../data/hindiSubjects/hindi6';
+import hindi7 from '../data/hindiSubjects/hindi7';
+import hindi8 from '../data/hindiSubjects/hindi8';
+import hindi9 from '../data/hindiSubjects/hindi9';
+import hindi10 from '../data/hindiSubjects/hindi10';
+import hindi11 from '../data/hindiSubjects/hindi11';
+import hindi12 from '../data/hindiSubjects/hindi12';
+import hindi13 from '../data/hindiSubjects/hindi13';
+import hindi14 from '../data/hindiSubjects/hindi14';
 
 const SpokenEnglishContext = createContext();
 
 const SUPPORTED_LANGUAGES = ['english', 'odia', 'hindi'];
+const LANGUAGE_TRANSLATIONS = {
+  odia: {
+    ...odia1,
+    ...odia2,
+    ...odia3,
+    ...odia4,
+    ...odia5,
+    ...odia6,
+    ...odia7,
+    ...odia8,
+    ...odia9,
+    ...odia10,
+    ...odia11,
+    ...odia12,
+    ...odia13,
+    ...odia14,
+    ...odia15,
+    ...odia16,
+    ...odia17,
+    ...odia18,
+    ...odia19,
+    ...odia20,
+    ...odia21,
+    ...odia22,
+    ...odia23,
+    ...odia24,
+    ...odia25,
+  },
+  hindi: {
+    ...hindi1,
+    ...hindi2,
+    ...hindi3,
+    ...hindi4,
+    ...hindi5,
+    ...hindi6,
+    ...hindi7,
+    ...hindi8,
+    ...hindi9,
+    ...hindi10,
+    ...hindi11,
+    ...hindi12,
+    ...hindi13,
+    ...hindi14,
+  },
+};
 
 const normalizeLanguagePreference = (language) => {
   const normalized = String(language || 'english').trim().toLowerCase();
@@ -27,7 +110,8 @@ const normalizeLanguagePreference = (language) => {
 };
 
 const localizeCourseData = (language) => {
-  if (language !== 'odia') {
+  const translations = LANGUAGE_TRANSLATIONS[language];
+  if (!translations) {
     return courseData;
   }
 
@@ -37,7 +121,7 @@ const localizeCourseData = (language) => {
       lessons: subject.lessons.map((lesson) => ({
         ...lesson,
         activities: lesson.activities.map((activity) => {
-          const translatedInstruction = odiaInstructions[activity.id];
+          const translatedInstruction = translations[activity.id];
           return translatedInstruction
             ? { ...activity, instruction: translatedInstruction }
             : activity;

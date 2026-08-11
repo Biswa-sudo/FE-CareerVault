@@ -103,11 +103,6 @@ const SpokenEnglishDashboard = () => {
             🔄 Reset Progress
           </button>
         </div>
-        {languagePreference === 'hindi' && (
-          <div className="alert alert-info mb-0 py-2 px-3">
-            Hindi mode selected. English fallback is used until full Hindi lesson text is available.
-          </div>
-        )}
       </div>
 
       <ProgressSummary />
