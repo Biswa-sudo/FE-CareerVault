@@ -6,8 +6,13 @@ import { useAuth } from '../context/AuthContext'
 export default function ProtectedRoute({ children }) {
   const location = useLocation()
   const { authenticated, authLoading } = useAuth()
-  const [hasPaid, setHasPaid] = useState(false)
-  const [subscriptionLoading, setSubscriptionLoading] = useState(true)
+  const cachedSubscriptionValue = typeof window !== 'undefined'
+    ? window.sessionStorage.getItem('bentureai_active_subscription')
+    : null
+  const initialHasPaid = cachedSubscriptionValue === 'active'
+
+  const [hasPaid, setHasPaid] = useState(initialHasPaid)
+  const [subscriptionLoading, setSubscriptionLoading] = useState(!initialHasPaid)
 
   useEffect(() => {
     const checkSubscription = async () => {
@@ -17,9 +22,25 @@ export default function ProtectedRoute({ children }) {
         return
       }
 
+      setSubscriptionLoading(true)
+
       try {
         const active = await getSubscriptionStatus()
-        setHasPaid(active)
+        const nextHasPaid = Boolean(active)
+        setHasPaid(nextHasPaid)
+
+        if (nextHasPaid) {
+          sessionStorage.setItem('bentureai_active_subscription', 'active')
+        } else {
+          sessionStorage.removeItem('bentureai_active_subscription')
+        }
+      } catch (error) {
+        const cachedStatus = sessionStorage.getItem('bentureai_active_subscription') === 'active'
+        if (cachedStatus) {
+          setHasPaid(true)
+        } else {
+          setHasPaid(false)
+        }
       } finally {
         setSubscriptionLoading(false)
       }

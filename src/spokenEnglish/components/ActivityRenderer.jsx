@@ -140,7 +140,13 @@ const ActivityRenderer = ({
 
   // ----- Text-to-Speech -----
   const handleSpeakText = ({ isAuto = false, retryCount = 0 } = {}) => {
-    const textToSpeak = (activity.content || activity.instruction || '').trim();
+    const instructionText = (activity.instruction || '').trim();
+    const contentText = (activity.content || '').trim();
+
+    const textToSpeak = [
+      instructionText ? `Instruction: ${instructionText}` : '',
+      contentText || ''
+    ].filter(Boolean).join(' ');
 
     if (listeningSessionRef.current) {
       listeningSessionRef.current.cancel?.();
@@ -250,7 +256,7 @@ const ActivityRenderer = ({
   };
 
   useEffect(() => {
-    if (!autoSpeakEnabled || !isSpeechTypeActivity || !activity?.content) {
+    if (!autoSpeakEnabled || !isSpeechTypeActivity || (!activity?.content && !activity?.instruction)) {
       return;
     }
 
@@ -301,7 +307,7 @@ const ActivityRenderer = ({
       onAutoSpeakModeChange(next);
     }
 
-    if (next && isSpeechTypeActivity && activity?.content) {
+    if (next && isSpeechTypeActivity && (activity?.content || activity?.instruction)) {
       setAutoSpeakStatus('loading');
       lastAutoSpokenActivityRef.current = activityAutoSpeakKey;
       window.setTimeout(() => {
