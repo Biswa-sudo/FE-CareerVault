@@ -283,7 +283,7 @@ const LessonPlayer = ({
     <div className="container py-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <button className="btn btn-link" onClick={() => navigateToSubject(subject.id)}>
-          ← Back to Subject
+          ← Back to Lessonsi 
         </button>
         <span className="badge bg-secondary">
           {retrySkippedMode ? 'Retry Skipped Questions' : `Lesson: ${lesson.title}`}

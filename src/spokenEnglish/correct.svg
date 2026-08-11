@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <defs>
+    <!-- Glow filter for the checkmark -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Soft shadow for elements on white background -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.1"/>
+    </filter>
+
+    <!-- Sparkle star shape -->
+    <polygon id="star" points="0,-12 3.5,-4 12,-4 5.5,2 7.5,10 0,5.5 -7.5,10 -5.5,2 -12,-4 -3.5,-4" fill="#FFB300"/>
+
+    <!-- Confetti shapes -->
+    <rect id="confettiRect1" width="6" height="3" rx="1" fill="#FF6B6B"/>
+    <rect id="confettiRect2" width="5" height="3" rx="1" fill="#4ECDC4"/>
+    <rect id="confettiRect3" width="4" height="4" rx="1" fill="#FFD93D"/>
+    <rect id="confettiRect4" width="5" height="3" rx="1" fill="#A8E6CF"/>
+    <rect id="confettiRect5" width="6" height="2" rx="1" fill="#FF8A5C"/>
+    <rect id="confettiRect6" width="4" height="4" rx="1" fill="#6C5B7B"/>
+  </defs>
+
+  <!-- Subtle background pulse - lighter for white bg -->
+  <circle cx="200" cy="140" r="100" fill="#E8F5E9" opacity="0.4">
+    <animate attributeName="r" values="100;120;100" dur="1s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.4;0.6;0.4" dur="1s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Success checkmark circle -->
+  <circle cx="200" cy="140" r="60" fill="#ffffff" stroke="#4CAF50" stroke-width="4" opacity="0" filter="url(#softShadow)">
+    <animate attributeName="opacity" values="0;1;1" dur="0.3s" fill="freeze"/>
+    <animate attributeName="stroke-dasharray" values="0,377;377,377" dur="0.6s" fill="freeze"/>
+  </circle>
+
+  <!-- Inner circle glow -->
+  <circle cx="200" cy="140" r="55" fill="none" stroke="#66BB6A" stroke-width="2" opacity="0">
+    <animate attributeName="opacity" values="0;1" dur="0.3s" begin="0.2s" fill="freeze"/>
+    <animate attributeName="r" values="55;70;55" dur="1.5s" begin="0.2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.3;0;0.3" dur="1.5s" begin="0.2s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Checkmark -->
+  <polyline points="170,140 190,160 235,120" fill="none" stroke="#43A047" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="0,100" stroke-dashoffset="0" filter="url(#glow)">
+    <animate attributeName="stroke-dasharray" values="0,100;90,100" dur="0.5s" begin="0.2s" fill="freeze"/>
+  </polyline>
+
+  <!-- "Correct!" text -->
+  <text x="200" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="28" fill="#2E7D32" opacity="0" letter-spacing="3" filter="url(#softShadow)">
+    CORRECT!
+    <animate attributeName="opacity" values="0;1" dur="0.4s" begin="0.4s" fill="freeze"/>
+    <animateTransform attributeName="transform" type="scale" values="0.5;1.2;1" dur="0.6s" begin="0.4s" fill="freeze" additive="sum"/>
+  </text>
+
+  <!-- Sparkle stars orbiting -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;1" dur="0.1s" begin="0.3s" fill="freeze"/>
+
+    <!-- Star 1 - top -->
+    <use href="#star" x="200" y="70" filter="url(#softShadow)">
+      <animateTransform attributeName="transform" type="translate" values="0,0;-40,-30;0,0" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+    </use>
+
+    <!-- Star 2 - top right -->
+    <use href="#star" x="260" y="100" filter="url(#softShadow)">
+      <animateTransform attributeName="transform" type="translate" values="0,0;30,-20;0,0" dur="2.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.3;1" dur="2.5s" repeatCount="indefinite"/>
+    </use>
+
+    <!-- Star 3 - right -->
+    <use href="#star" x="270" y="150" filter="url(#softShadow)">
+      <animateTransform attributeName="transform" type="translate" values="0,0;20,30;0,0" dur="1.8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="1.8s" repeatCount="indefinite"/>
+    </use>
+
+    <!-- Star 4 - bottom right -->
+    <use href="#star" x="250" y="190" filter="url(#softShadow)">
+      <animateTransform attributeName="transform" type="translate" values="0,0;20,20;0,0" dur="2.2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.4;1" dur="2.2s" repeatCount="indefinite"/>
+    </use>
+
+    <!-- Star 5 - bottom -->
+    <use href="#star" x="200" y="200" filter="url(#softShadow)">
+      <animateTransform attributeName="transform" type="translate" values="0,0;-20,30;0,0" dur="2.7s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;1;0.6" dur="2.7s" repeatCount="indefinite"/>
+    </use>
+
+    <!-- Star 6 - bottom left -->
+    <use href="#star" x="150" y="190" filter="url(#softShadow)">
+      <animateTransform attributeName="transform" type="translate" values="0,0;-20,20;0,0" dur="1.9s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.5;1" dur="1.9s" repeatCount="indefinite"/>
+    </use>
+
+    <!-- Star 7 - left -->
+    <use href="#star" x="130" y="150" filter="url(#softShadow)">
+      <animateTransform attributeName="transform" type="translate" values="0,0;-30,0;0,0" dur="2.3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="2.3s" repeatCount="indefinite"/>
+    </use>
+
+    <!-- Star 8 - top left -->
+    <use href="#star" x="140" y="100" filter="url(#softShadow)">
+      <animateTransform attributeName="transform" type="translate" values="0,0;-20,-30;0,0" dur="2.6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.3;1" dur="2.6s" repeatCount="indefinite"/>
+    </use>
+  </g>
+
+  <!-- Confetti bursts -->
+  <g>
+    <use href="#confettiRect1" x="200" y="140" opacity="0" filter="url(#softShadow)">
+      <animate attributeName="opacity" values="1;0" dur="1.5s" begin="0.3s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="translate" values="0,0;-50,-60" dur="1.5s" begin="0.3s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="rotate" values="0;720" dur="1.5s" begin="0.3s" fill="freeze" additive="sum"/>
+    </use>
+
+    <use href="#confettiRect2" x="200" y="140" opacity="0" filter="url(#softShadow)">
+      <animate attributeName="opacity" values="1;0" dur="1.5s" begin="0.35s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="translate" values="0,0;60,-50" dur="1.5s" begin="0.35s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="rotate" values="0;-540" dur="1.5s" begin="0.35s" fill="freeze" additive="sum"/>
+    </use>
+
+    <use href="#confettiRect3" x="200" y="140" opacity="0" filter="url(#softShadow)">
+      <animate attributeName="opacity" values="1;0" dur="1.5s" begin="0.4s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="translate" values="0,0;-30,60" dur="1.5s" begin="0.4s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="rotate" values="0;450" dur="1.5s" begin="0.4s" fill="freeze" additive="sum"/>
+    </use>
+
+    <use href="#confettiRect4" x="200" y="140" opacity="0" filter="url(#softShadow)">
+      <animate attributeName="opacity" values="1;0" dur="1.5s" begin="0.45s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="translate" values="0,0;40,55" dur="1.5s" begin="0.45s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="rotate" values="0;-380" dur="1.5s" begin="0.45s" fill="freeze" additive="sum"/>
+    </use>
+
+    <use href="#confettiRect5" x="200" y="140" opacity="0" filter="url(#softShadow)">
+      <animate attributeName="opacity" values="1;0" dur="1.5s" begin="0.5s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="translate" values="0,0;-55,50" dur="1.5s" begin="0.5s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="rotate" values="0;600" dur="1.5s" begin="0.5s" fill="freeze" additive="sum"/>
+    </use>
+
+    <use href="#confettiRect6" x="200" y="140" opacity="0" filter="url(#softShadow)">
+      <animate attributeName="opacity" values="1;0" dur="1.5s" begin="0.55s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="translate" values="0,0;55,-40" dur="1.5s" begin="0.55s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="rotate" values="0;-650" dur="1.5s" begin="0.55s" fill="freeze" additive="sum"/>
+    </use>
+  </g>
+
+  <!-- Pulsing ring bursts -->
+  <circle cx="200" cy="140" r="50" fill="none" stroke="#FFB300" stroke-width="2.5" opacity="0">
+    <animate attributeName="r" values="50;120" dur="1s" begin="0.3s" fill="freeze"/>
+    <animate attributeName="opacity" values="0.6;0" dur="1s" begin="0.3s" fill="freeze"/>
+  </circle>
+
+  <circle cx="200" cy="140" r="50" fill="none" stroke="#4CAF50" stroke-width="2.5" opacity="0">
+    <animate attributeName="r" values="50;140" dur="1.2s" begin="0.5s" fill="freeze"/>
+    <animate attributeName="opacity" values="0.5;0" dur="1.2s" begin="0.5s" fill="freeze"/>
+  </circle>
+</svg>

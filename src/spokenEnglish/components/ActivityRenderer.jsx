@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { startListening } from '../services/speechService';
 import { isValidAnswer } from '../utils/helpers';
+import correctIcon from '../correct.svg';
 
 const SPEECH_TYPES = ['listen_repeat', 'read_aloud', 'spell_word', 'revision', 'challenge_question'];
 
@@ -17,6 +18,7 @@ const ActivityRenderer = ({
   const [feedback, setFeedback] = useState('');
   const [attempts, setAttempts] = useState(0);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [wasCorrectAnswer, setWasCorrectAnswer] = useState(false);
   const [speechError, setSpeechError] = useState(null);
   const [showFallback, setShowFallback] = useState(false);
   const [listeningProgress, setListeningProgress] = useState(0);
@@ -134,6 +136,7 @@ const ActivityRenderer = ({
     setFeedback('');
     setAttempts(0);
     setIsCorrect(false);
+    setWasCorrectAnswer(false);
     setSpeechError(null);
     setShowFallback(false);
   };
@@ -437,6 +440,7 @@ const ActivityRenderer = ({
     if (isValidAnswer(spoken, expected)) {
       setFeedback('✅ Correct!');
       setIsCorrect(true);
+      setWasCorrectAnswer(true);
       scheduleCompletion(() => {
         onComplete(true, spoken);
       }, 1000);
@@ -446,6 +450,7 @@ const ActivityRenderer = ({
       if (newAttempts >= maxAttempts) {
         setFeedback(`❌ Incorrect. You said: "${spoken}". The correct answer is: ${expected[0]}`);
         setIsCorrect(true);
+        setWasCorrectAnswer(false);
         scheduleCompletion(() => {
           onComplete(false, spoken);
         }, 2000);
@@ -645,8 +650,32 @@ const ActivityRenderer = ({
 
       {renderImage()}
 
-      <div>
-        {renderContent()}
+      <div className="position-relative">
+        {wasCorrectAnswer && isCorrect && (
+          <div
+            className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+            style={{
+              zIndex: 10,
+              backgroundColor: 'rgba(255,255,255,0.90)',
+              pointerEvents: 'none',
+            }}
+          >
+            <img
+              src={correctIcon}
+              alt="Correct answer"
+              className="img-fluid"
+              style={{
+                maxHeight: '280px',
+                width: 'auto',
+                filter: 'drop-shadow(0 0 30px rgba(25, 135, 84, 0.5))',
+              }}
+            />
+          </div>
+        )}
+
+        <div>
+          {renderContent()}
+        </div>
       </div>
 
       {feedback && (

@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const WelcomeBentureAI = () => {
-  const [selectedLanguage, setSelectedLanguage] = useState('');
+const languageMap = {
+  en: 'english',
+  hi: 'hindi',
+  or: 'odia',
+};
+
+const WelcomeBentureAI = ({ selectedLanguage, onLanguageChange, onContinue }) => {
+  const currentLanguage = useMemo(() => {
+    if (selectedLanguage) return selectedLanguage;
+    return 'en';
+  }, [selectedLanguage]);
 
   const courseSteps = [
     {
@@ -37,7 +46,7 @@ const WelcomeBentureAI = () => {
       {/* Header Section */}
       <div className="mb-3 pb-3 border-bottom">
         {/* <h1 className="text-primary fw-bold mb-2">BentureAI</h1> */}
-        <h2 className="fs-3 fw-semibold text-dark">Welcome to Spoken English</h2>
+        <h2 className="fs-3 fw-semibold text-dark">Welcome to AI Powered Spoken English</h2>
         <p className="text-muted mt-2">Your journey to fluent and confident English starts here.</p>
       </div>
 
@@ -69,9 +78,9 @@ const WelcomeBentureAI = () => {
           {languages.map((lang) => (
             <div key={lang.code} className="col-12 col-md-4">
               <button
-                onClick={() => setSelectedLanguage(lang.code)}
+                onClick={() => onLanguageChange?.(languageMap[lang.code] || 'english')}
                 className={`btn w-100 h-100 py-3 rounded-3 border-2 ${
-                  selectedLanguage === lang.code
+                  currentLanguage === lang.code
                     ? 'btn-primary shadow-sm'
                     : 'btn-outline-secondary bg-white text-dark'
                 }`}
@@ -88,13 +97,14 @@ const WelcomeBentureAI = () => {
       {/* Call to Action */}
       <div className="text-end border-top pt-4 mt-4">
         <button
-          disabled={!selectedLanguage}
+          disabled={!currentLanguage}
           className={`btn px-5 py-3 rounded-3 fs-6 fw-bold ${
-            selectedLanguage ? 'btn-primary shadow-sm' : 'btn-secondary text-white opacity-50'
+            currentLanguage ? 'btn-primary shadow-sm' : 'btn-secondary text-white opacity-50'
           }`}
+          onClick={onContinue}
           style={{ transition: 'all 0.3s' }}
         >
-          {selectedLanguage ? "Save & Continue" : "Please Select a Language"}
+          {currentLanguage ? "Save & Continue" : "Please Select a Language"}
         </button>
       </div>
       

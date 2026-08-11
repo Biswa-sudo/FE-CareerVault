@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSpokenEnglish } from '../context';
 import { useNavigation, NAV_VIEWS } from '../hooks/useNavigation';
 import SubjectCard from '../components/SubjectCard';
@@ -6,6 +6,7 @@ import ProgressSummary from '../components/ProgressSummary';
 import SubjectDetail from '../components/SubjectDetail';
 import LessonPlayer from '../pages/LessonPlayer';
 import ChallengePlayer from '../pages/ChallengePlayer';
+import WelcomeBentureAI from '../components/WelcomeBentureAI';
 
 const SpokenEnglishDashboard = () => {
   const { unlockedSubjectIds, progress, loading, getNextIncompleteActivity, resetProgress, languagePreference, setLanguagePreference, courseData } = useSpokenEnglish();
@@ -18,9 +19,40 @@ const SpokenEnglishDashboard = () => {
     navigateToChallenge,
     navigateToDashboard
   } = useNavigation();
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  const hasStartedProgress = useMemo(() => {
+    if (!progress) return false;
+    return (
+      (progress.completedLessons?.length || 0) > 0 ||
+      (progress.completedSubjects?.length || 0) > 0 ||
+      Object.keys(progress.subjectProgress || {}).length > 0 ||
+      (progress.currentActivityIndex || 0) > 0 ||
+      progress.currentLessonId !== 1 ||
+      progress.currentSubjectId !== 1
+    );
+  }, [progress]);
+
+  useEffect(() => {
+    if (!loading) {
+      setShowWelcome(!hasStartedProgress);
+    }
+  }, [loading, hasStartedProgress]);
 
   if (loading) {
     return <div className="text-center mt-5"><div className="spinner-border" role="status"><span className="visually-hidden">Loading...</span></div></div>;
+  }
+
+  if (showWelcome) {
+    return (
+      <WelcomeBentureAI
+        selectedLanguage={languagePreference === 'english' ? 'en' : languagePreference === 'hindi' ? 'hi' : 'or'}
+        onLanguageChange={(nextLanguage) => setLanguagePreference(nextLanguage)}
+        onContinue={() => {
+          setShowWelcome(false);
+        }}
+      />
+    );
   }
 
   const handleContinue = () => {
