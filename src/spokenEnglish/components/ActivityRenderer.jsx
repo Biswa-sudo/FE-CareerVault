@@ -336,6 +336,8 @@ const ActivityRenderer = ({
     setSpeechError(null);
     setShowFallback(false);
 
+    stopAutoSpeakProgress();
+    setAutoSpeakStatus('off');
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
