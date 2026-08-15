@@ -1,6 +1,8 @@
 import React from 'react';
 import './LandingPageFinal.css';
 import MainNavbar from '../components/Layout/MainNavbar';
+import SpokenEnglishOffer from '../components/sections/SpokenEnglishOffer';
+import CareerVaultSection from '../components/sections/CareerVaultSection';
 
 const LandingPageFinal = () => {
   return (
@@ -50,7 +52,8 @@ const LandingPageFinal = () => {
           </div>
         </div>
       </section>
-
+      <SpokenEnglishOffer />
+      <CareerVaultSection />
       {/* ===== PROBLEM ===== */}
       <section className="problem">
         <div className="container">
@@ -231,7 +234,7 @@ const LandingPageFinal = () => {
       </section>
 
       {/* ===== TESTIMONIALS ===== */}
-      <section className="testimonials">
+      {/* <section className="testimonials">
         <div className="container">
           <h2 className="section-title">Real Stories. Real Impact.</h2>
           <div className="testimonial-grid">
@@ -265,10 +268,10 @@ const LandingPageFinal = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ===== PRICING ===== */}
-      <section className="pricing" id="pricing">
+      {/* <section className="pricing" id="pricing">
         <div className="container">
           <h2 className="section-title">Plans for Every Career Stage</h2>
           <p className="section-subtitle">Start free. Upgrade when you need more.</p>
@@ -331,7 +334,7 @@ const LandingPageFinal = () => {
           </div>
           <p className="pricing-note">Upgrade anytime. Cancel anytime. No questions asked.</p>
         </div>
-      </section>
+      </section> */}
 
       {/* ===== FAQ ===== */}
       <section className="faq" id="faq">
@@ -443,6 +446,7 @@ const LandingPageFinal = () => {
         </div>
       </footer>
     </div>
+    
   );
 };
 
