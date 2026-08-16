@@ -33,8 +33,11 @@ export async function getPaymentConfig() {
   return apiRequest('/payment.php?action=config');
 }
 
-export async function createPaymentOrder() {
-  return apiRequest('/payment.php?action=create-order', { method: 'POST' });
+export async function createPaymentOrder(payload = {}) {
+  return apiRequest('/payment.php?action=create-order', {
+    method: 'POST',
+    body: payload,
+  });
 }
 
 export async function verifyPayment(paymentDetails) {
@@ -44,9 +47,16 @@ export async function verifyPayment(paymentDetails) {
   });
 }
 
-export async function startUpiPayment({ onSuccess, onDismiss }) {
+export async function startUpiPayment({
+  amount = 10000,
+  currency = 'INR',
+  description = 'Annual subscription — all features unlocked',
+  plan = 'annual',
+  onSuccess,
+  onDismiss,
+}) {
   const [order] = await Promise.all([
-    createPaymentOrder(),
+    createPaymentOrder({ amount, currency, description, plan }),
     loadRazorpayScript(),
   ]);
 
@@ -56,7 +66,7 @@ export async function startUpiPayment({ onSuccess, onDismiss }) {
       amount: order.amount,
       currency: order.currency,
       name: 'Benture AI',
-      description: 'Annual subscription — all features unlocked',
+      description: description || order.description || 'Benture AI subscription',
       order_id: order.orderId,
       prefill: order.prefill || {},
       theme: { color: '#2563eb' },

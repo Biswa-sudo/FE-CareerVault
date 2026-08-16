@@ -4,8 +4,14 @@
 const SpokenEnglishOffer = () => {
 
     const handleSubscribe = () => {
-        // TODO: Connect this button with your Razorpay/payment flow 
-        console.log("Subscribe for ₹99");
+        const params = new URLSearchParams({
+            plan: 'spoken-english',
+            amount: '9900',
+            title: 'Spoken English 1-Year Pass',
+            description: 'Spoken English practice pass',
+        });
+
+        window.location.href = `/payment?${params.toString()}`;
     };
     return (
         <section className="spoken-english-section py-5">

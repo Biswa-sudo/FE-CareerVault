@@ -4,8 +4,19 @@ import React from "react";
 
 const CareerVaultSection = () => {
   const handleSubscribe = (plan) => {
-    // TODO: Connect with your Razorpay/payment flow
-    console.log(`Selected plan: ${plan}`);
+    // Determine amount and plan key based on selection
+    const isPro = String(plan || '').toLowerCase().includes('pro') || String(plan).toLowerCase().includes('+ ai');
+    const planKey = isPro ? 'career-vault-pro' : 'career-vault';
+    const amount = isPro ? '19900' : '9900';
+
+    const params = new URLSearchParams({
+      plan: planKey,
+      amount: amount,
+      title: isPro ? 'Career Vault + AI (Pro)' : 'Career Vault',
+      description: 'Career Vault access',
+    });
+
+    window.location.href = `/payment?${params.toString()}`;
   };
 
   const basicFeatures = [

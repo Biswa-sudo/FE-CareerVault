@@ -86,6 +86,15 @@ if ($method === 'POST' && ($action === 'create-order' || $action === 'create_ord
         $pdo = db();
         $userId = requireAuth();
         $credentials = razorpayCredentials();
+        $payload = jsonInput();
+        $amount = isset($payload['amount']) ? (int) $payload['amount'] : SUBSCRIPTION_AMOUNT_PAISE;
+        $currency = strtoupper((string) ($payload['currency'] ?? SUBSCRIPTION_CURRENCY));
+        $plan = (string) ($payload['plan'] ?? 'annual');
+        $description = (string) ($payload['description'] ?? 'Annual subscription — all features unlocked');
+
+        if ($amount <= 0) {
+            respond(['error' => 'Payment amount must be greater than zero.'], 422);
+        }
 
         if (!$credentials['configured']) {
             respond(['error' => 'Payment gateway is not configured. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.'], 503);
@@ -102,12 +111,13 @@ if ($method === 'POST' && ($action === 'create-order' || $action === 'create_ord
         // Create Razorpay order
         $receipt = 'sub_' . $userId . '_' . time();
         $order = razorpayRequest('orders', [
-            'amount' => SUBSCRIPTION_AMOUNT_PAISE,
-            'currency' => SUBSCRIPTION_CURRENCY,
+            'amount' => $amount,
+            'currency' => $currency,
             'receipt' => $receipt,
             'notes' => [
                 'user_id' => (string) $userId,
-                'product' => 'annual_subscription',
+                'product' => $plan,
+                'description' => $description,
             ],
         ], $credentials['keyId'], $credentials['keySecret']);
 
@@ -124,8 +134,8 @@ if ($method === 'POST' && ($action === 'create-order' || $action === 'create_ord
         $insert->execute([
             'order_id' => $orderId,
             'user_id' => $userId,
-            'amount' => SUBSCRIPTION_AMOUNT_PAISE,
-            'currency' => SUBSCRIPTION_CURRENCY,
+            'amount' => $amount,
+            'currency' => $currency,
             'status' => 'created',
         ]);
 
@@ -136,9 +146,10 @@ if ($method === 'POST' && ($action === 'create-order' || $action === 'create_ord
 
         respond([
             'orderId' => $orderId,
-            'amount' => SUBSCRIPTION_AMOUNT_PAISE,
-            'currency' => SUBSCRIPTION_CURRENCY,
+            'amount' => $amount,
+            'currency' => $currency,
             'keyId' => $credentials['keyId'],
+            'description' => $description,
             'prefill' => [
                 'name' => $user['name'] ?? '',
                 'email' => $user['email'] ?? '',
@@ -190,10 +201,6 @@ if ($method === 'POST' && ($action === 'verify' || $action === 'verify-payment')
 
         if ((int) $payment['user_id'] !== $userId) {
             respond(['error' => 'Payment order does not belong to this account.'], 403);
-        }
-
-        if ((int) $payment['amount'] !== SUBSCRIPTION_AMOUNT_PAISE) {
-            respond(['error' => 'Invalid payment amount.'], 400);
         }
 
         // If already paid, activate subscription and return

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, Link, useLocation } from 'react-router-dom'
+import { useNavigate, Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getPaymentConfig, startUpiPayment } from '../lib/paymentService'
 import { getSubscriptionStatus } from '../lib/localStorage'
 import Button from '../components/ui/Button'
+import { resolvePaymentPlan } from '../lib/paymentPlans'
 
 export default function Payment() {
   const { authenticated, authLoading, user } = useAuth()
@@ -13,6 +14,12 @@ export default function Payment() {
   const [paymentConfig, setPaymentConfig] = useState(null)
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const selectedPlan = resolvePaymentPlan(searchParams.get('plan'), {
+    amount: searchParams.get('amount'),
+    title: searchParams.get('title'),
+    description: searchParams.get('description'),
+  })
 
   useEffect(() => {
     let cancelled = false
@@ -70,6 +77,10 @@ export default function Payment() {
 
     try {
       await startUpiPayment({
+        amount: selectedPlan.amount,
+        currency: 'INR',
+        description: selectedPlan.description,
+        plan: selectedPlan.key,
         onDismiss: () => setLoading(false),
       })
       navigate('/payment/success', { replace: true })
@@ -106,7 +117,10 @@ export default function Payment() {
 
         <h2 className="text-2xl font-display font-bold mb-2">Complete Payment</h2>
         <p className="text-gray-600 mb-2">
-          ₹{paymentConfig?.amountDisplay ?? 100}/year · All features unlocked
+          {selectedPlan.name}
+        </p>
+        <p className="text-gray-600 mb-2">
+          ₹{selectedPlan.displayAmount}/year · {selectedPlan.description}
         </p>
         <p className="text-sm text-gray-500 mb-6">
           Pay securely with UPI (Google Pay, PhonePe, Paytm) or card via Razorpay.
@@ -166,7 +180,7 @@ export default function Payment() {
               className="w-full"
               onClick={handlePay}
             >
-              {loading ? 'Opening checkout...' : `Pay ₹${paymentConfig?.amountDisplay ?? 100} with UPI`}
+              {loading ? 'Opening checkout...' : `Pay ₹${selectedPlan.displayAmount} with UPI`}
             </Button>
           </div>
         )}

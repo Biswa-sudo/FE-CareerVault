@@ -271,7 +271,7 @@ const AboutUs = () => {
       </section>
 
       {/* ===== TEAM ===== */}
-      <section className="team-section">
+      {/* <section className="team-section">
         <div className="container">
           <div className="team-header">
             <span className="section-badge">Our Team</span>
@@ -296,10 +296,10 @@ const AboutUs = () => {
             <a href="/careers" className="btn btn-primary">View Open Positions →</a>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ===== TIMELINE ===== */}
-      <section className="timeline-section">
+      {/* <section className="timeline-section">
         <div className="container">
           <div className="timeline-header">
             <span className="section-badge">Our Journey</span>
@@ -319,7 +319,7 @@ const AboutUs = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ===== WHY BENTURE AI ===== */}
       <section className="why-section">
