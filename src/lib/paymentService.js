@@ -55,10 +55,14 @@ export async function startUpiPayment({
   onSuccess,
   onDismiss,
 }) {
+  console.log('[startUpiPayment] Input:', { amount, currency, description, plan });
+  
   const [order] = await Promise.all([
     createPaymentOrder({ amount, currency, description, plan }),
     loadRazorpayScript(),
   ]);
+
+  console.log('[startUpiPayment] Order created:', { orderId: order.orderId, amount: order.amount });
 
   return new Promise((resolve, reject) => {
     const options = {

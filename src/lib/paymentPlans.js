@@ -23,17 +23,35 @@ export const PAYMENT_PLANS = {
     amount: 19900,
     description: 'Career Vault + AI assistance',
   },
+  'custom-bundle': {
+    key: 'custom-bundle',
+    name: 'Custom Service Bundle',
+    amount: 0,
+    description: 'Custom service bundle',
+  },
 };
 
 export function resolvePaymentPlan(planKey, query = {}) {
   const normalizedKey = String(planKey || query.plan || 'annual').trim().toLowerCase();
   const plan = PAYMENT_PLANS[normalizedKey] || PAYMENT_PLANS.annual;
-  const amountValue = Number(query.amount ?? plan.amount);
-  const amount = Number.isFinite(amountValue) && amountValue > 0 ? amountValue : plan.amount;
+  
+  // Prioritize query.amount if provided; MUST use it
+  let amount;
+  if (query.amount) {
+    amount = Number(query.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      console.warn('[resolvePaymentPlan] Invalid query amount:', query.amount, 'falling back to plan default');
+      amount = plan.amount;
+    }
+  } else {
+    amount = plan.amount;
+  }
+
+  console.log('[resolvePaymentPlan]', { planKey, queryAmountRaw: query.amount, amount, displayAmount: (amount / 100).toFixed(2) });
 
   return {
     ...plan,
-    amount,
+    amount: amount,
     displayAmount: Number((amount / 100).toFixed(2)),
     name: String(query.title || plan.name || 'Benture AI Subscription'),
     description: String(query.description || plan.description || 'Benture AI subscription'),

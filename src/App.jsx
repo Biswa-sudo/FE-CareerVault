@@ -27,6 +27,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import AccountSettings from './pages/AccountSettings'
 import FAQ from './pages/FAQ'
 import AboutUs from './pages/AboutUs'
+import AllProducts from './pages/AllProducts'
 
 export default function App() {
   return (
@@ -44,6 +45,7 @@ export default function App() {
           <Route path="/account-settings" element={<AccountSettings />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/all-products" element={<AllProducts />} />
           {/* Protected routes inside dashboard layout */}
           <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<Dashboard />} />

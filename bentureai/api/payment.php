@@ -87,11 +87,16 @@ if ($method === 'POST' && ($action === 'create-order' || $action === 'create_ord
         $userId = requireAuth();
         $credentials = razorpayCredentials();
         $payload = jsonInput();
+        
+        error_log('[create-order] Payload: ' . json_encode($payload));
+        
         $amount = isset($payload['amount']) ? (int) $payload['amount'] : SUBSCRIPTION_AMOUNT_PAISE;
         $currency = strtoupper((string) ($payload['currency'] ?? SUBSCRIPTION_CURRENCY));
         $plan = (string) ($payload['plan'] ?? 'annual');
         $description = (string) ($payload['description'] ?? 'Annual subscription — all features unlocked');
 
+        error_log('[create-order] Amount determined: ' . $amount . ' (from payload: ' . (isset($payload['amount']) ? 'yes' : 'no, using default') . ')');
+        
         if ($amount <= 0) {
             respond(['error' => 'Payment amount must be greater than zero.'], 422);
         }

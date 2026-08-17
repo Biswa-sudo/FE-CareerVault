@@ -42,7 +42,7 @@ const MainNavbar = () => {
         <div className="main-navbar__actions">
           {!authLoading && authenticated ? (
             <>
-              <NavLink to="/dashboard" className="main-navbar__btn main-navbar__btn--primary">My Dashboard</NavLink>
+              <NavLink to="/all-products" className="main-navbar__btn main-navbar__btn--primary">My Dashboard</NavLink>
               <button
                 type="button"
                 onClick={handleLogout}

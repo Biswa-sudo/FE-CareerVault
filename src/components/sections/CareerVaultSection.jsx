@@ -194,7 +194,7 @@ const CareerVaultSection = () => {
                 </p>
 
                 <div className="price-area">
-                  <span className="old-price">₹3,999</span>
+                  <span className="old-price">₹2,499</span>
 
                   <div>
                     <span className="currency">₹</span>

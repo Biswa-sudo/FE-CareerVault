@@ -15,11 +15,19 @@ export default function Payment() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
-  const selectedPlan = resolvePaymentPlan(searchParams.get('plan'), {
-    amount: searchParams.get('amount'),
+  
+  // Log raw params from URL
+  const rawAmount = searchParams.get('amount');
+  const rawPlan = searchParams.get('plan');
+  console.log('[Payment] Raw URL params:', { plan: rawPlan, amount: rawAmount, amountType: typeof rawAmount });
+  
+  const selectedPlan = resolvePaymentPlan(rawPlan, {
+    amount: rawAmount,
     title: searchParams.get('title'),
     description: searchParams.get('description'),
   })
+  
+  console.log('[Payment] Resolved plan:', { key: selectedPlan.key, amount: selectedPlan.amount, displayAmount: selectedPlan.displayAmount });
 
   useEffect(() => {
     let cancelled = false
@@ -75,7 +83,26 @@ export default function Payment() {
     setLoading(true)
     setError('')
 
+    console.log('[Payment.handlePay] Starting payment with plan:', { 
+      plan: selectedPlan.key,
+      amount: selectedPlan.amount, 
+      displayAmount: selectedPlan.displayAmount,
+      title: selectedPlan.name 
+    });
+
+    // SAFETY CHECK: Verify amount is not the default if custom amount was provided
+    if (searchParams.get('amount')) {
+      const urlAmount = Number(searchParams.get('amount'));
+      if (selectedPlan.amount !== urlAmount) {
+        console.warn('[Payment.handlePay] WARNING: selectedPlan.amount differs from URL amount!', { 
+          urlAmount, 
+          selectedAmount: selectedPlan.amount 
+        });
+      }
+    }
+
     try {
+      console.log('[Payment.handlePay] Calling startUpiPayment with amount:', selectedPlan.amount);
       await startUpiPayment({
         amount: selectedPlan.amount,
         currency: 'INR',
@@ -84,6 +111,8 @@ export default function Payment() {
         onDismiss: () => setLoading(false),
       })
       navigate('/payment/success', { replace: true })
+
+
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Payment failed. Please try again.'
       if (message !== 'Payment cancelled.') {
