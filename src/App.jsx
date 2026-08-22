@@ -34,36 +34,195 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+
+          {/* =====================================================
+              PUBLIC ROUTES
+          ===================================================== */}
+
           <Route path="/" element={<Landing />} />
+
           <Route path="/payment" element={<Payment />} />
-          <Route path="/payment/success" element={<PaymentSuccess />} />
+
+          <Route
+            path="/payment/success"
+            element={<PaymentSuccess />}
+          />
+
           <Route path="/signup" element={<SignUp />} />
+
           <Route path="/login" element={<Login />} />
+
           <Route path="/contact" element={<Contact />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/account-settings" element={<AccountSettings />} />
+
+          <Route
+            path="/terms-of-service"
+            element={<TermsOfService />}
+          />
+
+          <Route
+            path="/privacy-policy"
+            element={<PrivacyPolicy />}
+          />
+
+          <Route
+            path="/account-settings"
+            element={<AccountSettings />}
+          />
+
           <Route path="/faq" element={<FAQ />} />
+
           <Route path="/about-us" element={<AboutUs />} />
-          <Route path="/all-products" element={<AllProducts />} />
-          {/* Protected routes inside dashboard layout */}
-          <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/templates" element={<Templates />} />
-            <Route path="/editor/:cvId?" element={<Editor />} />
-            <Route path="/my-cvs" element={<MyCVs />} />
-            <Route path="/documents" element={<Documents />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/landing-page" element={<LandingPage />} />
-            <Route path="/landing-page-final" element={<LandingPageFinal />} />
-            <Route path="/spoken-english" element={<SpokenEnglish />} />
-            <Route path="/skill-analysis" element={<SkillAnalysis />} />
-            <Route path="/recruiter-marketplace" element={<RecruiterMarketplace />} />
-            <Route path="/ai-interview" element={<AIInterview />} />
-            <Route path="/portfolio" element={<PortfolioPage />} />
-            <Route path="/study-groups" element={<StudyGroups />} />
+
+          <Route
+            path="/all-products"
+            element={<AllProducts />}
+          />
+
+
+          {/* =====================================================
+              CAREER VAULT
+              Product ID: 1
+              Default Plan: career-vault
+          ===================================================== */}
+
+          <Route
+            element={
+              <ProtectedRoute
+                productId={1}
+                plan="career-vault"
+                requireSubscription={true}
+              >
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route
+              path="/dashboard"
+              element={<Dashboard />}
+            />
+
+            <Route
+              path="/templates"
+              element={<Templates />}
+            />
+
+            <Route
+              path="/editor/:cvId?"
+              element={<Editor />}
+            />
+
+            <Route
+              path="/my-cvs"
+              element={<MyCVs />}
+            />
+
+            <Route
+              path="/documents"
+              element={<Documents />}
+            />
+
+            <Route
+              path="/account"
+              element={<Account />}
+            />
+
+            <Route
+              path="/landing-page"
+              element={<LandingPage />}
+            />
+
+            <Route
+              path="/landing-page-final"
+              element={<LandingPageFinal />}
+            />
+
+            <Route
+              path="/recruiter-marketplace"
+              element={<RecruiterMarketplace />}
+            />
+
+            <Route
+              path="/portfolio"
+              element={<PortfolioPage />}
+            />
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
+
+
+          {/* =====================================================
+              SPOKEN ENGLISH
+              Product ID: 2
+              Plan: spoken-english
+          ===================================================== */}
+
+          <Route
+            path="/spoken-english"
+            element={
+              <ProtectedRoute
+                productId={2}
+                plan="spoken-english"
+                requireSubscription={true}
+              >
+                <SpokenEnglish />
+              </ProtectedRoute>
+            }
+          />
+
+
+          {/* =====================================================
+              BENTURE AI
+              Product ID: 3
+              Plan: annual
+          ===================================================== */}
+
+          <Route
+            path="/skill-analysis"
+            element={
+              <ProtectedRoute
+                productId={3}
+                plan="annual"
+                requireSubscription={true}
+              >
+                <SkillAnalysis />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/ai-interview"
+            element={
+              <ProtectedRoute
+                productId={3}
+                plan="annual"
+                requireSubscription={true}
+              >
+                <AIInterview />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/study-groups"
+            element={
+              <ProtectedRoute
+                productId={3}
+                plan="annual"
+                requireSubscription={true}
+              >
+                <StudyGroups />
+              </ProtectedRoute>
+            }
+          />
+
+
+          {/* =====================================================
+              FALLBACK
+          ===================================================== */}
+
+          <Route
+            path="*"
+            element={<Navigate to="/" replace />}
+          />
+
         </Routes>
       </AuthProvider>
     </BrowserRouter>

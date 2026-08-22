@@ -36,21 +36,76 @@ export async function getSession() {
   }
 }
 
-export async function getSubscriptionStatus() {
+export async function getSubscriptionStatus(
+  productId = null,
+  plan = null
+) {
   try {
-    const response = await apiRequest('/subscription.php');
+    const params = new URLSearchParams();
+
+    if (productId !== null && productId !== undefined) {
+      params.set('product_id', String(productId));
+    }
+
+    if (plan) {
+      params.set('plan', String(plan));
+    }
+
+    const query = params.toString();
+
+    const response = await apiRequest(
+      `/subscription.php${query ? `?${query}` : ''}`
+    );
+
     return response.status === 'active';
   } catch (error) {
     if (error instanceof Error && /401|Unauthorized/.test(error.message)) {
       return false;
     }
+
     throw error;
   }
 }
 
-export async function getPaymentDate() {
-  const response = await apiRequest('/subscription.php');
-  return response.paymentDate || null;
+export async function getSubscriptionDetails(
+  productId = null,
+  plan = null
+) {
+  try {
+    const params = new URLSearchParams();
+
+    if (productId !== null && productId !== undefined) {
+      params.set('product_id', String(productId));
+    }
+
+    if (plan) {
+      params.set('plan', String(plan));
+    }
+
+    const query = params.toString();
+
+    return await apiRequest(
+      `/subscription.php${query ? `?${query}` : ''}`
+    );
+  } catch (error) {
+    if (error instanceof Error && /401|Unauthorized/.test(error.message)) {
+      return {
+        status: 'inactive',
+        productId: productId,
+        planId: plan,
+        paymentDate: null,
+        startsAt: null,
+        expiresAt: null,
+      };
+    }
+
+    throw error;
+  }
+}
+
+export async function getPaymentDate(productId = null, plan = null) {
+  const details = await getSubscriptionDetails(productId, plan);
+  return details.paymentDate || null;
 }
 
 export async function logout() {
@@ -75,6 +130,7 @@ export async function getCVs() {
 export async function saveCV(cv) {
   const current = await getCVs();
   const isNew = !cv.id || cv.id === 'new';
+
   if (isNew && current.length >= CV_LIMIT) {
     throw new Error('CV limit reached (10).');
   }
@@ -105,6 +161,7 @@ export async function saveDocument(doc) {
     method: 'POST',
     body: doc,
   });
+
   return getDocuments();
 }
 
@@ -112,5 +169,6 @@ export async function deleteDocument(docId) {
   await apiRequest(`/documents.php?id=${encodeURIComponent(docId)}`, {
     method: 'DELETE',
   });
+
   return getDocuments();
 }

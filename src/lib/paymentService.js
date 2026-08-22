@@ -10,18 +10,26 @@ function loadRazorpayScript() {
 
   if (!razorpayScriptPromise) {
     razorpayScriptPromise = new Promise((resolve, reject) => {
-      const existing = document.querySelector(`script[src="${RAZORPAY_SCRIPT_URL}"]`);
+      const existing = document.querySelector(
+        `script[src="${RAZORPAY_SCRIPT_URL}"]`
+      );
+
       if (existing) {
         existing.addEventListener('load', () => resolve());
-        existing.addEventListener('error', () => reject(new Error('Failed to load Razorpay checkout.')));
+        existing.addEventListener('error', () =>
+          reject(new Error('Failed to load Razorpay checkout.'))
+        );
         return;
       }
 
       const script = document.createElement('script');
       script.src = RAZORPAY_SCRIPT_URL;
       script.async = true;
+
       script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load Razorpay checkout.'));
+      script.onerror = () =>
+        reject(new Error('Failed to load Razorpay checkout.'));
+
       document.body.appendChild(script);
     });
   }
@@ -52,17 +60,38 @@ export async function startUpiPayment({
   currency = 'INR',
   description = 'Annual subscription — all features unlocked',
   plan = 'annual',
+  productId = null,
+  planId = null,
   onSuccess,
   onDismiss,
 }) {
-  console.log('[startUpiPayment] Input:', { amount, currency, description, plan });
-  
+  console.log('[startUpiPayment] Input:', {
+    amount,
+    currency,
+    description,
+    plan,
+    productId,
+    planId,
+  });
+
   const [order] = await Promise.all([
-    createPaymentOrder({ amount, currency, description, plan }),
+    createPaymentOrder({
+      amount,
+      currency,
+      description,
+      plan,
+      productId,
+      planId,
+    }),
     loadRazorpayScript(),
   ]);
 
-  console.log('[startUpiPayment] Order created:', { orderId: order.orderId, amount: order.amount });
+  console.log('[startUpiPayment] Order created:', {
+    orderId: order.orderId,
+    amount: order.amount,
+    productId,
+    planId,
+  });
 
   return new Promise((resolve, reject) => {
     const options = {
@@ -70,16 +99,21 @@ export async function startUpiPayment({
       amount: order.amount,
       currency: order.currency,
       name: 'Benture AI',
-      description: description || order.description || 'Benture AI subscription',
+      description:
+        description ||
+        order.description ||
+        'Benture AI subscription',
       order_id: order.orderId,
       prefill: order.prefill || {},
       theme: { color: '#2563eb' },
+
       method: {
         upi: true,
         card: true,
         netbanking: true,
         wallet: true,
       },
+
       handler(response) {
         verifyPayment({
           razorpay_order_id: response.razorpay_order_id,
@@ -92,6 +126,7 @@ export async function startUpiPayment({
           })
           .catch(reject);
       },
+
       modal: {
         ondismiss() {
           onDismiss?.();
@@ -101,10 +136,15 @@ export async function startUpiPayment({
     };
 
     const checkout = new window.Razorpay(options);
+
     checkout.on('payment.failed', (response) => {
-      const message = response?.error?.description || 'Payment failed. Please try again.';
+      const message =
+        response?.error?.description ||
+        'Payment failed. Please try again.';
+
       reject(new Error(message));
     });
+
     checkout.open();
   });
 }

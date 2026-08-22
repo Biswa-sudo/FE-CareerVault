@@ -1,63 +1,110 @@
-import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { getSubscriptionStatus } from '../lib/localStorage'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { getSubscriptionStatus } from '../lib/localStorage'
 
-export default function ProtectedRoute({ children }) {
-  const location = useLocation()
+export default function ProtectedRoute({
+  children,
+  productId = null,
+  plan = null,
+  requireSubscription = true,
+}) {
   const { authenticated, authLoading } = useAuth()
-  const cachedSubscriptionValue = typeof window !== 'undefined'
-    ? window.sessionStorage.getItem('bentureai_active_subscription')
-    : null
-  const initialHasPaid = cachedSubscriptionValue === 'active'
+  const location = useLocation()
 
-  const [hasPaid, setHasPaid] = useState(initialHasPaid)
-  const [subscriptionLoading, setSubscriptionLoading] = useState(!initialHasPaid)
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true)
+  const [hasAccess, setHasAccess] = useState(false)
 
   useEffect(() => {
-    const checkSubscription = async () => {
+    let cancelled = false
+
+    const checkAccess = async () => {
       if (!authenticated) {
-        setHasPaid(false)
-        setSubscriptionLoading(false)
+        if (!cancelled) {
+          setHasAccess(false)
+          setSubscriptionLoading(false)
+        }
         return
       }
 
-      setSubscriptionLoading(true)
+      if (!requireSubscription) {
+        if (!cancelled) {
+          setHasAccess(true)
+          setSubscriptionLoading(false)
+        }
+        return
+      }
 
       try {
-        const active = await getSubscriptionStatus()
-        const nextHasPaid = Boolean(active)
-        setHasPaid(nextHasPaid)
+        const access = await getSubscriptionStatus(productId, plan)
 
-        if (nextHasPaid) {
-          sessionStorage.setItem('bentureai_active_subscription', 'active')
-        } else {
-          sessionStorage.removeItem('bentureai_active_subscription')
+        if (!cancelled) {
+          setHasAccess(access)
         }
       } catch (error) {
-        const cachedStatus = sessionStorage.getItem('bentureai_active_subscription') === 'active'
-        if (cachedStatus) {
-          setHasPaid(true)
-        } else {
-          setHasPaid(false)
+        console.error(
+          '[ProtectedRoute] Subscription check failed:',
+          error
+        )
+
+        if (!cancelled) {
+          setHasAccess(false)
         }
       } finally {
-        setSubscriptionLoading(false)
+        if (!cancelled) {
+          setSubscriptionLoading(false)
+        }
       }
     }
 
-    checkSubscription()
-  }, [authenticated])
+    checkAccess()
+
+    return () => {
+      cancelled = true
+    }
+  }, [authenticated, productId, plan, requireSubscription])
 
   if (authLoading || subscriptionLoading) {
-    return <div className="p-6 text-sm text-gray-500">Checking access...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-sm text-gray-500">
+          Loading...
+        </p>
+      </div>
+    )
   }
 
   if (!authenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    return (
+      <Navigate
+        to={`/login?redirect=${encodeURIComponent(
+          location.pathname + location.search
+        )}`}
+        replace
+      />
+    )
   }
-  if (!hasPaid) {
-    return <Navigate to="/payment" state={{ from: location }} replace />
+
+  if (requireSubscription && !hasAccess) {
+    const params = new URLSearchParams()
+
+    if (productId !== null) {
+      params.set('product_id', String(productId))
+    }
+
+    if (plan) {
+      params.set('plan', plan)
+    }
+
+    const queryString = params.toString()
+
+    return (
+      <Navigate
+        to={queryString ? `/payment?${queryString}` : '/payment'}
+        replace
+      />
+    )
   }
+
   return children
 }
