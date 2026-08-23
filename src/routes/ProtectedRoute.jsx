@@ -1,16 +1,20 @@
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { getSubscriptionStatus } from '../lib/localStorage'
+import { getSubscriptionStatus, hasAnyActiveSubscription } from '../lib/localStorage'
+import NotAuthorized from '../pages/NotAuthorized'
 
 export default function ProtectedRoute({
   children,
   productId = null,
   plan = null,
   requireSubscription = true,
+  allowAnyActiveSubscription = false,
+  serviceName = null,
 }) {
   const { authenticated, authLoading } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
 
   const [subscriptionLoading, setSubscriptionLoading] = useState(true)
   const [hasAccess, setHasAccess] = useState(false)
@@ -36,7 +40,13 @@ export default function ProtectedRoute({
       }
 
       try {
-        const access = await getSubscriptionStatus(productId, plan)
+        let access = false
+
+        if (allowAnyActiveSubscription) {
+          access = await hasAnyActiveSubscription()
+        } else {
+          access = await getSubscriptionStatus(productId, plan)
+        }
 
         if (!cancelled) {
           setHasAccess(access)
@@ -86,22 +96,27 @@ export default function ProtectedRoute({
   }
 
   if (requireSubscription && !hasAccess) {
-    const params = new URLSearchParams()
+    // Render NotAuthorized component in-place instead of redirecting.
+    const handlePaymentRedirect = () => {
+      const params = new URLSearchParams()
 
-    if (productId !== null) {
-      params.set('product_id', String(productId))
+      if (productId !== null) {
+        params.set('product_id', String(productId))
+      }
+
+      if (plan) {
+        params.set('plan', plan)
+      }
+
+      const qs = params.toString()
+      navigate(qs ? `/payment?${qs}` : '/payment')
     }
-
-    if (plan) {
-      params.set('plan', plan)
-    }
-
-    const queryString = params.toString()
 
     return (
-      <Navigate
-        to={queryString ? `/payment?${queryString}` : '/payment'}
-        replace
+      <NotAuthorized
+        serviceName={serviceName || plan || 'Premium Service'}
+        serviceId={plan || String(productId)}
+        onPaymentRedirect={handlePaymentRedirect}
       />
     )
   }

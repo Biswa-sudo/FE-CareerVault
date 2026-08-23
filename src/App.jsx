@@ -91,6 +91,7 @@ export default function App() {
                 productId={1}
                 plan="career-vault"
                 requireSubscription={true}
+                allowAnyActiveSubscription={true}
               >
                 <DashboardLayout />
               </ProtectedRoute>

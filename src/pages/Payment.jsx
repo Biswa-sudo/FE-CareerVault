@@ -8,6 +8,7 @@ import { resolvePaymentPlan } from '../lib/paymentPlans'
 
 export default function Payment() {
   const { authenticated, authLoading, user } = useAuth()
+
   const [loading, setLoading] = useState(false)
   const [configLoading, setConfigLoading] = useState(true)
   const [error, setError] = useState('')
@@ -19,11 +20,12 @@ export default function Payment() {
 
   const rawAmount = searchParams.get('amount')
   const rawPlan = searchParams.get('plan')
+  const rawProductId = searchParams.get('product_id')
 
   console.log('[Payment] Raw URL params:', {
     plan: rawPlan,
     amount: rawAmount,
-    amountType: typeof rawAmount,
+    productId: rawProductId,
   })
 
   const selectedPlan = resolvePaymentPlan(rawPlan, {
@@ -32,13 +34,27 @@ export default function Payment() {
     description: searchParams.get('description'),
   })
 
+  /*
+   * Product ID comes from the payment plan configuration.
+   *
+   * If it is not present there, fall back to the URL.
+   */
+  const productId =
+    selectedPlan.productId ||
+    (rawProductId ? Number(rawProductId) : null)
+
   console.log('[Payment] Resolved plan:', {
     key: selectedPlan.key,
     amount: selectedPlan.amount,
     displayAmount: selectedPlan.displayAmount,
-    productId: selectedPlan.productId,
-    planId: selectedPlan.planId,
+    productId,
   })
+
+  /*
+   * ---------------------------------------------------------
+   * LOAD PAYMENT CONFIG
+   * ---------------------------------------------------------
+   */
 
   useEffect(() => {
     let cancelled = false
@@ -46,6 +62,8 @@ export default function Payment() {
     const loadConfig = async () => {
       try {
         const config = await getPaymentConfig()
+
+        console.log('[Payment] Payment config:', config)
 
         if (!cancelled) {
           setPaymentConfig(config)
@@ -72,21 +90,31 @@ export default function Payment() {
     }
   }, [])
 
+  /*
+   * ---------------------------------------------------------
+   * CHECK EXISTING PRODUCT SUBSCRIPTION
+   * ---------------------------------------------------------
+   */
+
   useEffect(() => {
     let cancelled = false
 
     const checkActiveSubscription = async () => {
-      if (!authenticated) {
+      if (!authenticated || !productId) {
         return
       }
 
       try {
-const active = await getSubscriptionStatus(selectedPlan.productId)
+        const active = await getSubscriptionStatus(productId)
+
         if (!cancelled && active) {
           navigate('/dashboard', { replace: true })
         }
       } catch (e) {
-        // Ignore; payment page is still allowed if subscription check fails.
+        console.error(
+          '[Payment] Subscription check failed:',
+          e
+        )
       }
     }
 
@@ -95,38 +123,43 @@ const active = await getSubscriptionStatus(selectedPlan.productId)
     return () => {
       cancelled = true
     }
-  }, [authenticated, navigate])
+  }, [authenticated, productId, navigate])
+
+  /*
+   * ---------------------------------------------------------
+   * HANDLE PAYMENT
+   * ---------------------------------------------------------
+   */
 
   const handlePay = async () => {
     setLoading(true)
     setError('')
 
-    console.log('[Payment.handlePay] Starting payment with plan:', {
+    console.log('[Payment.handlePay] Starting payment:', {
       plan: selectedPlan.key,
       amount: selectedPlan.amount,
-      displayAmount: selectedPlan.displayAmount,
-      title: selectedPlan.name,
-      productId: selectedPlan.productId,
-      planId: selectedPlan.planId,
+      productId,
     })
 
-    // SAFETY CHECK: Verify amount is not the default if custom amount was provided
-    if (searchParams.get('amount')) {
-      const urlAmount = Number(searchParams.get('amount'))
-
-      if (selectedPlan.amount !== urlAmount) {
-        console.warn(
-          '[Payment.handlePay] WARNING: selectedPlan.amount differs from URL amount!',
-          {
-            urlAmount,
-            selectedAmount: selectedPlan.amount,
-          }
-        )
-      }
+    /*
+     * Product ID is required because payment.php needs to know
+     * which product the user is purchasing.
+     */
+    if (!productId) {
+      setError(
+        'This payment plan is not linked to a product. Please contact support.'
+      )
+      setLoading(false)
+      return
     }
 
-    // Product/plan validation
-    if (!selectedPlan.productId || !selectedPlan.planId) {
+    /*
+     * The plan slug is required.
+     *
+     * payment.php will use this slug to find the actual
+     * numeric plan ID from the database.
+     */
+    if (!selectedPlan.key) {
       setError(
         'This payment plan is not configured correctly. Please contact support.'
       )
@@ -135,29 +168,28 @@ const active = await getSubscriptionStatus(selectedPlan.productId)
     }
 
     try {
-      console.log(
-        '[Payment.handlePay] Calling startUpiPayment with:',
-        {
-          amount: selectedPlan.amount,
-          productId: selectedPlan.productId,
-          planId: selectedPlan.planId,
-        }
-      )
+      console.log('[Payment.handlePay] Calling startUpiPayment:', {
+        amount: selectedPlan.amount,
+        currency: 'INR',
+        plan: selectedPlan.key,
+        productId,
+      })
 
       await startUpiPayment({
         amount: selectedPlan.amount,
         currency: 'INR',
         description: selectedPlan.description,
         plan: selectedPlan.key,
+        productId,
 
-        // NEW: send product and plan identifiers
-        productId: selectedPlan.productId,
-        planId: selectedPlan.planId,
-
-        onDismiss: () => setLoading(false),
+        onDismiss: () => {
+          setLoading(false)
+        },
       })
 
-      navigate('/payment/success', { replace: true })
+      navigate('/payment/success', {
+        replace: true,
+      })
     } catch (e) {
       const message =
         e instanceof Error
@@ -176,6 +208,12 @@ const active = await getSubscriptionStatus(selectedPlan.productId)
     location.pathname + location.search
   )}`
 
+  /*
+   * ---------------------------------------------------------
+   * LOADING
+   * ---------------------------------------------------------
+   */
+
   if (authLoading || configLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -186,18 +224,29 @@ const active = await getSubscriptionStatus(selectedPlan.productId)
     )
   }
 
+  /*
+   * ---------------------------------------------------------
+   * PAYMENT PAGE
+   * ---------------------------------------------------------
+   */
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-sm border">
+
         <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
           <span className="font-semibold text-primary-600">
             Account
           </span>
+
           <span>→</span>
+
           <span className="font-semibold text-primary-600">
             Payment
           </span>
+
           <span>→</span>
+
           <span>Confirmation</span>
         </div>
 
@@ -227,12 +276,14 @@ const active = await getSubscriptionStatus(selectedPlan.productId)
 
         {!authenticated ? (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3">
+
             <p className="text-sm text-amber-900">
               Sign in or create an account before paying so your
               subscription is linked to your profile.
             </p>
 
             <div className="flex flex-col gap-2">
+
               <Link to={loginRedirect}>
                 <Button className="w-full">
                   Log in to pay
@@ -251,11 +302,16 @@ const active = await getSubscriptionStatus(selectedPlan.productId)
                   Create account
                 </Button>
               </Link>
+
             </div>
+
           </div>
         ) : (
+
           <div className="space-y-4">
+
             <div className="rounded-xl border bg-gray-50 p-4">
+
               <p className="text-xs uppercase tracking-wide text-gray-500">
                 Paying as
               </p>
@@ -267,14 +323,17 @@ const active = await getSubscriptionStatus(selectedPlan.productId)
               <p className="text-sm text-gray-600">
                 {user?.email}
               </p>
+
             </div>
 
             <div className="rounded-xl border p-4">
+
               <p className="text-sm font-medium text-gray-900 mb-3">
                 Payment method
               </p>
 
               <div className="flex items-center gap-3 rounded-lg border border-primary-200 bg-primary-50 p-3">
+
                 <span
                   className="text-2xl"
                   aria-hidden="true"
@@ -283,6 +342,7 @@ const active = await getSubscriptionStatus(selectedPlan.productId)
                 </span>
 
                 <div>
+
                   <p className="font-medium text-primary-900">
                     UPI
                   </p>
@@ -290,13 +350,16 @@ const active = await getSubscriptionStatus(selectedPlan.productId)
                   <p className="text-xs text-primary-700">
                     Google Pay, PhonePe, Paytm & more
                   </p>
+
                 </div>
+
               </div>
 
               <p className="mt-3 text-xs text-gray-500">
                 Card and netbanking are also available in the
                 Razorpay checkout window.
               </p>
+
             </div>
 
             {!paymentConfig?.configured && (
@@ -310,9 +373,7 @@ const active = await getSubscriptionStatus(selectedPlan.productId)
               type="button"
               disabled={
                 loading ||
-                !paymentConfig?.configured ||
-                !selectedPlan.productId ||
-                !selectedPlan.planId
+                !paymentConfig?.configured
               }
               className="w-full"
               onClick={handlePay}
@@ -321,11 +382,14 @@ const active = await getSubscriptionStatus(selectedPlan.productId)
                 ? 'Opening checkout...'
                 : `Pay ₹${selectedPlan.displayAmount} with UPI`}
             </Button>
+
           </div>
         )}
 
         <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-400">
-          <span>🔒 Secured by Razorpay</span>
+          <span>
+            🔒 Secured by Razorpay
+          </span>
         </div>
 
         <Link
@@ -334,6 +398,7 @@ const active = await getSubscriptionStatus(selectedPlan.productId)
         >
           ← Cancel
         </Link>
+
       </div>
     </div>
   )

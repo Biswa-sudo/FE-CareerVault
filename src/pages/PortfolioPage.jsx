@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './PortfolioPage.css';
+import FeatureGate from '../components/FeatureGate'
 import { apiRequest } from '../lib/apiClient';
 
 const PortfolioPage = () => {
@@ -634,7 +635,8 @@ const PortfolioPage = () => {
 
   // ---------- MAIN RENDER ----------
   return (
-    <div className="portfolio-page">
+    <FeatureGate productId={1} plan="career-vault" serviceName="Career Vault">
+      <div className="portfolio-page">
       {loading && <div className="p-3 text-sm text-gray-600">Loading portfolio data...</div>}
       {error && <div className="m-3 rounded border border-red-300 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       {isEditing ? (
@@ -741,7 +743,8 @@ const PortfolioPage = () => {
           )}
         </main>
       )}
-    </div>
+      </div>
+    </FeatureGate>
   );
 };
 

@@ -103,6 +103,23 @@ export async function getSubscriptionDetails(
   }
 }
 
+export async function hasAnyActiveSubscription() {
+  try {
+    const response = await apiRequest('/subscription.php');
+
+    if (response && Array.isArray(response.subscriptions)) {
+      return response.subscriptions.some(s => s.status === 'active');
+    }
+
+    return false;
+  } catch (error) {
+    if (error instanceof Error && /401|Unauthorized/.test(error.message)) {
+      return false;
+    }
+    throw error;
+  }
+}
+
 export async function getPaymentDate(productId = null, plan = null) {
   const details = await getSubscriptionDetails(productId, plan);
   return details.paymentDate || null;

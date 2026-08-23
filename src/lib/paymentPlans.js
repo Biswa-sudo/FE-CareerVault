@@ -3,6 +3,9 @@ export const PAYMENT_PLANS = {
     key: 'annual',
     name: 'Benture AI Annual Subscription',
     amount: 10000,
+    // Product ID 3 = Benture AI (see src/App.jsx)
+    productId: 3,
+    planId: 'annual',
     description: 'Annual subscription — all features unlocked',
   },
 
@@ -10,6 +13,9 @@ export const PAYMENT_PLANS = {
     key: 'spoken-english',
     name: 'Spoken English 1-Year Pass',
     amount: 9900,
+    // Product ID 2 = Spoken English
+    productId: 2,
+    planId: 'spoken-english',
     description: 'Spoken English practice pass',
   },
 
@@ -17,6 +23,9 @@ export const PAYMENT_PLANS = {
     key: 'career-vault',
     name: 'Career Vault',
     amount: 9900,
+    // Product ID 1 = Career Vault
+    productId: 1,
+    planId: 'career-vault',
     description: 'Career Vault access',
   },
 
@@ -25,6 +34,9 @@ export const PAYMENT_PLANS = {
     key: 'pro',
     name: 'Career Vault + AI (Pro)',
     amount: 19900,
+    // Pro belongs to Career Vault product
+    productId: 1,
+    planId: 'pro',
     description: 'Career Vault + AI assistance',
   },
 
@@ -32,6 +44,9 @@ export const PAYMENT_PLANS = {
     key: 'custom-bundle',
     name: 'Custom Service Bundle',
     amount: 0,
+    // Not linked to a single product by default.
+    productId: null,
+    planId: null,
     description: 'Custom service bundle',
   },
 }

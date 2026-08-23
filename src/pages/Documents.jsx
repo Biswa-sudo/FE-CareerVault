@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import FeatureGate from '../components/FeatureGate'
 import { getDocuments, saveDocument, deleteDocument } from '../lib/localStorage'
 import Button from '../components/ui/Button'
 import DocumentsHero from '../components/ui/DocumentsHero'
@@ -58,7 +59,8 @@ export default function Documents() {
   }
 
   return (
-    <div>
+    <FeatureGate productId={1} plan="career-vault" serviceName="Career Vault">
+      <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-display font-bold">My Documents</h1>
         <Button onClick={() => fileRef.current.click()}>Upload</Button>
@@ -105,6 +107,7 @@ export default function Documents() {
           ))}
         </div>
       </ErrorBoundary>
-    </div>
+      </div>
+    </FeatureGate>
   )
 }

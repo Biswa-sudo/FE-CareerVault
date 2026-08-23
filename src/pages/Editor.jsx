@@ -1,5 +1,6 @@
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import FeatureGate from '../components/FeatureGate'
 import { useForm, useFieldArray, useWatch } from 'react-hook-form'
 import { getCVs, saveCV } from '../lib/localStorage'
 import { getTemplateById } from '../data/templates'
@@ -705,7 +706,8 @@ export default function Editor() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <FeatureGate productId={1} plan="career-vault" serviceName="Career Vault">
+      <div className="flex flex-col h-full">
       {editorError && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {editorError}
@@ -951,6 +953,7 @@ export default function Editor() {
           />
         </div>
       </div>
-    </div>
+      </div>
+    </FeatureGate>
   )
 }

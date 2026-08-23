@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import FeatureGate from '../components/FeatureGate'
 import { Link, useNavigate } from 'react-router-dom'
 import { getCVs, deleteCV } from '../lib/localStorage'
 import { getTemplateById } from '../data/templates'
@@ -245,7 +246,8 @@ export default function MyCVs() {
   }
 
   return (
-    <div>
+    <FeatureGate productId={1} plan="career-vault" serviceName="Career Vault">
+      <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-display font-bold">My CVs ({cvs.length}/10)</h1>
         <Link to="/templates"><Button>Create New</Button></Link>
@@ -278,6 +280,7 @@ export default function MyCVs() {
           )
         })}
       </div>
-    </div>
+      </div>
+    </FeatureGate>
   )
 }
