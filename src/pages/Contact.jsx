@@ -7,6 +7,7 @@ const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     subject: '',
     message: ''
   });
@@ -32,7 +33,7 @@ const Contact = () => {
       });
 
       setSubmitSuccess(true);
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Unable to send message right now.');
     } finally {
@@ -135,6 +136,18 @@ const Contact = () => {
                       required
                     />
                   </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Phone Number</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Your phone number"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
 
                 <div className="form-group">

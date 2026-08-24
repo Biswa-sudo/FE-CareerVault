@@ -11,10 +11,11 @@ if ($method === 'POST') {
     $body = jsonInput();
     $name = trim((string) ($body['name'] ?? ''));
     $email = strtolower(trim((string) ($body['email'] ?? '')));
+    $phone = trim((string) ($body['phone'] ?? ''));
     $subject = trim((string) ($body['subject'] ?? ''));
     $message = trim((string) ($body['message'] ?? ''));
 
-    if ($name === '' || $email === '' || $subject === '' || $message === '') {
+    if ($name === '' || $email === '' || $phone === '' || $subject === '' || $message === '') {
         respond(['error' => 'All contact form fields are required.'], 422);
     }
 
@@ -24,13 +25,14 @@ if ($method === 'POST') {
 
     try {
         $stmt = $pdo->prepare('
-            INSERT INTO contact_messages (name, email, subject, message)
-            VALUES (:name, :email, :subject, :message)
+            INSERT INTO contact_messages (name, email, phone, subject, message)
+            VALUES (:name, :email, :phone, :subject, :message)
         ');
 
         $stmt->execute([
             'name' => $name,
             'email' => $email,
+            'phone' => $phone,
             'subject' => $subject,
             'message' => $message,
         ]);
