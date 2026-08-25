@@ -722,6 +722,7 @@ export default function Editor() {
           className="text-lg font-semibold bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary-500 focus:outline-none"
         />
         <div className="flex flex-wrap gap-2 justify-end">
+            <Button variant="secondary" onClick={() => navigate(-1)}>← Go Back</Button>
           <div className="flex items-center gap-2 px-2">
             <span className={`text-sm ${activePanel === 'form' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
               Input Fields

@@ -666,8 +666,8 @@ const PortfolioPage = () => {
                 </div>
                 <div className="header-actions">
                   <button className="btn-primary" onClick={() => setIsEditing(true)}>✏️ Edit</button>
-                  <button className="btn-outline" onClick={() => setShowPublicView(true)}>👁️ Preview</button>
-                  <button className="btn-outline" onClick={handleSaveAsTemplate}>📁 Save Template</button>
+                  <button className="btn-primary" onClick={() => setShowPublicView(true)}>👁️ Preview</button>
+                  <button className="btn-primary" onClick={handleSaveAsTemplate}>📁 Save Template</button>
                   <button className="btn-primary" onClick={handleCopyLink}>🔗 Share</button>
                 </div>
               </header>
@@ -714,11 +714,11 @@ const PortfolioPage = () => {
                       </div>
                       <div className="cv-actions">
                         {!cv.isPrimary && (
-                          <button className="btn-outline btn-small" onClick={() => handleSetPrimary(cv.id)}>Set Primary</button>
+                          <button className="btn-primary btn-small" onClick={() => handleSetPrimary(cv.id)}>Set Primary</button>
                         )}
-                        <button className="btn-outline btn-small">View</button>
-                        <button className="btn-outline btn-small">Download</button>
-                        <button className="btn-outline btn-small danger" onClick={() => handleDeleteCV(cv.id)}>Delete</button>
+                        <button className="btn-primary btn-small">View</button>
+                        <button className="btn-primary btn-small">Download</button>
+                        <button className="btn-primary btn-small danger" onClick={() => handleDeleteCV(cv.id)}>Delete</button>
                       </div>
                     </div>
                   ))}
@@ -734,7 +734,7 @@ const PortfolioPage = () => {
                         <div className="document-type">{doc.type}</div>
                         <div className="document-date">{doc.uploaded}</div>
                       </div>
-                      <button className="btn-outline btn-small">Download</button>
+                      <button className="btn-primary btn-small">Download</button>
                     </div>
                   ))}
                 </div>

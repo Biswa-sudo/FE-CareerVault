@@ -83,9 +83,9 @@ export default function Account() {
             courses={DUMMY_COURSES}
           />
         )}
-        {activeTab === 'courses' && <CoursesTab courses={DUMMY_COURSES} />}
+        {/* {activeTab === 'courses' && <CoursesTab courses={DUMMY_COURSES} />} */}
         {activeTab === 'profile' && <ProfileTab user={user} logout={logout} />}
-        {activeTab === 'subscription' && <SubscriptionTab nextBilling={nextBilling} billingLoading={billingLoading} billingError={billingError} />}
+        {/* {activeTab === 'subscription' && <SubscriptionTab nextBilling={nextBilling} billingLoading={billingLoading} billingError={billingError} />} */}
       </div>
     </div>
   );
@@ -159,23 +159,23 @@ const CourseCard = ({ course }) => {
   );
 };
 
-const CoursesTab = ({ courses }) => {
-  return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">All Courses</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {courses.map(course => (
-          <CourseCard key={course.id} course={course} />
-        ))}
-      </div>
-      <div className="mt-6 text-center">
-        <button className="px-6 py-2 border border-blue-600 text-blue-600 rounded-full hover:bg-blue-50 transition-colors">
-          Browse More Courses
-        </button>
-      </div>
-    </div>
-  );
-};
+// const CoursesTab = ({ courses }) => {
+//   return (
+//     <div>
+//       <h2 className="text-xl font-bold mb-4">All Courses</h2>
+//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+//         {courses.map(course => (
+//           <CourseCard key={course.id} course={course} />
+//         ))}
+//       </div>
+//       <div className="mt-6 text-center">
+//         <button className="px-6 py-2 border border-blue-600 text-blue-600 rounded-full hover:bg-blue-50 transition-colors">
+//           Browse More Courses
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
 
 const ProfileTab = ({ user, logout }) => {
   return (
@@ -211,29 +211,29 @@ const ProfileTab = ({ user, logout }) => {
   );
 };
 
-const SubscriptionTab = ({ nextBilling, billingLoading, billingError }) => {
-  return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Subscription</h2>
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-w-lg space-y-3">
-        {billingLoading && <p className="text-sm text-gray-500">Loading billing data...</p>}
-        {billingError && <p className="text-sm text-red-600">{billingError}</p>}
-        <div>
-          <span className="text-sm text-gray-500">Plan</span>
-          <p className="font-medium text-green-600">Pro – Active</p>
-        </div>
-        <div>
-          <span className="text-sm text-gray-500">Next Billing</span>
-          <p className="font-medium">{nextBilling}</p>
-        </div>
-        <div>
-          <span className="text-sm text-gray-500">Payment Method</span>
-          <p className="font-medium">Visa •••• 1234</p>
-        </div>
-        <button className="mt-2 px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
-          Manage Billing
-        </button>
-      </div>
-    </div>
-  );
-};
+// const SubscriptionTab = ({ nextBilling, billingLoading, billingError }) => {
+//   return (
+//     <div>
+//       <h2 className="text-xl font-bold mb-4">Subscription</h2>
+//       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-w-lg space-y-3">
+//         {billingLoading && <p className="text-sm text-gray-500">Loading billing data...</p>}
+//         {billingError && <p className="text-sm text-red-600">{billingError}</p>}
+//         <div>
+//           <span className="text-sm text-gray-500">Plan</span>
+//           <p className="font-medium text-green-600">Pro – Active</p>
+//         </div>
+//         <div>
+//           <span className="text-sm text-gray-500">Next Billing</span>
+//           <p className="font-medium">{nextBilling}</p>
+//         </div>
+//         <div>
+//           <span className="text-sm text-gray-500">Payment Method</span>
+//           <p className="font-medium">Visa •••• 1234</p>
+//         </div>
+//         <button className="mt-2 px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+//           Manage Billing
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };

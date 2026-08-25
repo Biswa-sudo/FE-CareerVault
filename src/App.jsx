@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard'
 import Templates from './pages/Templates'
 import Editor from './pages/Editor'
 import MyCVs from './pages/MyCVs'
+import CVDashboard from './pages/CVDashboard'
 import Documents from './pages/Documents'
 import Account from './pages/Account'
 import DashboardLayout from './components/Layout/DashboardLayout'
@@ -115,6 +116,10 @@ export default function App() {
             <Route
               path="/my-cvs"
               element={<MyCVs />}
+            />
+             <Route
+              path="/career-vault-dashboard"
+              element={<CVDashboard />}
             />
 
             <Route

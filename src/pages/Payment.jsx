@@ -5,6 +5,7 @@ import { getPaymentConfig, startUpiPayment } from '../lib/paymentService';
 import { getSubscriptionStatus } from '../lib/localStorage';
 import Button from '../components/ui/Button';
 import { resolvePaymentPlan } from '../lib/paymentPlans';
+import { isPurchaseService, getEnquiryServiceSubject } from '../lib/serviceAccess';
 import { 
   Code2, 
   Smartphone, 
@@ -173,6 +174,15 @@ export default function UnifiedPayment() {
   const productId =
     selectedPlan.productId ||
     (rawProductId ? Number(rawProductId) : null);
+
+  const canPurchaseCurrentSelection =
+    selectedService ? isPurchaseService(selectedService.id)
+      : selectedPlan?.key ? isPurchaseService(selectedPlan.key) : false;
+
+  const handleEnquireNow = (service) => {
+    const serviceName = getEnquiryServiceSubject(service?.title || selectedService?.title || selectedPlan?.name || 'Service enquiry');
+    navigate(`/contact?subject=${encodeURIComponent(serviceName)}`);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -466,24 +476,37 @@ export default function UnifiedPayment() {
                       </div>
                     )}
 
-                    <Button
-                      type="button"
-                      disabled={loading || !paymentConfig?.configured || !selectedService}
-                      className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3.5 rounded-xl text-base shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                      onClick={handlePay}
-                    >
-                      {loading ? (
+                    {selectedService && !canPurchaseCurrentSelection ? (
+                      <Button
+                        type="button"
+                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-3.5 rounded-xl text-base shadow-lg shadow-amber-200 transition-all duration-200"
+                        onClick={() => handleEnquireNow(selectedService)}
+                      >
                         <div className="flex items-center justify-center gap-2">
-                          <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                          Opening checkout...
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center gap-2">
-                          Pay ₹{displayAmount.toLocaleString("en-IN")}
+                          Enquire Now
                           <ArrowRight className="w-5 h-5" />
                         </div>
-                      )}
-                    </Button>
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        disabled={loading || !paymentConfig?.configured || !selectedService || !canPurchaseCurrentSelection}
+                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3.5 rounded-xl text-base shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                        onClick={handlePay}
+                      >
+                        {loading ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                            Opening checkout...
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center gap-2">
+                            Pay ₹{displayAmount.toLocaleString("en-IN")}
+                            <ArrowRight className="w-5 h-5" />
+                          </div>
+                        )}
+                      </Button>
+                    )}
 
                     <div className="flex items-center justify-center gap-4 text-xs text-slate-500">
                       <div className="flex items-center gap-1.5">
@@ -593,19 +616,36 @@ export default function UnifiedPayment() {
 
                   <button
                     type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+
+                      if (isPurchaseService(service.id)) {
+                        selectService(service);
+                        return;
+                      }
+
+                      handleEnquireNow(service);
+                    }}
                     className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold transition-all duration-200 ${
                       isSelected
                         ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-200"
                         : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
                     }`}
                   >
-                    {isSelected ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <CheckCircle2 className="w-4 h-4" />
-                        Selected
-                      </span>
+                    {isPurchaseService(service.id) ? (
+                      isSelected ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <CheckCircle2 className="w-4 h-4" />
+                          Selected
+                        </span>
+                      ) : (
+                        "Select Service"
+                      )
                     ) : (
-                      "Select Service"
+                      <span className="flex items-center justify-center gap-2">
+                        Enquire Now
+                        <ArrowRight className="w-4 h-4" />
+                      </span>
                     )}
                   </button>
                 </div>

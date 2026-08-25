@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import './Contact.css';
 import MainNavbar from '../components/Layout/MainNavbar';
 import { apiRequest } from '../lib/apiClient';
 
 const Contact = () => {
+  const [searchParams] = useSearchParams();
+  const fullNameInputRef = useRef(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,6 +17,26 @@ const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  useEffect(() => {
+    const subjectFromQuery = searchParams.get('subject');
+
+    if (subjectFromQuery) {
+      setFormData(prev => ({
+        ...prev,
+        subject: subjectFromQuery,
+      }));
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const input = fullNameInputRef.current;
+
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -117,6 +140,7 @@ const Contact = () => {
                   <div className="form-group">
                     <label>Full Name</label>
                     <input
+                      ref={fullNameInputRef}
                       type="text"
                       name="name"
                       placeholder="Your full name"

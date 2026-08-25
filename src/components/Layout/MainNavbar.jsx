@@ -1,10 +1,14 @@
 import './MainNavbar.css';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import BentureAILogo from "../../assets/BentureAILogoText.webp";
 import { useAuth } from '../../context/AuthContext';
+import { useState } from 'react';
+import { hasAnyActiveSubscription } from '../../lib/localStorage';
 
 const MainNavbar = () => {
   const { authenticated, authLoading, logout } = useAuth();
+  const navigate = useNavigate();
+  const [checking, setChecking] = useState(false);
   const navLinks = [
     { to: '/about-us', label: 'About Us' },
     { to: '/contact', label: 'Contact' },
@@ -42,7 +46,26 @@ const MainNavbar = () => {
         <div className="main-navbar__actions">
           {!authLoading && authenticated ? (
             <>
-              <NavLink to="/payment" className="main-navbar__btn main-navbar__btn--primary">My Dashboard</NavLink>
+              <button
+                type="button"
+                className="main-navbar__btn main-navbar__btn--primary"
+                onClick={async () => {
+                  try {
+                    setChecking(true);
+                    const any = await hasAnyActiveSubscription();
+                    if (any) {
+                      navigate('/dashboard');
+                    } else {
+                      navigate('/payment');
+                    }
+                  } finally {
+                    setChecking(false);
+                  }
+                }}
+                disabled={checking}
+              >
+                {checking ? 'Please wait...' : 'My Dashboard'}
+              </button>
               <button
                 type="button"
                 onClick={handleLogout}

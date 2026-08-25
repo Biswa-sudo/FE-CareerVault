@@ -52,11 +52,14 @@ export const PAYMENT_PLANS = {
 }
 
 export function resolvePaymentPlan(planKey, query = {}) {
-  let normalizedKey = String(
+  const inputKey = String(
     planKey || query.plan || 'annual'
   )
     .trim()
     .toLowerCase()
+
+  let normalizedKey = inputKey
+  let plan = PAYMENT_PLANS[normalizedKey] || PAYMENT_PLANS.annual
 
   /*
    * Backward compatibility:
@@ -71,11 +74,12 @@ export function resolvePaymentPlan(planKey, query = {}) {
    */
   if (normalizedKey === 'career-vault-pro') {
     normalizedKey = 'pro'
+    plan = PAYMENT_PLANS[normalizedKey] || PAYMENT_PLANS.annual
   }
 
-  const plan =
-    PAYMENT_PLANS[normalizedKey] ||
-    PAYMENT_PLANS.annual
+  const fallbackKey = plan === PAYMENT_PLANS.annual && !PAYMENT_PLANS[inputKey]
+    ? 'annual'
+    : inputKey
 
   /*
    * Query amount is only used for display compatibility.
@@ -109,6 +113,8 @@ export function resolvePaymentPlan(planKey, query = {}) {
   return {
     ...plan,
 
+    key: fallbackKey,
+    planId: plan.planId || plan.key,
     amount,
 
     displayAmount: Number(
