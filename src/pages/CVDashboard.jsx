@@ -576,7 +576,7 @@ export default function Dashboard() {
                     <FileText className="w-5 h-5 text-indigo-600" />
                     My CVs
                   </h2>
-                  <Link to="/my-cvs" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1">
+                  <Link onClick={() => setActiveTab('cvs')} className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1">
                     View All
                     <ChevronRight className="w-4 h-4" />
                   </Link>
@@ -613,7 +613,7 @@ export default function Dashboard() {
                     <HardDrive className="w-5 h-5 text-indigo-600" />
                     Recent Documents
                   </h2>
-                  <Link to="/documents" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1">
+                  <Link onClick={() => setActiveTab('documents')} className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1">
                     View All
                     <ChevronRight className="w-4 h-4" />
                   </Link>
@@ -622,7 +622,7 @@ export default function Dashboard() {
                   <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
                     <FolderOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                     <p className="text-slate-500">No documents uploaded</p>
-                    <Link to="/documents">
+                    <Link  onClick={() => setActiveTab('documents')}>
                       <Button className="mt-3 bg-blue-600 hover:bg-blue-700 text-white">
                         Upload Document
                       </Button>

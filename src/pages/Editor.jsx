@@ -157,7 +157,9 @@ export default function Editor() {
   const [cvName, setCvName] = useState('Untitled CV')
   const [editorLoading, setEditorLoading] = useState(false)
   const [editorError, setEditorError] = useState('')
+  const [saveAlert, setSaveAlert] = useState(null)
   const [activePanel, setActivePanel] = useState('form')
+  const saveAlertTimerRef = useRef(null)
   const { register, control, reset, getValues, setValue } = useForm({ defaultValues })
 
   const { fields: skillFields, append: addSkill, remove: removeSkill } =
@@ -347,6 +349,24 @@ export default function Editor() {
     }
   }, [formData, templateId])
 
+  const showAutoDismissAlert = useCallback((message, type = 'success') => {
+    setSaveAlert({ message, type })
+    if (saveAlertTimerRef.current) {
+      window.clearTimeout(saveAlertTimerRef.current)
+    }
+    saveAlertTimerRef.current = window.setTimeout(() => {
+      setSaveAlert(null)
+    }, 2500)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (saveAlertTimerRef.current) {
+        window.clearTimeout(saveAlertTimerRef.current)
+      }
+    }
+  }, [])
+
   const onSave = useCallback(async () => {
     try {
       setEditorLoading(true)
@@ -360,15 +380,15 @@ export default function Editor() {
         navigate(`/editor/${savedCv.id}?template=${templateId}`, { replace: true })
       }
       setEditorError('')
-      alert('CV saved!')
+      showAutoDismissAlert('CV saved!')
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Unable to save CV.'
       setEditorError(message)
-      alert(message)
+      showAutoDismissAlert(message, 'danger')
     } finally {
       setEditorLoading(false)
     }
-  }, [cvId, cvName, templateId, getValues, navigate])
+  }, [cvId, cvName, templateId, getValues, navigate, showAutoDismissAlert])
 
   const handleSectionAction = useCallback((region, action, index) => {
     const layoutPath = `sectionLayout.${region}`
@@ -708,7 +728,14 @@ export default function Editor() {
   return (
     <FeatureGate productId={1} plan="career-vault" serviceName="Career Vault">
       <div className="flex flex-col h-full">
-      {editorError && (
+      {saveAlert && (
+        <div className={`alert alert-${saveAlert.type} alert-dismissible fade show mb-4`} role="alert">
+          {saveAlert.message}
+          <button type="button" className="btn-close" onClick={() => setSaveAlert(null)} aria-label="Close" />
+        </div>
+      )}
+
+      {editorError && !saveAlert && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {editorError}
         </div>
