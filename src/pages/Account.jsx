@@ -6,6 +6,10 @@ export default function Account() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
+  const profileUrl = user?.email
+    ? `${window.location.origin}/profile/${encodeURIComponent(user.email)}`
+    : null
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
@@ -26,11 +30,29 @@ export default function Account() {
 
         <div>
           <span className="text-sm text-gray-500">Public Profile URL</span>
-          <p className="font-medium text-blue-600 break-all">
-            {user?.email
-              ? `${window.location.origin}/profile/${encodeURIComponent(user.email)}`
-              : 'bentureai.com/profile/your-email'}
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="font-medium text-blue-600 break-all">
+              {profileUrl || 'bentureai.com/profile/your-email'}
+            </p>
+            {profileUrl ? (
+              <a
+                href={profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white rounded-xl text-sm hover:bg-indigo-700 transition"
+              >
+                Open
+              </a>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="inline-flex items-center px-3 py-1.5 bg-slate-100 text-slate-400 rounded-xl text-sm cursor-not-allowed"
+              >
+                Open
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="pt-2 border-t border-gray-200 flex flex-wrap items-center gap-3">

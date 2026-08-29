@@ -8,9 +8,9 @@ const completedProducts = [
   { to: '/spoken-english', label: 'Spoken English', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
   { to: '/career-vault-dashboard', label: 'Career Vault', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
   { to: '/career-vault-pro', label: 'Career Vault Pro', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
-  { to: '/skill-analysis', label: 'Skill Analysis', icon: 'M9 17v-6m4 6V7m4 10V4M4 21h16' },
+  // { to: '/skill-analysis', label: 'Skill Analysis', icon: 'M9 17v-6m4 6V7m4 10V4M4 21h16' },
   // { to: '/recruiter-marketplace', label: 'Recruiter Marketplace', icon: 'M20 13V8a2 2 0 00-2-2h-3V4a2 2 0 00-2-2h-2a2 2 0 00-2 2v2H6a2 2 0 00-2 2v5m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-4m-8 0H4m8 0v2' },
-  { to: '/ai-interview', label: 'AI Interviewer', icon: 'M12 1v11m0 0a3 3 0 003-3V7a3 3 0 10-6 0v2a3 3 0 003 3zm-7 0a7 7 0 0014 0m-7 0v4m-4 0h8' },
+  // { to: '/ai-interview', label: 'AI Interviewer', icon: 'M12 1v11m0 0a3 3 0 003-3V7a3 3 0 10-6 0v2a3 3 0 003 3zm-7 0a7 7 0 0014 0m-7 0v4m-4 0h8' },
   { to: '/account', label: 'Account', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
 ]
 
@@ -47,7 +47,7 @@ export default function Sidebar({ open, setOpen, desktopOpen = true }) {
         <div className="flex items-center h-16 px-4 border-b">
                     <img src={BentureAILogo} alt="Benture AI Logo" className="main-navbar__logo-image" />  
         </div>
-        <nav className="mt-6 px-4 space-y-1">
+        <nav className="mt-6 px-4 space-y-1 overflow-auto max-h-[calc(100vh-8rem)] pb-4">
           {completedProducts.map(item => (
             <NavLink
               key={item.to}

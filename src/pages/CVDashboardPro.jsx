@@ -1,15 +1,18 @@
 // ============================================================
-// CareerVaultPro.js
-// Integrated Career Vault Pro Dashboard
-// Includes: AI Trainer, AI Interviewer, Skill Analysis, Portfolio
+// CareerVaultPro.js – Integrated Dashboard
+// Fix: Added missing 'Play' import
 // ============================================================
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
+// import { useEffect, useState } from 'react'
+import { getSubscriptionStatus } from '../lib/localStorage'
+import PrePurchaseDashboard from './CvDashboardBeforeBuy'
 
-// Import icons from lucide-react
+// ============================================================
+// 1. ALL IMPORTS – including 'Play' and others
+// ============================================================
 import {
   Sparkles,
   Brain,
@@ -36,369 +39,527 @@ import {
   Heart,
   ExternalLink,
   Plus,
+  Loader2,
+  Upload,
+  FileCheck,
+  ClipboardCheck,
+  LayoutTemplate,
+  PenTool,
+  Compass,
+  Play,           // <-- THIS FIXES THE ERROR
 } from 'lucide-react';
 
+// Custom LinkedIn icon (if you ever need it)
+const LinkedinIcon = () => (
+  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+  </svg>
+);
+
 // ============================================================
-// IMPORT THE THREE INTEGRATED COMPONENTS
+// 2. IMPORT COMPONENTS (make sure these files exist)
 // ============================================================
 import AIInterview from './AIInterview';
 import SkillAnalysis from './SkillAnalysis';
-import PortfolioPage from './PortfolioPage';
 
 // Import their CSS files
 import './AIInterview.css';
 import './SkillAnalysis.css';
-import './PortfolioPage.css';
 
 // ============================================================
-// MOCK DATA (same as original CVDashboardPro)
+// 3. MOCK DATA
 // ============================================================
-const TRAINER_TOPICS = [
+const FEATURES = [
   {
-    id: 'resume-writing',
-    name: 'Resume Writing',
-    icon: FileText,
-    progress: 85,
-    status: 'in-progress',
-    totalLessons: 12,
-    completedLessons: 10,
+    id: 'cv-analysis',
+    icon: Upload,
+    title: 'AI CV Analysis',
+    description:
+      'Upload your CV and get a comprehensive AI-powered analysis of your skills, experience gaps, and career potential.',
     color: 'from-blue-500 to-cyan-500',
-    description: 'Master the art of crafting compelling resumes',
+    bgColor: 'bg-blue-50',
   },
   {
-    id: 'cover-letter',
-    name: 'Cover Letter Writing',
-    icon: MessageSquare,
-    progress: 60,
-    status: 'in-progress',
-    totalLessons: 8,
-    completedLessons: 5,
+    id: 'ats-content',
+    icon: ClipboardCheck,
+    title: 'ATS Content Generation',
+    description:
+      'AI generates ATS-optimized content for your CV, cover letters, and professional profiles – keyword‑rich and recruiter‑friendly.',
     color: 'from-indigo-500 to-purple-500',
-    description: 'Create persuasive cover letters that stand out',
+    bgColor: 'bg-indigo-50',
   },
   {
-    id: 'linkedin-optimization',
-    name: 'LinkedIn Optimization',
-    icon: Star,
-    progress: 40,
-    status: 'in-progress',
-    totalLessons: 10,
-    completedLessons: 4,
-    color: 'from-blue-600 to-sky-500',
-    description: 'Optimize your LinkedIn profile for recruiters',
+    id: 'template-content',
+    icon: LayoutTemplate,
+    title: 'Multi‑Template Content',
+    description:
+      'Generate tailored content for all our professional templates – resumes, cover letters, LinkedIn profiles, and portfolios.',
+    color: 'from-purple-500 to-pink-500',
+    bgColor: 'bg-purple-50',
   },
   {
-    id: 'personal-branding',
-    name: 'Personal Branding',
-    icon: Target,
-    progress: 20,
-    status: 'not-started',
-    totalLessons: 15,
-    completedLessons: 3,
-    color: 'from-amber-500 to-orange-500',
-    description: 'Build a powerful personal brand',
-  },
-  {
-    id: 'networking',
-    name: 'Networking Skills',
-    icon: Users,
-    progress: 10,
-    status: 'not-started',
-    totalLessons: 9,
-    completedLessons: 1,
+    id: 'skill-path',
+    icon: Compass,
+    title: 'AI Career Path',
+    description:
+      'Based on your CV analysis, AI creates a personalized learning path with recommended courses, projects, and skills to become interview‑ready.',
     color: 'from-emerald-500 to-teal-500',
-    description: 'Learn effective networking strategies',
+    bgColor: 'bg-emerald-50',
   },
   {
-    id: 'salary-negotiation',
-    name: 'Salary Negotiation',
-    icon: TrendingUp,
-    progress: 0,
-    status: 'locked',
-    totalLessons: 6,
-    completedLessons: 0,
+    id: 'interview-coach',
+    icon: Mic2,
+    title: 'AI Interview Coach',
+    description:
+      'Practice with an AI interview coach that adapts to your skill level. Get real‑time feedback and build confidence.',
     color: 'from-rose-500 to-pink-500',
-    description: 'Master the art of salary negotiation',
-    locked: true,
+    bgColor: 'bg-rose-50',
+  },
+  {
+    id: 'portfolio-generator',
+    icon: PenTool,
+    title: 'Portfolio Content Generator',
+    description:
+      'AI creates compelling project descriptions, case studies, and portfolio content that showcases your work effectively.',
+    color: 'from-amber-500 to-orange-500',
+    bgColor: 'bg-amber-50',
   },
 ];
 
-const PORTFOLIO_ITEMS = [
-  {
-    id: 1,
-    title: 'E-Commerce Platform',
-    type: 'Project',
-    description: 'Full-stack e-commerce platform with payment integration',
-    tags: ['React', 'Node.js', 'MongoDB', 'Stripe'],
-    date: '2024-01-01',
-    views: 245,
-    likes: 34,
-  },
-  {
-    id: 2,
-    title: 'AI Resume Analyzer',
-    type: 'Project',
-    description: 'AI-powered resume analysis tool for job seekers',
-    tags: ['Python', 'NLP', 'Machine Learning', 'Flask'],
-    date: '2023-12-20',
-    views: 189,
-    likes: 28,
-  },
-  {
-    id: 3,
-    title: 'Mobile Fitness App',
-    type: 'Project',
-    description: 'Cross-platform fitness tracking application',
-    tags: ['React Native', 'Firebase', 'Redux'],
-    date: '2023-12-05',
-    views: 156,
-    likes: 22,
-  },
-  {
-    id: 4,
-    title: 'Data Analytics Dashboard',
-    type: 'Project',
-    description: 'Interactive data visualization dashboard',
-    tags: ['D3.js', 'React', 'Chart.js', 'Express'],
-    date: '2023-11-15',
-    views: 132,
-    likes: 18,
-  },
-];
-
-const SKILL_ASSESSMENT = {
-  technical: 72,
-  communication: 85,
-  leadership: 60,
-  problemSolving: 78,
-  teamwork: 80,
-  adaptability: 75,
+const MOCK_ATS_CONTENT = {
+  headline: 'Senior Full Stack Developer with 4+ years of experience building scalable web applications.',
+  summary:
+    'Passionate Full Stack Developer specializing in React, Node.js, and cloud architecture. Proven track record of delivering high‑impact solutions for enterprise clients.',
+  keySkills: ['React.js', 'Node.js', 'Python', 'AWS', 'Docker', 'MongoDB', 'TypeScript', 'GraphQL'],
+  achievements: [
+    'Led development of 5+ enterprise applications',
+    'Improved system performance by 40%',
+    'Mentored 8 junior developers',
+    'Reduced deployment time by 60%',
+  ],
 };
 
 // ============================================================
-// MAIN COMPONENT
+// 4. MAIN COMPONENT
 // ============================================================
 export default function CareerVaultPro() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('trainer');
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [uploadFile, setUploadFile] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisComplete, setAnalysisComplete] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-  // ---- Helpers ----
-  const renderProgressBar = (progress, color = 'from-indigo-500 to-purple-500') => {
-    const percentage = Math.min(progress, 100);
+  const [checkingSubscription, setCheckingSubscription] = useState(true)
+  const [hasPro, setHasPro] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const check = async () => {
+      try {
+        const access = await getSubscriptionStatus(3, 'career-vault-pro')
+        if (!cancelled) setHasPro(Boolean(access))
+      } catch (err) {
+        if (!cancelled) setHasPro(false)
+      } finally {
+        if (!cancelled) setCheckingSubscription(false)
+      }
+    }
+
+    check()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  if (checkingSubscription) {
     return (
-      <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-        <div
-          className={`h-full bg-gradient-to-r ${color} rounded-full transition-all duration-500`}
-          style={{ width: `${percentage}%` }}
-        />
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-sm text-gray-500">Loading...</p>
+      </div>
+    )
+  }
+
+  if (!hasPro) {
+    return <PrePurchaseDashboard />
+  }
+
+  // ---- Handlers ----
+  const handleUploadModalOpen = () => {
+    setIsUploadModalOpen(true);
+    setUploadFile(null);
+    setAnalysisComplete(false);
+    setUploadProgress(0);
+  };
+
+  const handleUploadModalClose = () => {
+    setIsUploadModalOpen(false);
+    setUploadFile(null);
+    setAnalysisComplete(false);
+    setUploadProgress(0);
+    setIsAnalyzing(false);
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadFile(file);
+    setIsAnalyzing(true);
+    setUploadProgress(0);
+
+    const interval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsAnalyzing(false);
+          setAnalysisComplete(true);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 300);
+  };
+
+  // ---- Render: Dashboard Tab ----
+  const renderDashboardTab = () => (
+    <div className="space-y-12">
+      {/* Hero */}
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-8 md:p-12 text-white shadow-2xl shadow-indigo-200 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="bg-white/20 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+              <Sparkles className="w-3 h-3" />
+              AI-Powered Career Platform
+            </span>
+          </div>
+          <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
+            Your AI-Powered <br />
+            <span className="bg-gradient-to-r from-yellow-200 to-amber-200 bg-clip-text text-transparent">
+              Career Acceleration
+            </span>{' '}
+            Platform
+          </h1>
+          <p className="text-lg md:text-xl text-indigo-100 max-w-2xl mb-8">
+            Upload your CV once. Let AI analyze your skills, generate ATS‑friendly content,
+            create portfolio‑worthy descriptions, and coach you to interview success.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <button
+              className="bg-white text-indigo-600 hover:bg-indigo-50 px-8 py-3 rounded-xl font-semibold shadow-lg shadow-indigo-500/30 transition-all hover:scale-105 flex items-center gap-2"
+              onClick={handleUploadModalOpen}
+            >
+              <Upload className="w-5 h-5" />
+              Upload CV & Get Started
+            </button>
+            <button
+              className="bg-white/10 backdrop-blur text-white hover:bg-white/20 px-8 py-3 rounded-xl font-semibold border border-white/20 transition-all flex items-center gap-2"
+              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              <Play className="w-5 h-5" />  {/* <-- Play is now defined */}
+              See How It Works
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Grid */}
+      <div id="features">
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <span className="text-indigo-600 font-semibold text-sm uppercase tracking-wider">Features</span>
+          <h2 className="text-3xl font-bold text-slate-800 mt-2 mb-4">
+            Everything You Need to{' '}
+            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Accelerate
+            </span>{' '}
+            Your Career
+          </h2>
+          <p className="text-slate-600">Powered by cutting‑edge AI, designed for modern job seekers.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {FEATURES.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={feature.id}
+                className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-lg transition-all group"
+              >
+                <div className={`p-3 rounded-xl ${feature.bgColor} w-fit mb-4 group-hover:scale-110 transition-transform`}>
+                  <Icon className={`w-6 h-6 text-indigo-600`} />
+                </div>
+                <h3 className="text-lg font-bold text-slate-800 mb-2">{feature.title}</h3>
+                <p className="text-sm text-slate-600">{feature.description}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* How It Works */}
+      <div className="text-center max-w-3xl mx-auto">
+        <span className="text-indigo-600 font-semibold text-sm uppercase tracking-wider">How It Works</span>
+        <h2 className="text-3xl font-bold text-slate-800 mt-2 mb-4">
+          From CV Upload to Interview Success in{' '}
+          <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">4 Simple Steps</span>
+        </h2>
+        <p className="text-slate-600">Upload your CV once, and let AI do the heavy lifting.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {[
+          {
+            step: '1',
+            icon: Upload,
+            title: 'Upload CV',
+            desc: 'Upload your existing CV. AI parses and analyzes every detail.',
+            color: 'from-blue-500 to-cyan-500',
+          },
+          {
+            step: '2',
+            icon: Brain,
+            title: 'AI Analysis',
+            desc: 'AI identifies your skills, experience gaps, and career potential.',
+            color: 'from-indigo-500 to-purple-500',
+          },
+          {
+            step: '3',
+            icon: ClipboardCheck,
+            title: 'Content Generation',
+            desc: 'Get ATS‑optimized content for templates, portfolio, and more.',
+            color: 'from-purple-500 to-pink-500',
+          },
+          {
+            step: '4',
+            icon: Mic2,
+            title: 'Interview Ready',
+            desc: 'Practice with AI coach, build confidence, and land the job.',
+            color: 'from-emerald-500 to-teal-500',
+          },
+        ].map((item, idx) => (
+          <div
+            key={idx}
+            className="bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-sm hover:shadow-lg transition-all"
+          >
+            <div className={`w-12 h-12 rounded-2xl bg-gradient-to-r ${item.color} text-white flex items-center justify-center mx-auto mb-4 text-lg font-bold`}>
+              {item.step}
+            </div>
+            <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${item.color} bg-opacity-10 flex items-center justify-center mx-auto mb-4`}>
+              <item.icon className="w-6 h-6 text-indigo-600" />
+            </div>
+            <h3 className="font-bold text-slate-800">{item.title}</h3>
+            <p className="text-sm text-slate-600 mt-1">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Pricing / CTA */}
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-8 md:p-12 text-white text-center shadow-2xl shadow-indigo-200 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-2xl"></div>
+        <div className="relative z-10">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Ready to <span className="bg-gradient-to-r from-yellow-200 to-amber-200 bg-clip-text text-transparent">Supercharge</span> Your Career?
+          </h2>
+          <p className="text-indigo-100 text-lg max-w-2xl mx-auto mb-8">
+            Join thousands of professionals who have accelerated their careers with Career Vault Pro.
+          </p>
+          <button
+            className="bg-white text-indigo-600 hover:bg-indigo-50 px-10 py-4 rounded-xl font-bold text-lg shadow-lg shadow-indigo-500/30 transition-all hover:scale-105 inline-flex items-center gap-3"
+            onClick={handleUploadModalOpen}
+          >
+            <Upload className="w-5 h-5" />
+            Upload CV & Start Free Trial
+          </button>
+          <p className="text-indigo-200 text-sm mt-4">No credit card required • 14‑day free trial</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ---- Render: ATS Content Tab ----
+  const renderATSContentTab = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div className="flex items-center gap-3 mb-4">
+          <ClipboardCheck className="w-6 h-6 text-indigo-600" />
+          <h2 className="text-xl font-bold text-slate-800">AI‑Generated ATS Content</h2>
+        </div>
+        <p className="text-slate-600 mb-6">
+          Based on your uploaded CV, AI has generated the following ATS‑optimized content. Use it in your CV, cover letters, and LinkedIn profile to pass screening.
+        </p>
+
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium text-slate-700">Headline</label>
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-800">
+              {MOCK_ATS_CONTENT.headline}
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-700">Professional Summary</label>
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-800">
+              {MOCK_ATS_CONTENT.summary}
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-700">Key Skills</label>
+            <div className="flex flex-wrap gap-2">
+              {MOCK_ATS_CONTENT.keySkills.map((skill, idx) => (
+                <span key={idx} className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm border border-indigo-100">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-700">Achievements</label>
+            <ul className="space-y-1">
+              {MOCK_ATS_CONTENT.achievements.map((ach, idx) => (
+                <li key={idx} className="flex items-start gap-2 text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />
+                  {ach}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-xl font-semibold shadow-md shadow-indigo-200 hover:scale-105 transition-all flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Export as PDF
+          </button>
+          <button className="bg-slate-100 text-slate-700 px-6 py-2 rounded-xl font-semibold hover:bg-slate-200 transition flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            Generate for Target Role
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ---- Render: Upload Modal ----
+  const renderUploadModal = () => {
+    // Custom close icon (since 'X' might not be imported)
+    const CloseIcon = () => (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    );
+
+    return (
+      <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl max-w-2xl w-full p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+          <button
+            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+            onClick={handleUploadModalClose}
+          >
+            <CloseIcon />
+          </button>
+
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mx-auto mb-4">
+              <Upload className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800">Upload Your CV</h2>
+            <p className="text-slate-600 text-sm mt-1">
+              Let AI analyze your skills and generate career‑boosting content
+            </p>
+          </div>
+
+          {!analysisComplete ? (
+            <div className="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:border-indigo-400 transition-colors">
+              <input
+                type="file"
+                accept=".pdf,.docx,.doc,.txt"
+                onChange={handleFileUpload}
+                className="hidden"
+                id="cv-upload"
+              />
+              <label htmlFor="cv-upload" className="cursor-pointer block">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center">
+                    <FileText className="w-8 h-8 text-indigo-500" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-800">Click to upload or drag & drop</p>
+                    <p className="text-sm text-slate-500">PDF, DOCX, or TXT (max 10MB)</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                <FileCheck className="w-10 h-10 text-emerald-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800">Analysis Complete!</h3>
+              <p className="text-slate-600 text-sm mt-2">
+                We've analyzed your CV and generated personalized content.
+              </p>
+              <div className="bg-slate-50 rounded-xl p-4 mt-4 text-left">
+                <div className="flex items-center gap-2 text-sm text-slate-700 mb-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span>Skills identified: 12</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-700 mb-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span>ATS content generated: 3 versions</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-700 mb-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span>Career path created</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span>Interview prep ready</span>
+                </div>
+              </div>
+              <button
+                className="mt-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold shadow-lg shadow-indigo-200 hover:scale-105 transition-all"
+                onClick={handleUploadModalClose}
+              >
+                View Your Dashboard →
+              </button>
+            </div>
+          )}
+
+          {isAnalyzing && (
+            <div className="mt-6">
+              <div className="flex items-center justify-between text-sm text-slate-600 mb-2">
+                <span>AI is analyzing your CV...</span>
+                <span>{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <p className="text-xs text-slate-400 mt-2 text-center">
+                {uploadProgress < 30 && 'Parsing your CV structure...'}
+                {uploadProgress >= 30 && uploadProgress < 60 && 'Analyzing skills and experience...'}
+                {uploadProgress >= 60 && uploadProgress < 90 && 'Generating personalized content...'}
+                {uploadProgress >= 90 && 'Almost there! Finalizing your profile...'}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
 
-  const getStatusBadge = (status) => {
-    const statusMap = {
-      completed: {
-        color: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-        icon: CheckCircle2,
-        label: 'Completed',
-      },
-      'in-progress': {
-        color: 'bg-amber-100 text-amber-700 border-amber-200',
-        icon: Clock,
-        label: 'In Progress',
-      },
-      'not-started': {
-        color: 'bg-slate-100 text-slate-600 border-slate-200',
-        icon: Circle,
-        label: 'Not Started',
-      },
-      locked: {
-        color: 'bg-rose-100 text-rose-600 border-rose-200',
-        icon: Lock,
-        label: 'Locked',
-      },
-    };
-    return statusMap[status] || statusMap['not-started'];
-  };
-
-  const totalProgress =
-    TRAINER_TOPICS.reduce((acc, t) => acc + t.progress, 0) / TRAINER_TOPICS.length;
-  const completedTopics = TRAINER_TOPICS.filter((t) => t.progress === 100).length;
-
-  // ============================================================
-  // RENDER: AI Trainer Tab (Original Content)
-  // ============================================================
-  const renderTrainerTab = () => (
-    <div>
-      {/* Skill Assessment */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-8">
-        <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-indigo-600" />
-          Skill Assessment
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {Object.entries(SKILL_ASSESSMENT).map(([skill, value]) => (
-            <div key={skill} className="text-center">
-              <div className="relative inline-block">
-                <svg className="w-20 h-20 transform -rotate-90">
-                  <circle
-                    className="text-slate-200"
-                    strokeWidth="6"
-                    stroke="currentColor"
-                    fill="transparent"
-                    r="32"
-                    cx="40"
-                    cy="40"
-                  />
-                  <circle
-                    className="text-indigo-600"
-                    strokeWidth="6"
-                    strokeDasharray={201.06}
-                    strokeDashoffset={201.06 - (201.06 * value) / 100}
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="transparent"
-                    r="32"
-                    cx="40"
-                    cy="40"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-lg font-bold text-slate-800">{value}%</span>
-                </div>
-              </div>
-              <p className="text-xs text-slate-600 mt-1 capitalize">
-                {skill.replace(/([A-Z])/g, ' $1').trim()}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Topics Grid */}
-      <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-        <BookOpen className="w-5 h-5 text-indigo-600" />
-        Learning Topics
-      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {TRAINER_TOPICS.map((topic) => {
-          const StatusIcon = getStatusBadge(topic.status).icon;
-          const statusInfo = getStatusBadge(topic.status);
-          const Icon = topic.icon;
-
-          return (
-            <div
-              key={topic.id}
-              className={`bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition-all ${
-                topic.locked ? 'opacity-75' : ''
-              }`}
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg bg-gradient-to-r ${topic.color} text-white`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-slate-800 text-sm">{topic.name}</h4>
-                    <p className="text-xs text-slate-500">
-                      {topic.completedLessons}/{topic.totalLessons} lessons
-                    </p>
-                  </div>
-                </div>
-                <span
-                  className={`text-[10px] px-2 py-0.5 rounded-full border ${statusInfo.color} flex items-center gap-1`}
-                >
-                  <StatusIcon className="w-3 h-3" />
-                  {statusInfo.label}
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 mb-3">{topic.description}</p>
-              <div className="flex items-center justify-between">
-                <div className="flex-1 mr-3">{renderProgressBar(topic.progress, topic.color)}</div>
-                <span className="text-sm font-semibold text-slate-700">{topic.progress}%</span>
-              </div>
-              {!topic.locked && (
-                <Button
-                  className={`w-full mt-3 text-sm bg-gradient-to-r ${topic.color} text-white hover:opacity-90`}
-                >
-                  {topic.progress === 0
-                    ? 'Start Learning'
-                    : topic.progress === 100
-                    ? 'Review'
-                    : 'Continue'}
-                  <ArrowRight className="w-3 h-3 ml-1" />
-                </Button>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-
-  // ============================================================
-  // RENDER: Portfolio Tab (Quick View + Link to Full Portfolio)
-  // ============================================================
-  const renderPortfolioTab = () => (
-    <div>
-      {/* Portfolio Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-          <p className="text-sm text-slate-600">Total Projects</p>
-          <p className="text-2xl font-bold text-slate-800">{PORTFOLIO_ITEMS.length}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-          <p className="text-sm text-slate-600">Total Views</p>
-          <p className="text-2xl font-bold text-slate-800">
-            {PORTFOLIO_ITEMS.reduce((acc, item) => acc + item.views, 0)}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-          <p className="text-sm text-slate-600">Total Likes</p>
-          <p className="text-2xl font-bold text-slate-800">
-            {PORTFOLIO_ITEMS.reduce((acc, item) => acc + item.likes, 0)}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-          <p className="text-sm text-slate-600">Profile Views</p>
-          <p className="text-2xl font-bold text-slate-800">342</p>
-        </div>
-      </div>
-
-      {/* Full Portfolio Button */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-800">Full Portfolio Management</h3>
-            <p className="text-sm text-slate-600 mt-1">
-              Edit your portfolio, add projects, manage your public profile
-            </p>
-          </div>
-          <Button
-            className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-200"
-            onClick={() => {
-              // The PortfolioPage component below will render in this tab
-              // This button is just a visual call-to-action
-            }}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Open Full Portfolio
-          </Button>
-        </div>
-      </div>
-
-      {/* Full PortfolioPage Component */}
-      <PortfolioPage />
-    </div>
-  );
-
-  // ============================================================
-  // MAIN RENDER
-  // ============================================================
+  // ---- Main Render ----
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-white">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* ----- HEADER ----- */}
+        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
             <div className="flex items-center gap-3">
@@ -414,81 +575,47 @@ export default function CareerVaultPro() {
               </span>
             </div>
             <p className="text-slate-600 mt-1">
-              AI-powered career development tools and insights
+              Upload CV → AI Analysis → ATS Content → Interview Ready
             </p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full border border-indigo-200">
-              🇮🇳 Built for Bharat
-            </span>
-            <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md shadow-indigo-200">
-              <Zap className="w-4 h-4 mr-2" />
+            <button
+              className="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl text-sm font-semibold border border-indigo-200 hover:bg-indigo-200 transition flex items-center gap-2"
+              onClick={handleUploadModalOpen}
+            >
+              <Upload className="w-4 h-4" />
+              Upload CV
+            </button>
+            {/* <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md shadow-indigo-200 flex items-center gap-2">
+              <Zap className="w-4 h-4" />
               Upgrade
-            </Button>
+            </Button> */}
           </div>
         </div>
 
-        {/* ----- Overall Progress Bar ----- */}
-        {/* <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 md:p-8 mb-8 text-white shadow-xl shadow-indigo-200">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Trophy className="w-5 h-5" />
-                <h2 className="text-xl font-bold">Your Career Progress</h2>
-              </div>
-              <p className="text-indigo-100 text-sm">
-                You've completed {completedTopics} of {TRAINER_TOPICS.length} topics
-              </p>
-            </div>
-            <div className="flex items-center gap-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold">{Math.round(totalProgress)}%</div>
-                <div className="text-xs text-indigo-200">Overall Progress</div>
-              </div>
-              <div className="w-24 h-24 relative">
-                <svg className="w-24 h-24 transform -rotate-90">
-                  <circle
-                    className="text-indigo-400/30"
-                    strokeWidth="6"
-                    stroke="currentColor"
-                    fill="transparent"
-                    r="36"
-                    cx="48"
-                    cy="48"
-                  />
-                  <circle
-                    className="text-white"
-                    strokeWidth="6"
-                    strokeDasharray={226.19}
-                    strokeDashoffset={226.19 - (226.19 * totalProgress) / 100}
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="transparent"
-                    r="36"
-                    cx="48"
-                    cy="48"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-sm font-bold">{Math.round(totalProgress)}%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
-
-        {/* ----- TABS ----- */}
+        {/* Tabs */}
         <div className="flex gap-1 border-b border-slate-200 mb-8 overflow-x-auto">
           <button
-            onClick={() => setActiveTab('trainer')}
+            onClick={() => setActiveTab('dashboard')}
             className={`px-4 py-2.5 text-sm font-medium transition-all duration-200 border-b-2 whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'trainer'
+              activeTab === 'dashboard'
                 ? 'border-indigo-600 text-indigo-600'
                 : 'border-transparent text-slate-600 hover:text-slate-800 hover:border-slate-300'
             }`}
           >
-            <Brain className="w-4 h-4" />
-            AI Trainer
+            <Sparkles className="w-4 h-4" />
+            Dashboard
+          </button>
+          <button
+            onClick={() => setActiveTab('ats-content')}
+            className={`px-4 py-2.5 text-sm font-medium transition-all duration-200 border-b-2 whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'ats-content'
+                ? 'border-indigo-600 text-indigo-600'
+                : 'border-transparent text-slate-600 hover:text-slate-800 hover:border-slate-300'
+            }`}
+          >
+            <ClipboardCheck className="w-4 h-4" />
+            ATS Content
           </button>
           <button
             onClick={() => setActiveTab('interviewer')}
@@ -512,27 +639,19 @@ export default function CareerVaultPro() {
             <BarChart3 className="w-4 h-4" />
             Skill Analysis
           </button>
-          <button
-            onClick={() => setActiveTab('portfolio')}
-            className={`px-4 py-2.5 text-sm font-medium transition-all duration-200 border-b-2 whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'portfolio'
-                ? 'border-indigo-600 text-indigo-600'
-                : 'border-transparent text-slate-600 hover:text-slate-800 hover:border-slate-300'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            Portfolio
-          </button>
         </div>
 
-        {/* ----- TAB CONTENT ----- */}
+        {/* Tab Content */}
         <div className="tab-content">
-          {activeTab === 'trainer' && renderTrainerTab()}
+          {activeTab === 'dashboard' && renderDashboardTab()}
+          {activeTab === 'ats-content' && renderATSContentTab()}
           {activeTab === 'interviewer' && <AIInterview />}
           {activeTab === 'skill-analysis' && <SkillAnalysis />}
-          {activeTab === 'portfolio' && <PortfolioPage />}
         </div>
       </div>
+
+      {/* Upload Modal */}
+      {isUploadModalOpen && renderUploadModal()}
     </div>
   );
 }

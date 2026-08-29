@@ -684,7 +684,7 @@ const AIInterview = () => {
   return (
     <div className="ai-interview">
       <main className="main-content">
-        <header className="page-header">
+        {/* <header className="page-header">
           <div className="header-left">
             <h1 className="page-title">AI Interview Coach</h1>
             <p className="page-subtitle">Resume by topic, replay weak questions, append new batches</p>
@@ -692,38 +692,7 @@ const AIInterview = () => {
           <div className="header-right">
             <span className="badge">{stats.sessions} sessions</span>
           </div>
-        </header>
-
-        <section className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">🎯</div>
-            <div className="stat-info">
-              <span className="stat-value">{stats.sessions}</span>
-              <span className="stat-label">Sessions Completed</span>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon">📈</div>
-            <div className="stat-info">
-              <span className="stat-value">{stats.avgScore}%</span>
-              <span className="stat-label">Average Score</span>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon">📝</div>
-            <div className="stat-info">
-              <span className="stat-value">{stats.questionsAnswered}</span>
-              <span className="stat-label">Questions Answered</span>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon">🔥</div>
-            <div className="stat-info">
-              <span className="stat-value">{stats.streak}</span>
-              <span className="stat-label">Day Streak</span>
-            </div>
-          </div>
-        </section>
+        </header> */}
 
         <div className="tabs">
           <button className={`tab-btn ${activeTab === 'practice' ? 'active' : ''}`} onClick={() => setActiveTab('practice')}>
@@ -983,6 +952,37 @@ const AIInterview = () => {
         )}
 
         {activeTab === 'performance' && (
+          <>
+           <section className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-icon">🎯</div>
+            <div className="stat-info">
+              <span className="stat-value">{stats.sessions}</span>
+              <span className="stat-label">Sessions Completed</span>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">📈</div>
+            <div className="stat-info">
+              <span className="stat-value">{stats.avgScore}%</span>
+              <span className="stat-label">Average Score</span>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">📝</div>
+            <div className="stat-info">
+              <span className="stat-value">{stats.questionsAnswered}</span>
+              <span className="stat-label">Questions Answered</span>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">🔥</div>
+            <div className="stat-info">
+              <span className="stat-value">{stats.streak}</span>
+              <span className="stat-label">Day Streak</span>
+            </div>
+          </div>
+        </section>
           <div className="tab-content">
             <div className="performance-container">
               <div className="performance-grid">
@@ -1064,6 +1064,7 @@ const AIInterview = () => {
               </div>
             </div>
           </div>
+          </>
         )}
       </main>
     </div>
