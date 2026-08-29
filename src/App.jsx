@@ -13,6 +13,7 @@ import Templates from './pages/Templates'
 import Editor from './pages/Editor'
 import MyCVs from './pages/MyCVs'
 import CVDashboard from './pages/CVDashboard'
+import CVDashboardPro from './pages/CVDashboardPro'
 import Documents from './pages/Documents'
 import Account from './pages/Account'
 import DashboardLayout from './components/Layout/DashboardLayout'
@@ -22,6 +23,11 @@ import LandingPageFinal from './pages/LandingPageFinal'
 import RecruiterMarketplace from './pages/RecruiterMarketplace'
 import AIInterview from './pages/AIInterview'
 import PortfolioPage from './pages/PortfolioPage'
+import SalesCRM from './pages/SalesCRM'
+import InventoryOperations from './pages/InventoryOperations'
+import HRMSProductPage from './pages/HRMSProductPage'
+import ProjectManagement from './pages/ProjectManagement'
+import FinancialLanding from './pages/FinancialLanding'
 import Contact from './pages/Contact'
 import TermsOfService from './pages/TermsOfService'
 import PrivacyPolicy from './pages/PrivacyPolicy'
@@ -29,6 +35,9 @@ import AccountSettings from './pages/AccountSettings'
 import FAQ from './pages/FAQ'
 import AboutUs from './pages/AboutUs'
 import AllProducts from './pages/AllProducts'
+import CustomAILandingPage from './pages/CustomAI'
+import EcommerceLandingPage from './pages/Ecommerce'
+import AllGames from './pages/AllGames'
 
 export default function App() {
   return (
@@ -79,6 +88,8 @@ export default function App() {
             element={<AllProducts />}
           />
 
+          <Route path="/profile/:email" element={<PortfolioPage />} />
+
 
           {/* =====================================================
               CAREER VAULT
@@ -87,22 +98,34 @@ export default function App() {
           ===================================================== */}
 
           <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute requireSubscription={false}>
+                <DashboardLayout><Dashboard /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute requireSubscription={false}>
+                <DashboardLayout><Account /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             element={
               <ProtectedRoute
                 productId={1}
                 plan="career-vault"
                 requireSubscription={true}
-                allowAnyActiveSubscription={true}
               >
                 <DashboardLayout />
               </ProtectedRoute>
             }
           >
-            <Route
-              path="/dashboard"
-              element={<Dashboard />}
-            />
-
             <Route
               path="/templates"
               element={<Templates />}
@@ -121,15 +144,13 @@ export default function App() {
               path="/career-vault-dashboard"
               element={<CVDashboard />}
             />
-
+             <Route
+              path="/career-vault-pro"
+              element={<CVDashboardPro />}
+            />
             <Route
               path="/documents"
               element={<Documents />}
-            />
-
-            <Route
-              path="/account"
-              element={<Account />}
             />
 
             <Route
@@ -168,16 +189,16 @@ export default function App() {
                 plan="spoken-english"
                 requireSubscription={true}
               >
-                <SpokenEnglish />
+                <DashboardLayout><SpokenEnglish /></DashboardLayout>
               </ProtectedRoute>
             }
           />
 
 
           {/* =====================================================
-              BENTURE AI
+              BENTURE AI / CAREER VAULT PRO
               Product ID: 3
-              Plan: annual
+              Use the slug form so the backend and payment pages resolve the correct service.
           ===================================================== */}
 
           <Route
@@ -185,10 +206,114 @@ export default function App() {
             element={
               <ProtectedRoute
                 productId={3}
-                plan="annual"
+                plan="career-vault-pro"
                 requireSubscription={true}
               >
-                <SkillAnalysis />
+                <DashboardLayout><SkillAnalysis /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+                 <Route
+            path="/hrms"
+            element={
+              <ProtectedRoute
+                productId={3 || 2 ||1}
+                plan="career-vault-pro"
+                requireSubscription={true}
+              >
+                <DashboardLayout><HRMSProductPage /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/project-management"
+            element={
+              <ProtectedRoute
+                productId={3}
+                plan="career-vault-pro"
+                requireSubscription={true}
+              >
+                <DashboardLayout><ProjectManagement /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+           <Route
+            path="/financial-landing"
+            element={
+              <ProtectedRoute
+                productId={3}
+                plan="career-vault-pro"
+                requireSubscription={true}
+              >
+                <DashboardLayout><FinancialLanding /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/sales-crm"
+            element={
+              <ProtectedRoute
+                productId={3}
+                plan="career-vault-pro"
+                requireSubscription={true}
+              >
+                <DashboardLayout><SalesCRM /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/inventory-operations"
+            element={
+              <ProtectedRoute
+                productId={3}
+                plan="career-vault-pro"
+                requireSubscription={true}
+              >
+                <DashboardLayout><InventoryOperations /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/custom-ai"
+            element={
+              <ProtectedRoute
+                productId={3}
+                plan="career-vault-pro"
+                requireSubscription={true}
+              >
+                <DashboardLayout><CustomAILandingPage /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+           <Route
+            path="/e-commerce"
+            element={
+              <ProtectedRoute
+                productId={3}
+                plan="career-vault-pro"
+                requireSubscription={true}
+              >
+                <DashboardLayout><EcommerceLandingPage /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/games"
+            element={
+              <ProtectedRoute
+                productId={3}
+                plan="career-vault-pro"
+                requireSubscription={true}
+              >
+                <DashboardLayout><AllGames /></DashboardLayout>
               </ProtectedRoute>
             }
           />
@@ -198,10 +323,10 @@ export default function App() {
             element={
               <ProtectedRoute
                 productId={3}
-                plan="annual"
+                plan="career-vault-pro"
                 requireSubscription={true}
               >
-                <AIInterview />
+                <DashboardLayout><AIInterview /></DashboardLayout>
               </ProtectedRoute>
             }
           />
@@ -211,10 +336,10 @@ export default function App() {
             element={
               <ProtectedRoute
                 productId={3}
-                plan="annual"
+                plan="career-vault-pro"
                 requireSubscription={true}
               >
-                <StudyGroups />
+                <DashboardLayout><StudyGroups /></DashboardLayout>
               </ProtectedRoute>
             }
           />

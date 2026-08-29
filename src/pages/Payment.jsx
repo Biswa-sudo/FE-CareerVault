@@ -165,6 +165,26 @@ export default function UnifiedPayment() {
   const rawPlan = searchParams.get('plan');
   const rawProductId = searchParams.get('product_id');
 
+  useEffect(() => {
+    if (!rawPlan && !rawProductId) {
+      return;
+    }
+
+    const normalizedPlan = rawPlan ? String(rawPlan).trim().toLowerCase() : '';
+    const normalizedProductId = rawProductId ? String(rawProductId).trim() : '';
+
+    const matchedService =
+      SERVICES.find((service) => service.id === normalizedPlan) ||
+      SERVICES.find((service) => String(service.productId) === normalizedProductId) ||
+      SERVICES.find((service) => service.id === normalizedPlan.replace(/_/g, '-'));
+
+    if (matchedService) {
+      setSelectedService((current) => (
+        current && current.id === matchedService.id ? current : matchedService
+      ));
+    }
+  }, [rawPlan, rawProductId]);
+
   const selectedPlan = resolvePaymentPlan(rawPlan, {
     amount: rawAmount,
     title: searchParams.get('title'),

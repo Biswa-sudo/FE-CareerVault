@@ -6,6 +6,7 @@ import Button from '../components/ui/Button'
 import CVPreview from '../components/CVPreview'
 import { getTemplateById } from '../data/templates'
 import { getTemplateDefaults } from '../data/templateDefaults'
+import PortfolioPage from './PortfolioPage'
 import { 
   FileText, 
   Upload, 
@@ -460,6 +461,7 @@ export default function Dashboard() {
 
   const tabs = [
     { id: 'overview', label: 'Overview' },
+    { id: 'portfolio', label: 'Portfolio' },
     { id: 'cvs', label: `My CVs (${cvs.length})` },
     { id: 'documents', label: `Documents (${docs.length})` },
 
@@ -490,14 +492,14 @@ export default function Dashboard() {
           <>
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200" onClick={() => setActiveTab('cvs')}>
                 <p className="text-sm text-slate-600">CVs Created</p>
                 <p className="text-3xl font-bold text-slate-800">
                   {cvs.length}
                   <span className="text-base font-normal text-slate-400 ml-1">/10</span>
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200" onClick={() => setActiveTab('documents')}>
                 <p className="text-sm text-slate-600">Documents</p>
                 <p className="text-3xl font-bold text-slate-800">{docs.length}</p>
               </div>
@@ -665,6 +667,13 @@ export default function Dashboard() {
               </div>
             </div>
           </>
+        )}
+
+        {/* Portfolio Tab */}
+        {activeTab === 'portfolio' && (
+          <div>
+            <PortfolioPage />
+          </div>
         )}
 
         {/* My CVs Tab */}

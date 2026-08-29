@@ -1,24 +1,37 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import BentureAILogo from "../../assets/BentureAILogoText.webp"; 
 
-const navItems = [
+const completedProducts = [
   { to: '/dashboard', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-  // { to: '/my-cvs', label: 'My CVs', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-  { to: '/career-vault-dashboard', label: 'Career Vault', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-  // { to: '/templates', label: 'Templates', icon: 'M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm0 8a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zm12 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zm0 4a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z' },
-  // { to: '/documents', label: 'Documents', icon: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4' },
-  { to: '/account', label: 'Account', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
   { to: '/spoken-english', label: 'Spoken English', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
+  { to: '/career-vault-dashboard', label: 'Career Vault', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+  { to: '/career-vault-pro', label: 'Career Vault Pro', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
   { to: '/skill-analysis', label: 'Skill Analysis', icon: 'M9 17v-6m4 6V7m4 10V4M4 21h16' },
   // { to: '/recruiter-marketplace', label: 'Recruiter Marketplace', icon: 'M20 13V8a2 2 0 00-2-2h-3V4a2 2 0 00-2-2h-2a2 2 0 00-2 2v2H6a2 2 0 00-2 2v5m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-4m-8 0H4m8 0v2' },
   { to: '/ai-interview', label: 'AI Interviewer', icon: 'M12 1v11m0 0a3 3 0 003-3V7a3 3 0 10-6 0v2a3 3 0 003 3zm-7 0a7 7 0 0014 0m-7 0v4m-4 0h8' },
+  { to: '/account', label: 'Account', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+]
+
+const futureProducts = [
+  { to: '/hrms', label: 'HRMS Software', icon: 'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 010 18M12 3a15.3 15.3 0 000 18' },
+  { to: '/project-management', label: 'Project Management Software', icon: 'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 010 18M12 3a15.3 15.3 0 000 18' },
+  // { to: '/portfolio', label: 'Billing Software', icon: 'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 010 18M12 3a15.3 15.3 0 000 18' },
+  { to: '/financial-landing', label: 'Financial Services', icon: 'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 010 18M12 3a15.3 15.3 0 000 18' },
+  { to: '/sales-crm', label: 'Sales & CRM', icon: 'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 010 18M12 3a15.3 15.3 0 000 18' },
+  { to: '/inventory-operations', label: 'Inventory & Operations ', icon: 'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 010 18M12 3a15.3 15.3 0 000 18' },
+  { to: '/e-commerce', label: 'E-commerce', icon: 'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 010 18M12 3a15.3 15.3 0 000 18' },
+  { to: '/custom-ai', label: 'Custom AI Products', icon: 'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 010 18M12 3a15.3 15.3 0 000 18' },
+  { to: '/games', label: 'Games', icon: 'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 010 18M12 3a15.3 15.3 0 000 18' },
   { to: '/portfolio', label: 'Portfolio', icon: 'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 010 18M12 3a15.3 15.3 0 000 18' },
   // { to: '/study-groups', label: 'Study Groups', icon: 'M17 20h5v-2a4 4 0 00-5.9-3.5M17 20H7m10 0v-2c0-.7-.1-1.4-.4-2M7 20H2v-2a4 4 0 015.9-3.5M7 20v-2c0-.7.1-1.4.4-2m0 0a5 5 0 019.2 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
+  { to: '/account', label: 'Account', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
 ]
 
 export default function Sidebar({ open, setOpen, desktopOpen = true }) {
   const { logout } = useAuth()
+  const [futureOpen, setFutureOpen] = useState(false)
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -35,7 +48,7 @@ export default function Sidebar({ open, setOpen, desktopOpen = true }) {
                     <img src={BentureAILogo} alt="Benture AI Logo" className="main-navbar__logo-image" />  
         </div>
         <nav className="mt-6 px-4 space-y-1">
-          {navItems.map(item => (
+          {completedProducts.map(item => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -52,6 +65,46 @@ export default function Sidebar({ open, setOpen, desktopOpen = true }) {
               {item.label}
             </NavLink>
           ))}
+
+          {/* Future plans collapsible */}
+          <div>
+            <button
+              onClick={() => setFutureOpen(v => !v)}
+              className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100"
+            >
+              <span className="flex items-center gap-3">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8h18M3 12h18M3 16h18" />
+                </svg>
+                Future Plans
+              </span>
+              <svg className={`w-4 h-4 transition-transform ${futureOpen ? 'rotate-90' : ''}`} viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M6 4a1 1 0 011.707-.707l6 6a1 1 0 010 1.414l-6 6A1 1 0 016 16.293L11.586 11 6 5.414A1 1 0 016 4z" clipRule="evenodd" />
+              </svg>
+            </button>
+
+            {futureOpen && (
+              <div className="mt-2 space-y-1 pl-6">
+                {futureProducts.map(item => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => { setOpen(false); setFutureOpen(false) }}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        isActive ? 'bg-primary-50 text-primary-700' : 'text-gray-500 hover:bg-gray-50'
+                      }`
+                    }
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                    </svg>
+                    {item.label}
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </div>
         </nav>
         <div className="absolute bottom-4 left-0 right-0 px-4">
           <button onClick={handleLogout} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg">

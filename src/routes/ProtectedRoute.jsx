@@ -2,7 +2,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { getSubscriptionStatus, hasAnyActiveSubscription } from '../lib/localStorage'
-import NotAuthorized from '../pages/NotAuthorized'
+import DashboardLayout from '../components/Layout/DashboardLayout'
 
 export default function ProtectedRoute({
   children,
@@ -96,29 +96,33 @@ export default function ProtectedRoute({
   }
 
   if (requireSubscription && !hasAccess) {
-    // Render NotAuthorized component in-place instead of redirecting.
-    const handlePaymentRedirect = () => {
-      const params = new URLSearchParams()
+    const params = new URLSearchParams()
 
-      if (productId !== null) {
-        params.set('product_id', String(productId))
-      }
-
-      if (plan) {
-        params.set('plan', plan)
-      }
-
-      const qs = params.toString()
-      navigate(qs ? `/payment?${qs}` : '/payment')
+    if (productId !== null) {
+      params.set('product_id', String(productId))
     }
 
-    return (
-      <NotAuthorized
-        serviceName={serviceName || plan || 'Premium Service'}
-        serviceId={plan || String(productId)}
-        onPaymentRedirect={handlePaymentRedirect}
-      />
-    )
+    if (plan) {
+      params.set('plan', plan)
+    }
+
+    const qs = params.toString()
+    const paymentPath = qs ? `/payment?${qs}` : '/payment'
+
+    const isDashboardShell =
+      children &&
+      typeof children === 'object' &&
+      children.type &&
+      children.type.name === 'DashboardLayout'
+
+    // If the route is a dashboard shell, let the dashboard render so the user
+    // can access its pages and proceed to payment from there.
+    if (isDashboardShell) {
+      return children
+    }
+
+    // For non-dashboard routes, redirect user to the payment page.
+    return <Navigate to={paymentPath} replace />
   }
 
   return children

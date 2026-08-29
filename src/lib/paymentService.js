@@ -58,8 +58,8 @@ export async function verifyPayment(paymentDetails) {
 export async function startUpiPayment({
   amount = 10000,
   currency = 'INR',
-  description = 'Annual subscription — all features unlocked',
-  plan = 'annual',
+  description = 'Benture AI product subscription',
+  plan = '',
   productId = null,
   planId = null,
   onSuccess,

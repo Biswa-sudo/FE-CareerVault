@@ -3,7 +3,7 @@ import Sidebar from './Sidebar'
 import Navbar from './Navbar'
 import { useState } from 'react'
 
-export default function DashboardLayout() {
+export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true)
 
@@ -25,7 +25,7 @@ export default function DashboardLayout() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar onMenuClick={handleMenuClick} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
-          <Outlet />
+          {children || <Outlet />}
         </main>
       </div>
     </div>

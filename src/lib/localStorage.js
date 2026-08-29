@@ -36,6 +36,25 @@ export async function getSession() {
   }
 }
 
+function normalizePlanSlug(productId = null, plan = null) {
+  if (!plan) return null;
+
+  const raw = String(plan).trim();
+  if (!raw) return null;
+
+  const lower = raw.toLowerCase();
+
+  // Product 3 was historically labeled as "Career Vault Pro" in the UI.
+  // The backend and payment routes expect the slug form.
+  if (productId === 3) {
+    if (lower.includes('career vault pro') || lower.includes('career-vault-pro')) {
+      return 'career-vault-pro';
+    }
+  }
+
+  return lower.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || null;
+}
+
 export async function getSubscriptionStatus(
   productId = null,
   plan = null
@@ -47,8 +66,9 @@ export async function getSubscriptionStatus(
       params.set('product_id', String(productId));
     }
 
-    if (plan) {
-      params.set('plan', String(plan));
+    const normalizedPlan = normalizePlanSlug(productId, plan);
+    if (normalizedPlan) {
+      params.set('plan', normalizedPlan);
     }
 
     const query = params.toString();
@@ -78,8 +98,9 @@ export async function getSubscriptionDetails(
       params.set('product_id', String(productId));
     }
 
-    if (plan) {
-      params.set('plan', String(plan));
+    const normalizedPlan = normalizePlanSlug(productId, plan);
+    if (normalizedPlan) {
+      params.set('plan', normalizedPlan);
     }
 
     const query = params.toString();
@@ -139,7 +160,25 @@ export async function getAllSubscriptions() {
 
 export async function getPaymentDate(productId = null, plan = null) {
   const details = await getSubscriptionDetails(productId, plan);
-  return details.paymentDate || null;
+
+  // If API returned a single subscription detail object
+  if (details && typeof details === 'object' && 'paymentDate' in details) {
+    return details.paymentDate || null;
+  }
+
+  // If API returned an array of subscriptions (no product filter), pick
+  // the most recent active subscription's paymentDate when available.
+  if (details && Array.isArray(details.subscriptions)) {
+    const subs = details.subscriptions;
+
+    // Prefer an active subscription; fall back to the most recent entry.
+    const active = subs.find(s => s.status === 'active');
+    const chosen = active || subs[0] || null;
+
+    return chosen && chosen.paymentDate ? chosen.paymentDate : null;
+  }
+
+  return null;
 }
 
 export async function logout() {

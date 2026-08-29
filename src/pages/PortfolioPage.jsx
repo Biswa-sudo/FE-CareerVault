@@ -1,28 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import './PortfolioPage.css';
-import FeatureGate from '../components/FeatureGate'
 import { apiRequest } from '../lib/apiClient';
+import { useAuth } from '../context/AuthContext';
 
 const PortfolioPage = () => {
-  const location = useLocation();
   const navigate = useNavigate();
+  const { email: emailParam } = useParams();
+  const { user } = useAuth();
+  const decodedEmail = emailParam ? decodeURIComponent(emailParam) : null;
+  const isPublicProfile = Boolean(decodedEmail);
+  const isOwner = Boolean(
+    decodedEmail &&
+    user?.email &&
+    decodedEmail.toLowerCase() === user.email.toLowerCase()
+  );
 
   // ---------- STATE ----------
   const [isEditing, setIsEditing] = useState(false);
-  const [showPublicView, setShowPublicView] = useState(false);
 
-  // ---------- CHECK URL QUERY PARAMS ON LOAD ----------
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const publicParam = params.get('public');
-    if (publicParam === 'true') {
-      setShowPublicView(true);
-    } else {
-      setShowPublicView(false);
-    }
-  }, [location.search]);
-
+  // ---------- DATA ----------
   const defaultData = {
     name: 'Biswaranjan Pradhan',
     title: 'Full Stack Developer',
@@ -87,12 +84,18 @@ const PortfolioPage = () => {
   const [error, setError] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const shareLink = `${window.location.origin}${window.location.pathname}?public=true`;
+  const shareLink = decodedEmail
+    ? `${window.location.origin}/profile/${encodeURIComponent(decodedEmail)}`
+    : `${window.location.origin}/profile/${encodeURIComponent(user?.email || 'user')}`;
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const response = await apiRequest('/portfolio.php?type=data');
+        const query = isPublicProfile
+          ? `/portfolio.php?type=data&email=${encodeURIComponent(decodedEmail)}`
+          : '/portfolio.php?type=data';
+
+        const response = await apiRequest(query);
         const parsed = response?.item?.data || null;
         if (parsed && typeof parsed === 'object') {
           ['skills', 'experience', 'education', 'services', 'projects', 'testimonials', 'cvs', 'documents', 'certificates', 'hobbies'].forEach(key => {
@@ -101,7 +104,11 @@ const PortfolioPage = () => {
           setUserData(parsed);
         }
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to load portfolio data.');
+        setError(
+          e instanceof Error
+            ? e.message
+            : 'Failed to load portfolio data.'
+        );
       } finally {
         setLoading(false);
         setIsInitialized(true);
@@ -109,12 +116,10 @@ const PortfolioPage = () => {
     };
 
     loadData();
-  }, []);
+  }, [decodedEmail, isPublicProfile]);
 
   useEffect(() => {
-    if (!isInitialized) {
-      return;
-    }
+    if (!isInitialized || isPublicProfile || !isOwner) return;
 
     apiRequest('/portfolio.php?type=data', {
       method: 'PUT',
@@ -122,9 +127,8 @@ const PortfolioPage = () => {
     }).catch((e) => {
       setError(e instanceof Error ? e.message : 'Failed to save portfolio data.');
     });
-  }, [userData, isInitialized]);
+  }, [userData, isInitialized, isPublicProfile, isOwner]);
 
-  // ---------- HANDLERS ----------
   const handleSaveProfile = (updatedData) => {
     setUserData(updatedData);
     setIsEditing(false);
@@ -144,21 +148,6 @@ const PortfolioPage = () => {
     });
   };
 
-  const handleSetPrimary = (cvId) => {
-    const updatedCvs = userData.cvs.map(cv => ({
-      ...cv,
-      isPrimary: cv.id === cvId
-    }));
-    setUserData({ ...userData, cvs: updatedCvs });
-  };
-
-  const handleDeleteCV = (cvId) => {
-    if (window.confirm('Are you sure you want to delete this CV?')) {
-      const updatedCvs = userData.cvs.filter(cv => cv.id !== cvId);
-      setUserData({ ...userData, cvs: updatedCvs });
-    }
-  };
-
   const handleDownloadPrimaryCV = () => {
     const primary = userData.cvs?.find(cv => cv.isPrimary);
     if (primary && primary.fileUrl) {
@@ -166,30 +155,6 @@ const PortfolioPage = () => {
     } else {
       alert('No primary CV set yet.');
     }
-  };
-
-  const handleSaveAsTemplate = async () => {
-    try {
-      await apiRequest('/portfolio.php?type=template', {
-        method: 'PUT',
-        body: { data: userData },
-      });
-      alert('📁 Portfolio data saved as template for auto-filling!');
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to save template.');
-    }
-  };
-
-  const handleBackToDashboard = () => {
-    navigate('/portfolio');
-    setShowPublicView(false);
-  };
-
-  const stats = {
-    profileViews: 247,
-    cvsCount: userData.cvs?.length || 0,
-    documentsCount: userData.documents?.length || 0,
-    shares: 12
   };
 
   // ---------- PUBLIC VIEW ----------
@@ -422,7 +387,6 @@ const PortfolioPage = () => {
       setFormData({ ...formData, skills });
     };
 
-    // Hobbies helpers
     const addHobby = () => {
       setFormData({ ...formData, hobbies: [...formData.hobbies, ''] });
     };
@@ -634,118 +598,43 @@ const PortfolioPage = () => {
   };
 
   // ---------- MAIN RENDER ----------
-  return (
-    <FeatureGate productId={1} plan="career-vault" serviceName="Career Vault">
+  const canEdit = !isPublicProfile || isOwner;
+
+  if (isPublicProfile) {
+    return (
       <div className="portfolio-page">
+        {loading && <div className="p-3 text-sm text-gray-600">Loading portfolio data...</div>}
+        {error && <div className="m-3 rounded border border-red-300 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        <PublicView data={userData} />
+      </div>
+    );
+  }
+
+  const pageContent = (
+    <div className="portfolio-page">
       {loading && <div className="p-3 text-sm text-gray-600">Loading portfolio data...</div>}
       {error && <div className="m-3 rounded border border-red-300 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-      {isEditing ? (
+      {isEditing && canEdit ? (
         <EditView
           data={userData}
           onSave={handleSaveProfile}
           onCancel={() => setIsEditing(false)}
         />
       ) : (
-        <main className="main-content">
-          {showPublicView ? (
-            // PUBLIC VIEW (full page)
-            <>
-              <div className="public-header">
-                <h2>Public Profile</h2>
-                <button className="btn-outline btn-small" onClick={handleBackToDashboard}>← Back to Dashboard</button>
-              </div>
-              <PublicView data={userData} />
-            </>
-          ) : (
-            // DASHBOARD VIEW
-            <>
-              <header className="page-header">
-                <div>
-                  <h1 className="page-title">📋 Portfolio</h1>
-                  <p className="page-subtitle">Manage your public profile</p>
-                </div>
-                <div className="header-actions">
-                  <button className="btn-primary" onClick={() => setIsEditing(true)}>✏️ Edit</button>
-                  <button className="btn-primary" onClick={() => setShowPublicView(true)}>👁️ Preview</button>
-                  <button className="btn-primary" onClick={handleSaveAsTemplate}>📁 Save Template</button>
-                  <button className="btn-primary" onClick={handleCopyLink}>🔗 Share</button>
-                </div>
-              </header>
-
-              <div className="stats-grid">
-                <div className="stat-card">
-                  <span className="stat-icon">👁️</span>
-                  <div>
-                    <div className="stat-value">{stats.profileViews}</div>
-                    <div className="stat-label">Views</div>
-                  </div>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-icon">📄</span>
-                  <div>
-                    <div className="stat-value">{stats.cvsCount}</div>
-                    <div className="stat-label">CVs</div>
-                  </div>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-icon">📁</span>
-                  <div>
-                    <div className="stat-value">{stats.documentsCount}</div>
-                    <div className="stat-label">Documents</div>
-                  </div>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-icon">🔗</span>
-                  <div>
-                    <div className="stat-value">{stats.shares}</div>
-                    <div className="stat-label">Shares</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="cvs-docs-grid">
-                <div className="cvs-container">
-                  <h3>📄 Your CVs</h3>
-                  {userData.cvs.map(cv => (
-                    <div key={cv.id} className={`cv-item ${cv.isPrimary ? 'primary' : ''}`}>
-                      <div>
-                        <strong>{cv.title}</strong> {cv.isPrimary && <span className="primary-badge">⭐ Primary</span>}
-                        <div className="cv-meta">{cv.role} • {cv.modified}</div>
-                      </div>
-                      <div className="cv-actions">
-                        {!cv.isPrimary && (
-                          <button className="btn-primary btn-small" onClick={() => handleSetPrimary(cv.id)}>Set Primary</button>
-                        )}
-                        <button className="btn-primary btn-small">View</button>
-                        <button className="btn-primary btn-small">Download</button>
-                        <button className="btn-primary btn-small danger" onClick={() => handleDeleteCV(cv.id)}>Delete</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="documents-container">
-                  <h3>📁 Documents</h3>
-                  {userData.documents.map(doc => (
-                    <div key={doc.id} className="document-card">
-                      <div className="document-icon">📄</div>
-                      <div>
-                        <div className="document-name">{doc.name}</div>
-                        <div className="document-type">{doc.type}</div>
-                        <div className="document-date">{doc.uploaded}</div>
-                      </div>
-                      <button className="btn-primary btn-small">Download</button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-        </main>
+        <>
+          <div className="public-toolbar">
+            <div className="toolbar-actions" style={{display:'flex',justifyContent:'space-between'}}>
+              <button className="btn-primary" onClick={() => setIsEditing(true)}>✏️ Edit</button>
+              <button className="btn-primary" onClick={handleCopyLink}>🔗 Share</button>
+            </div>
+          </div>
+          <PublicView data={userData} />
+        </>
       )}
-      </div>
-    </FeatureGate>
+    </div>
   );
+
+  return pageContent;
 };
 
 export default PortfolioPage;

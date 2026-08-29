@@ -1,12 +1,11 @@
 export const PAYMENT_PLANS = {
-  annual: {
-    key: 'annual',
-    name: 'Benture AI Annual Subscription',
-    amount: 10000,
-    // Product ID 3 = Benture AI (see src/App.jsx)
+  'career-vault-pro': {
+    key: 'career-vault-pro',
+    name: 'Career Vault Pro',
+    amount: 19900,
     productId: 3,
-    planId: 'annual',
-    description: 'Annual subscription — all features unlocked',
+    planId: 'career-vault-pro',
+    description: 'Career Vault Pro access',
   },
 
   'spoken-english': {
@@ -52,34 +51,23 @@ export const PAYMENT_PLANS = {
 }
 
 export function resolvePaymentPlan(planKey, query = {}) {
-  const inputKey = String(
-    planKey || query.plan || 'annual'
-  )
+  const inputKey = String(planKey || query.plan || '')
     .trim()
     .toLowerCase()
 
   let normalizedKey = inputKey
-  let plan = PAYMENT_PLANS[normalizedKey] || PAYMENT_PLANS.annual
+  let plan = PAYMENT_PLANS[normalizedKey] || null
 
   /*
    * Backward compatibility:
-   *
-   * If an old URL uses:
-   *
-   * career-vault-pro
-   *
-   * convert it to the actual database slug:
-   *
-   * pro
+   * If old URLs used the UI label, map them to the actual backend plan key.
    */
-  if (normalizedKey === 'career-vault-pro') {
+  if (!plan && normalizedKey === 'career-vault-pro') {
     normalizedKey = 'pro'
-    plan = PAYMENT_PLANS[normalizedKey] || PAYMENT_PLANS.annual
+    plan = PAYMENT_PLANS[normalizedKey] || null
   }
 
-  const fallbackKey = plan === PAYMENT_PLANS.annual && !PAYMENT_PLANS[inputKey]
-    ? 'annual'
-    : inputKey
+  const fallbackKey = plan ? inputKey : null
 
   /*
    * Query amount is only used for display compatibility.

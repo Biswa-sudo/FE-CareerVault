@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import NotAuthorized from '../pages/NotAuthorized'
 import { getSubscriptionStatus } from '../lib/localStorage'
 
 export default function FeatureGate({
@@ -33,14 +32,8 @@ export default function FeatureGate({
   if (loading) {
     return <div className="p-4 text-sm text-gray-500">Checking access...</div>
   }
-
-  if (!hasAccess) {
-    return (
-      <NotAuthorized
-        serviceName={serviceName || plan || 'Premium Service'}
-        serviceId={plan || String(productId)}
-      />
-    )
-  }
+  // If the user doesn't have access, allow the component to render
+  // so the user can view the page/dashboard and proceed to payment.
+  // Feature-level UI can still show pay CTA as needed inside children.
   return <>{children}</>
 }

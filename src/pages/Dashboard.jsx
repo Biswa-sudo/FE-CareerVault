@@ -291,7 +291,12 @@ export default function Dashboard() {
 
                                 // If subscription corresponds to Career Vault (any career-vault plan)
                                 if (planStr.includes('career-vault') || planStr.includes('career')) {
-                                  navigate('/dashboard')
+                                  navigate('/career-vault-dashboard')
+                                  return
+                                }
+
+                                if (planStr.includes('career-vault-pro') || planStr.includes('career')) {
+                                  navigate('/career-vault-pro')
                                   return
                                 }
 
