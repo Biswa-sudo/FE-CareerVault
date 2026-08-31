@@ -359,7 +359,7 @@ const RecentCVCard = ({ cv, onEdit, onDownload, onDelete }) => {
 }
 
 // Recent Document Card
-const RecentDocumentCard = ({ doc }) => {
+const RecentDocumentCard = ({ doc, onDownload }) => {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-all">
       <div className="flex items-center gap-3">
@@ -370,7 +370,10 @@ const RecentDocumentCard = ({ doc }) => {
           <p className="font-medium text-slate-800 text-sm truncate">{doc.name}</p>
           <p className="text-xs text-slate-400">{doc.type || 'Document'} • {new Date(doc.uploadedAt).toLocaleDateString()}</p>
         </div>
-        <button className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+        <button
+          onClick={() => onDownload && onDownload(doc)}
+          className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+        >
           <Download className="w-4 h-4" />
         </button>
       </div>
@@ -443,6 +446,27 @@ export default function Dashboard() {
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Delete failed.')
       }
+    }
+  }
+
+  const handleDownloadDocument = (doc) => {
+    try {
+      if (doc && doc.data) {
+        const a = document.createElement('a');
+        a.href = doc.data;
+        a.download = doc.name || 'document';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } else if (doc && doc.id) {
+        // fallback: open document endpoint
+        window.open(`/documents.php?id=${encodeURIComponent(doc.id)}`);
+      } else {
+        window.alert('Document cannot be downloaded.');
+      }
+    } catch (e) {
+      console.error('Download failed', e);
+      window.alert('Download failed. Please try again.');
     }
   }
 
@@ -648,7 +672,7 @@ export default function Dashboard() {
                 ) : (
                   <div className="space-y-3">
                     {docs.slice(0, 3).map((doc, index) => (
-                      <RecentDocumentCard key={index} doc={doc} />
+                      <RecentDocumentCard key={index} doc={doc} onDownload={handleDownloadDocument} />
                     ))}
                   </div>
                 )}
