@@ -55,7 +55,7 @@ export default function Account() {
           </div>
         </div>
 
-        <div className="pt-2 border-t border-gray-200 flex flex-wrap items-center gap-3">
+        {user?.name && (<div className="pt-2 border-t border-gray-200 flex flex-wrap items-center gap-3">
           <h2 className="text-base font-semibold text-gray-900 mb-0">Account Actions</h2>
           <Button
             variant="primary"
@@ -67,7 +67,7 @@ export default function Account() {
           <Button variant="danger" onClick={logout} className="mt-0">
             Logout
           </Button>
-        </div>
+        </div>)}
       </div>
     </div>
   );

@@ -5,6 +5,8 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ConsultationModal from '../components/ConsultationModal';
 
 // ============================================================
 // 1. DATA – Finance & Accounting Products
@@ -87,6 +89,8 @@ const FINANCE_DATA = {
 const FinanceLandingPage = () => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const navigate = useNavigate();
+  const [consultModalOpen, setConsultModalOpen] = useState(false);
 
   const handlePurchase = (plan) => {
     setSelectedPlan(plan);
@@ -116,9 +120,9 @@ const FinanceLandingPage = () => {
           <div style={styles.heroActions}>
             <button
               style={{ ...styles.btn, ...styles.btnPrimary }}
-              onClick={() => handlePurchase(FINANCE_DATA.pricing[1])}
+              onClick={() => setConsultModalOpen(true)}
             >
-              <i className="fas fa-rocket"></i> Start Free Trial
+              <i className="fas fa-rocket"></i> Enquire Now
             </button>
             <button
               style={{ ...styles.btn, ...styles.btnOutlineLight }}
@@ -171,6 +175,12 @@ const FinanceLandingPage = () => {
           </div>
         </div>
       </section>
+
+      <ConsultationModal
+        isOpen={consultModalOpen}
+        onClose={() => setConsultModalOpen(false)}
+        initialSubject={FINANCE_DATA.name}
+      />
 
       {/* ----- PRODUCTS SHOWCASE (15 Products Grid) ----- */}
       <section id="products" style={styles.section}>
@@ -300,7 +310,7 @@ const FinanceLandingPage = () => {
                 }}
                 onClick={() => handlePurchase(plan)}
               >
-                {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
+                {plan.name === 'Enterprise' ? 'Contact Sales' : 'Enquire Now'}
               </button>
             </div>
           ))}
@@ -318,9 +328,9 @@ const FinanceLandingPage = () => {
           </p>
           <button
             style={{ ...styles.btn, ...styles.btnWhite }}
-            onClick={() => handlePurchase(FINANCE_DATA.pricing[1])}
+            onClick={() => setConsultModalOpen(true)}
           >
-            <i className="fas fa-rocket"></i> Start Your Free Trial
+            <i className="fas fa-rocket"></i> Enquire Now
           </button>
         </div>
       </section>

@@ -10,7 +10,7 @@ const PortfolioPage = () => {
   const { user } = useAuth();
   const decodedEmail = emailParam ? decodeURIComponent(emailParam) : null;
   const isPublicProfile = Boolean(decodedEmail);
-  const isOwner = Boolean(
+  const isOwner = !isPublicProfile || Boolean(
     decodedEmail &&
     user?.email &&
     decodedEmail.toLowerCase() === user.email.toLowerCase()

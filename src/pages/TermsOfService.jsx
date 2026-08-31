@@ -1,6 +1,7 @@
 import React from 'react';
 import './TermsOfService.css';
 import MainNavbar from '../components/Layout/MainNavbar';
+import Footer from '../components/Layout/Footer';
 
 
 const TermsOfService = () => {
@@ -85,6 +86,7 @@ const TermsOfService = () => {
   const lastUpdated = 'July 18, 2026';
 
   return (
+    <>
     <div className="tos-page">
         <MainNavbar />
       {/* ===== HERO ===== */}
@@ -131,7 +133,7 @@ const TermsOfService = () => {
                         <div className="tos-contact">
                           <div className="contact-item">
                             <span>📧</span>
-                            <a href="mailto:legal@benture.ai">legal@benture.ai</a>
+                            <a href="mailto:support@bentureai.com">support@benture.ai</a>
                           </div>
                           <div className="contact-item">
                             <span>📍</span>
@@ -185,6 +187,8 @@ const TermsOfService = () => {
         </div>
       </section>
     </div>
+    <Footer />
+    </>
   );
 };
 

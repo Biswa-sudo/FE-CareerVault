@@ -22,11 +22,11 @@ const LandingPageFinal = () => {
             </p>
             <div className="hero-actions">
               <a href="/signup" className="btn btn-primary btn-large">
-                🚀 Get Started — It's Free
+              Get Started
               </a>
-              <a href="#features" className="btn btn-outline btn-large">
+              {/* <a href="#features" className="btn btn-outline btn-large">
                 🎥 Watch Demo
-              </a>
+              </a> */}
             </div>
             <div className="hero-trust">
               <span>⭐ 5,000+ Users</span>
@@ -397,54 +397,7 @@ const LandingPageFinal = () => {
         </div>
       </section>
 
-      {/* ===== FOOTER ===== */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-grid">
-            <div className="footer-brand">
-              <div className="logo">
-                <span className="logo-icon">🚀</span>
-                <span className="logo-text">Benture AI</span>
-              </div>
-              <p>Built in Odisha, India. 🇮🇳</p>
-              <p className="footer-tagline">Your AI Career Mentor</p>
-            </div>
-            <div className="footer-links">
-              <h4>Product</h4>
-              <a href="/signup">Resume Builder</a>
-              <a href="/ai-interview">AI Interview</a>
-              <a href="/spoken-english">Spoken English</a>
-              <a href="/study-groups">Study Groups</a>
-            </div>
-            <div className="footer-links">
-              <h4>Company</h4>
-              <a href="/about-us">About Us</a>
-              <a href="/contact">Careers</a>
-              <a href="/faq">Blog</a>
-              <a href="/contact">Contact</a>
-            </div>
-            <div className="footer-links">
-              <h4>Support</h4>
-              <a href="/privacy-policy">Privacy Policy</a>
-              <a href="/terms-of-service">Terms of Service</a>
-              <a href="/faq">FAQ</a>
-              <a href="/faq">Help Center</a>
-            </div>
-            <div className="footer-social">
-              <h4>Follow Us</h4>
-              <div className="social-icons">
-                <a href="/contact">📘</a>
-                <a href="/contact">🐦</a>
-                <a href="/contact">📸</a>
-                <a href="/contact">▶️</a>
-              </div>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>© 2026 Benture AI. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+
     </div>
     
   );

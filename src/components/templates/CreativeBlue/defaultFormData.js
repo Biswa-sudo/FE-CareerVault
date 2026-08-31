@@ -3,7 +3,7 @@ const creativeBlueDefaults = {
     fullName: "Melissa Ware",
     title: "Copywriter",
     summary: "Passionate and creative Copywriter with 5+ years of writing experience, skilled and experienced in SEO content writing, marketing, pitching, and developing a unique brand voice. Increased Company X user engagement on Facebook and Instagram by 34% in 4 months, resulting in an 67% increase in sales.",
-    email: "melissa@novoresume.com",
+    email: "support@bentureai.com",
     phone: "123 4444 5555",
     location: "Columbus, Ohio",
     linkedin: "linkedin.com/in/melissa.ware",

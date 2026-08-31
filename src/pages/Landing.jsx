@@ -4,6 +4,7 @@ import Button from '../components/ui/Button'
 import LandingPage from './LandingPage'
 import Landing2 from './Landing2'
 import LandingPageFinal from './LandingPageFinal'
+import Footer from '../components/Layout/Footer'
 
 const features = [
   { title: '10 Professional Templates', desc: 'Choose from modern, minimal, or creative styles.' },
@@ -91,6 +92,7 @@ export default function Landing() {
     {/* <LandingPage /> */}
      {/* <Landing2 /> */}
      <LandingPageFinal />
+      <Footer />
     </>
   )
 }

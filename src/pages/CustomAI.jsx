@@ -5,6 +5,7 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import ConsultationModal from '../components/ConsultationModal';
 
 // ============================================================
 // 1. DATA – Custom AI Products & Services
@@ -152,21 +153,12 @@ const CUSTOM_AI_DATA = {
 // ============================================================
 const CustomAILandingPage = () => {
   const [consultModalOpen, setConsultModalOpen] = useState(false);
-  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const handleConsult = () => {
     setConsultModalOpen(true);
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    setFormSubmitted(true);
-    setTimeout(() => {
-      setConsultModalOpen(false);
-      setFormSubmitted(false);
-    }, 2000);
-    // In a real app, send the form data to your backend
-  };
+  // form submission is handled by the reusable ConsultationModal component
 
   return (
     <div style={styles.container}>
@@ -380,62 +372,19 @@ const CustomAILandingPage = () => {
             </button>
             <button
               style={{ ...styles.btn, ...styles.btnOutlineLight }}
-              onClick={() => window.location.href = 'mailto:ai@bentureai.com'}
+              onClick={() => window.location.href = 'mailto:support@bentureai.com'}
             >
-              <i className="fas fa-envelope"></i> ai@bentureai.com
+              <i className="fas fa-envelope"></i> support@bentureai.com
             </button>
           </div>
         </div>
       </section>
 
-      {/* ----- CONSULTATION MODAL ----- */}
-      {consultModalOpen && (
-        <div style={styles.modalOverlay} onClick={() => setConsultModalOpen(false)}>
-          <div style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-            <button style={styles.modalClose} onClick={() => setConsultModalOpen(false)}>
-              <i className="fas fa-times"></i>
-            </button>
-            <h3 style={styles.modalTitle}>
-              <i className="fas fa-message" style={styles.modalIcon}></i> Free AI Consultation
-            </h3>
-            <p style={styles.modalSub}>
-              Tell us about your business challenge and we'll build a custom AI solution.
-            </p>
-
-            {formSubmitted ? (
-  <div style={styles.successMessage}>
-    <i className="fas fa-check-circle" style={styles.successMessageIcon}></i>
-    <h4 style={styles.successMessageTitle}>Thank you!</h4>
-    <p style={styles.successMessageSubtext}>We'll reach out within 24 hours to schedule your consultation.</p>
-  </div>
-) : (
-              <form onSubmit={handleFormSubmit} style={styles.modalForm}>
-                <div style={styles.formRow}>
-                  <div style={{ ...styles.formGroup, flex: 1 }}>
-                    <label style={styles.formLabel}>Full Name</label>
-                    <input type="text" placeholder="John Doe" style={styles.formInput} required />
-                  </div>
-                  <div style={{ ...styles.formGroup, flex: 1 }}>
-                    <label style={styles.formLabel}>Email</label>
-                    <input type="email" placeholder="john@company.com" style={styles.formInput} required />
-                  </div>
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.formLabel}>Company Name</label>
-                  <input type="text" placeholder="Your Company" style={styles.formInput} required />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.formLabel}>What challenge are you trying to solve with AI?</label>
-                  <textarea placeholder="Tell us about your business challenge, data, and goals..." style={styles.formTextarea} rows="3" required />
-                </div>
-                <button type="submit" style={{ ...styles.btn, ...styles.btnPrimary, width: '100%', justifyContent: 'center' }}>
-                  <i className="fas fa-paper-plane"></i> Request Consultation
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
+      <ConsultationModal
+        isOpen={consultModalOpen}
+        onClose={() => setConsultModalOpen(false)}
+        initialSubject={CUSTOM_AI_DATA.name}
+      />
     </div>
   );
 };

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './SpokenEnglishPremium.css';
 
 const SpokenEnglishPremium = () => {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredBtn, setHoveredBtn] = useState(null);
   
@@ -94,8 +96,9 @@ const SpokenEnglishPremium = () => {
                 className="btn-primary-hero"
                 onMouseEnter={() => setHoveredBtn('start')}
                 onMouseLeave={() => setHoveredBtn(null)}
+                onClick={() => navigate(`/payment?plan=${encodeURIComponent('spoken-english')}`)}
               >
-                <span>Start Free Trial</span>
+                <span>Enquire Now</span>
                 {hoveredBtn === 'start' && (
                   <span className="btn-sparkle">✨</span>
                 )}
@@ -120,11 +123,11 @@ const SpokenEnglishPremium = () => {
                 <div className="stat-stars">★★★★★</div>
                 <span className="stat-label">RATING</span>
               </div>
-              <div className="stat-divider"></div>
+              {/* <div className="stat-divider"></div>
               <div className="stat-item">
                 <span className="stat-number">200+</span>
                 <span className="stat-label">EXPERT TUTORS</span>
-              </div>
+              </div> */}
             </div>
           </div>
 

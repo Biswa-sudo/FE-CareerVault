@@ -4,6 +4,7 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 
@@ -88,7 +89,7 @@ const PRICING_PLANS = [
     name: 'Starter',
     price: 99,
     currency: '₹',
-    period: '/month',
+    period: '/year',
     description: 'Perfect for job seekers starting their journey',
     features: [
       '3 CV analyses per month',
@@ -98,25 +99,25 @@ const PRICING_PLANS = [
       'Email support',
     ],
     popular: false,
-    cta: 'Start Free Trial',
+    cta: 'Enquire Now',
   },
   {
     name: 'Professional',
     price: 299,
     currency: '₹',
-    period: '/month',
+    period: '/year',
     description: 'Most popular for serious career growth',
     features: [
-      'Unlimited CV analyses',
-      'Unlimited ATS content',
-      'Access to all 20+ templates',
+      '5 CV analyses',
+      '5 ATS content',
+      'Access to all 10+ templates',
       'Full AI Interview Coach',
       'Career path generation',
       'Priority support',
       'Portfolio content generator',
     ],
     popular: true,
-    cta: 'Start Free Trial',
+    cta: 'Enquire Now',
   },
   {
     name: 'Enterprise',
@@ -143,6 +144,7 @@ const PRICING_PLANS = [
 // ============================================================
 export default function PrePurchaseDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -169,7 +171,7 @@ export default function PrePurchaseDashboard() {
           <p className="text-sm font-semibold text-slate-800">Unlock this feature</p>
           <p className="text-xs text-slate-500 mb-3">Get full access to all tools</p>
           <button
-            onClick={() => setIsUpgradeModalOpen(true)}
+            onClick={() => navigate(`/payment?plan=${encodeURIComponent('career-vault-pro')}`)}
             className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1.5 rounded-lg text-xs font-semibold shadow-md hover:scale-105 transition-transform flex items-center gap-1 mx-auto"
           >
             <Crown className="w-3 h-3" />
@@ -192,7 +194,7 @@ export default function PrePurchaseDashboard() {
           <X className="w-6 h-6" />
         </button>
 
-        <div className="text-center mb-8">
+        {/* <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center mx-auto mb-4">
             <Crown className="w-8 h-8 text-white" />
           </div>
@@ -200,7 +202,7 @@ export default function PrePurchaseDashboard() {
           <p className="text-slate-600 mt-2 max-w-xl mx-auto">
             Get unlimited access to all AI tools, templates, and features. Start your free trial today.
           </p>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {PRICING_PLANS.map((plan, idx) => (
@@ -238,7 +240,7 @@ export default function PrePurchaseDashboard() {
                     ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200 hover:scale-105'
                     : 'bg-slate-100 text-slate-800 hover:bg-slate-200'
                 }`}
-                onClick={() => handleUpgradeClick(plan)}
+                onClick={() => navigate(`/payment?plan=${encodeURIComponent('career-vault-pro')}`)}
               >
                 {plan.cta}
               </button>
@@ -541,7 +543,7 @@ export default function PrePurchaseDashboard() {
           <Crown className="w-4 h-4" />
           🚀 You're viewing a demo. 
           <button
-            onClick={() => setIsUpgradeModalOpen(true)}
+            onClick={() => navigate(`/payment?plan=${encodeURIComponent('career-vault-pro')}`)}
             className="bg-white text-indigo-600 px-4 py-0.5 rounded-full font-semibold text-xs hover:bg-indigo-50 transition shadow-md flex items-center gap-1"
           >
             Unlock Full Access <ArrowRight className="w-3 h-3" />
@@ -560,28 +562,25 @@ export default function PrePurchaseDashboard() {
                   Pro
                 </span>
               </h1>
-              <span className="text-xs bg-gradient-to-r from-amber-400 to-orange-500 text-white px-3 py-1 rounded-full shadow-md flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
-                Demo
-              </span>
+              
             </div>
             <p className="text-slate-600 text-sm mt-0.5">
               Your AI-powered career acceleration platform
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-sm text-slate-600 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+            {/* <div className="flex items-center gap-2 text-sm text-slate-600 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
               <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
                 GU
               </div>
               <span>Guest User</span>
-            </div>
+            </div> */}
             <button
-              onClick={() => setIsUpgradeModalOpen(true)}
+              onClick={() => navigate(`/payment?plan=${encodeURIComponent('career-vault-pro')}`)}
               className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-200 transition flex items-center gap-2"
             >
-              <Crown className="w-4 h-4" />
-              Upgrade to Pro
+              {/* <Crown className="w-4 h-4" /> */}
+              Get It Now
             </button>
           </div>
         </div>
@@ -819,10 +818,9 @@ export default function PrePurchaseDashboard() {
               </p>
               <button
                 className="bg-white text-indigo-600 hover:bg-indigo-50 px-10 py-4 rounded-xl font-bold text-lg shadow-lg shadow-indigo-500/30 transition-all hover:scale-105 inline-flex items-center gap-3"
-                onClick={() => setIsUpgradeModalOpen(true)}
+                onClick={() => navigate(`/payment?plan=${encodeURIComponent('career-vault-pro')}`)}
               >
-                <Crown className="w-5 h-5" />
-                Start Free Trial
+                Buy Now!
               </button>
               <p className="text-indigo-200 text-sm mt-4">No credit card required • 14‑day free trial</p>
             </div>

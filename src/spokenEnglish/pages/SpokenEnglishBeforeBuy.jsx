@@ -1,17 +1,16 @@
 // ============================================================
 // SpokenEnglishPrePurchase.jsx
-// Pre-Purchase Dashboard for Spoken English product
-// Mirrors the real dashboard UI with mock data and upgrade CTAs
+// Clean, focused dashboard showcasing BentureAI Spoken English
+// Highlights: Practice, Scenarios, Speech Recognition, Levels
 // ============================================================
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 
-// ----- ALL ICONS (including RotateCw) -----
 import {
   Sparkles,
-  Brain,
   Mic2,
   Target,
   Trophy,
@@ -20,143 +19,116 @@ import {
   ArrowRight,
   BarChart3,
   TrendingUp,
-  Users,
-  FileText,
-  MessageSquare,
+  BookOpen,
   Star,
   Zap,
   ChevronRight,
-  Calendar,
   Award,
-  BookOpen,
-  Circle,
   Lock,
-  Eye,
-  Heart,
-  ExternalLink,
-  Plus,
-  Loader2,
-  Upload,
-  FileCheck,
-  ClipboardCheck,
-  LayoutTemplate,
-  PenTool,
-  Compass,
-  Play,
   Crown,
   CreditCard,
   X,
-  Volume2,
-  Languages,
-  Speech,
-  Type,
+  Play,
+  Users,
   Globe,
   Headphones,
-  Video,
-  BookMarked,
   GraduationCap,
-  Lightbulb,
   Flame,
+  RotateCw,
   ChevronDown,
-  RotateCw,        // <-- ADDED THIS
+  MessageSquare,
+  Volume2,
+  Brain,
+  Rocket,
+  Shield,
+  Heart,
 } from 'lucide-react';
 
 // ============================================================
-// 1. MOCK DATA (Mirrors real dashboard structure)
+// 1. FEATURES DATA – What BentureAI Spoken English Offers
 // ============================================================
-const MOCK_USER = {
-  name: 'Guest User',
-  languagePreference: 'english',
-};
-
-// Mock subjects (matches the structure of your real courseData)
-const MOCK_SUBJECTS = [
+const FEATURES = [
   {
-    id: 1,
-    name: 'Business English',
-    icon: '💼',
-    description: 'Master professional communication for meetings, emails, and presentations.',
-    progress: 75,
-    isUnlocked: true,
-    totalLessons: 12,
-    completedLessons: 9,
+    id: 'practice',
+    icon: Mic2,
+    title: 'Practice & Learn at Once',
+    description: 'Speak, listen, and learn simultaneously. BentureAI combines practice with learning so you improve naturally with every session.',
     color: 'from-blue-500 to-cyan-500',
+    bgColor: 'bg-blue-50',
+    textColor: 'text-blue-600',
   },
   {
-    id: 2,
-    name: 'Interview Preparation',
-    icon: '🎯',
-    description: 'Practice common interview questions and build confidence.',
-    progress: 90,
-    isUnlocked: true,
-    totalLessons: 10,
-    completedLessons: 9,
+    id: 'scenarios',
+    icon: Target,
+    title: 'Scenario-Based Practice',
+    description: 'Practice real-life situations – interviews, meetings, presentations, travel, and daily conversations. Build confidence for every scenario.',
     color: 'from-indigo-500 to-purple-500',
+    bgColor: 'bg-indigo-50',
+    textColor: 'text-indigo-600',
   },
   {
-    id: 3,
-    name: 'Everyday Conversation',
-    icon: '🗣️',
-    description: 'Improve your daily communication skills for real-life situations.',
-    progress: 60,
-    isUnlocked: true,
-    totalLessons: 15,
-    completedLessons: 9,
+    id: 'speech-recognition',
+    icon: Volume2,
+    title: 'AI Speech Recognition',
+    description: 'Our advanced speech recognition analyzes your accent, pronunciation, and fluency. Get instant feedback and improve your accent naturally.',
     color: 'from-emerald-500 to-teal-500',
+    bgColor: 'bg-emerald-50',
+    textColor: 'text-emerald-600',
   },
   {
-    id: 4,
-    name: 'Public Speaking',
-    icon: '🎤',
-    description: 'Develop confidence and clarity for presentations and speeches.',
-    progress: 40,
-    isUnlocked: true,
-    totalLessons: 8,
-    completedLessons: 3,
-    color: 'from-rose-500 to-pink-500',
-  },
-  {
-    id: 5,
-    name: 'Grammar Fundamentals',
-    icon: '📚',
-    description: 'Master English grammar rules and improve your writing and speaking.',
-    progress: 95,
-    isUnlocked: true,
-    totalLessons: 14,
-    completedLessons: 13,
+    id: 'levels',
+    icon: GraduationCap,
+    title: 'Progressive Levels',
+    description: 'Start from beginner and advance step by step. Clear every level by speaking – from basic sentences to fluent conversations.',
     color: 'from-amber-500 to-orange-500',
+    bgColor: 'bg-amber-50',
+    textColor: 'text-amber-600',
   },
   {
-    id: 6,
-    name: 'Advanced Vocabulary',
-    icon: '🧠',
-    description: 'Expand your vocabulary with advanced words and phrases.',
-    progress: 70,
-    isUnlocked: false,
-    totalLessons: 12,
-    completedLessons: 0,
-    color: 'from-purple-500 to-pink-500',
-    locked: true,
+    id: 'inclusive',
+    icon: Users,
+    title: 'For Everyone',
+    description: 'Designed for absolute beginners – even a 4th-grade student can start speaking. No prior knowledge required.',
+    color: 'from-rose-500 to-pink-500',
+    bgColor: 'bg-rose-50',
+    textColor: 'text-rose-600',
   },
-];
-
-const MOCK_STATS = {
-  sessions: 18,
-  fluencyScore: 82,
-  pronunciationAccuracy: 86,
-  wordsLearned: 342,
-  streak: 8,
-  avgScore: 88,
-};
-
-const MOCK_RECENT_ACTIVITY = [
-  { type: 'lesson', title: 'Business Presentation', date: 'Today, 2:30 PM', score: '92%' },
-  { type: 'challenge', title: 'Interview Practice', date: 'Yesterday, 4:00 PM', score: '85%' },
-  { type: 'lesson', title: 'Everyday Conversation', date: '2 days ago', score: '78%' },
+  {
+    id: 'progressive',
+    icon: TrendingUp,
+    title: 'Gradual Excellence',
+    description: 'Master basic sentences first, then progressively tackle complex conversations. The bar raises gradually to make you excellent.',
+    color: 'from-purple-500 to-pink-500',
+    bgColor: 'bg-purple-50',
+    textColor: 'text-purple-600',
+  },
 ];
 
 // ============================================================
-// 2. PRICING PLANS
+// 2. LEARNING PATH – Beginner to Advanced
+// ============================================================
+const LEARNING_PATH = [
+  { level: 'Beginner', label: 'Basic Sentences', icon: '🌱', description: 'Start with simple words and everyday phrases' },
+  { level: 'Elementary', label: 'Simple Conversations', icon: '🌿', description: 'Practice short dialogues and common situations' },
+  { level: 'Intermediate', label: 'Confident Speaking', icon: '🌳', description: 'Speak with confidence in various contexts' },
+  { level: 'Advanced', label: 'Fluent Communication', icon: '🚀', description: 'Master complex topics and professional conversations' },
+  { level: 'Expert', label: 'Native-Like Fluency', icon: '🏆', description: 'Achieve near-native fluency and natural expression' },
+];
+
+// ============================================================
+// 3. SCENARIOS
+// ============================================================
+const SCENARIOS = [
+  { name: 'Job Interview', icon: '💼', description: 'Practice common interview questions and answers' },
+  { name: 'Business Meeting', icon: '📊', description: 'Speak confidently in professional settings' },
+  { name: 'Travel', icon: '✈️', description: 'Handle travel situations with ease' },
+  { name: 'Daily Life', icon: '🏠', description: 'Master everyday conversations and interactions' },
+  { name: 'Presentations', icon: '🎤', description: 'Deliver presentations with clarity and confidence' },
+  { name: 'Social Gatherings', icon: '🎉', description: 'Build relationships through effective communication' },
+];
+
+// ============================================================
+// 4. PRICING PLANS
 // ============================================================
 const PRICING_PLANS = [
   {
@@ -166,14 +138,14 @@ const PRICING_PLANS = [
     period: '/month',
     description: 'Start your English learning journey',
     features: [
-      '3 speaking sessions per week',
-      'Basic pronunciation analysis',
-      'Vocabulary flashcards',
-      'Grammar practice',
+      '3 practice sessions per week',
+      'Basic speech recognition',
+      '5 scenario categories',
+      'Progress tracking',
       'Email support',
     ],
     popular: false,
-    cta: 'Start Free Trial',
+    cta: 'Enquire Now',
   },
   {
     name: 'Professional',
@@ -182,32 +154,31 @@ const PRICING_PLANS = [
     period: '/month',
     description: 'Most popular for fast progress',
     features: [
-      'Unlimited speaking sessions',
-      'Advanced pronunciation analysis',
-      'Real-time feedback',
-      'Business English modules',
-      'Mock interviews',
-      'Fluency tracking',
-      'Priority support',
+      'Unlimited practice sessions',
+      'Advanced speech recognition',
+      'All scenario categories',
+      'Real-time accent feedback',
+      'Level-based progression',
       'Certificate of completion',
+      'Priority support',
+      'Personalized learning path',
     ],
     popular: true,
-    cta: 'Start Free Trial',
+    cta: 'Enquire Now',
   },
   {
     name: 'Enterprise',
     price: 'Custom',
     currency: '',
     period: '',
-    description: 'For teams and organizations',
+    description: 'For schools and organizations',
     features: [
       'Everything in Professional',
-      'Team management dashboard',
+      'Team/classroom dashboard',
       'Custom lesson plans',
       'Dedicated account manager',
       '24/7 phone support',
-      'API access',
-      'White-label options',
+      'Bulk pricing',
     ],
     popular: false,
     cta: 'Contact Sales',
@@ -215,16 +186,15 @@ const PRICING_PLANS = [
 ];
 
 // ============================================================
-// 3. MAIN COMPONENT
+// 5. MAIN COMPONENT
 // ============================================================
 export default function SpokenEnglishPrePurchase() {
   const { user } = useAuth();
-  const [languagePreference, setLanguagePreference] = useState('english');
+  const navigate = useNavigate();
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
-  // ---- Handlers ----
   const handleUpgradeClick = (plan) => {
     setSelectedPlan(plan);
     setIsUpgradeModalOpen(false);
@@ -236,16 +206,16 @@ export default function SpokenEnglishPrePurchase() {
     setIsCheckoutModalOpen(false);
   };
 
-  // ---- Render: Locked Widget Overlay ----
-  const LockedWidget = ({ children, featureName = 'advanced feature' }) => (
+  // ---- Render: Locked Widget Overlay (fixed) ----
+  const LockedWidget = ({ children }) => (
     <div className="relative group rounded-2xl overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/20 to-teal-600/20 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-300/50">
         <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-xl text-center max-w-[200px]">
           <Lock className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
-          <p className="text-sm font-semibold text-slate-800">Unlock this feature</p>
+          <p className="text-sm font-semibold text-slate-800">Unlock This Feature</p>
           <p className="text-xs text-slate-500 mb-3">Get full access to all tools</p>
           <button
-            onClick={() => setIsUpgradeModalOpen(true)}
+            onClick={() => navigate(`/payment?plan=${encodeURIComponent('spoken-english')}`)}
             className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-4 py-1.5 rounded-lg text-xs font-semibold shadow-md hover:scale-105 transition-transform flex items-center gap-1 mx-auto"
           >
             <Crown className="w-3 h-3" />
@@ -253,7 +223,8 @@ export default function SpokenEnglishPrePurchase() {
           </button>
         </div>
       </div>
-      <div className="opacity-40 pointer-events-none select-none">{children}</div>
+      {/* children can be rendered underneath, but we keep it simple */}
+      {children}
     </div>
   );
 
@@ -274,7 +245,7 @@ export default function SpokenEnglishPrePurchase() {
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-slate-800">Unlock Spoken English Pro</h2>
           <p className="text-slate-600 mt-2 max-w-xl mx-auto">
-            Get unlimited speaking practice, real-time feedback, and personalized learning paths. Start your free trial today.
+            Get unlimited speaking practice, real-time feedback, and personalized learning paths.
           </p>
         </div>
 
@@ -314,14 +285,14 @@ export default function SpokenEnglishPrePurchase() {
                     ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-200 hover:scale-105'
                     : 'bg-slate-100 text-slate-800 hover:bg-slate-200'
                 }`}
-                onClick={() => handleUpgradeClick(plan)}
+                onClick={() => navigate(`/payment?plan=${encodeURIComponent('spoken-english')}`)}
               >
                 {plan.cta}
               </button>
             </div>
           ))}
         </div>
-        <p className="text-center text-xs text-slate-400 mt-4">7‑day free trial • Cancel anytime • No credit card required</p>
+        <p className="text-center text-xs text-slate-400 mt-4">7-day free trial • Cancel anytime • No credit card required</p>
       </div>
     </div>
   );
@@ -396,62 +367,21 @@ export default function SpokenEnglishPrePurchase() {
             Pay Now
           </button>
         </div>
-        <p className="text-xs text-slate-400 text-center mt-4">Secure payment • 7‑day free trial • Cancel anytime</p>
+        <p className="text-xs text-slate-400 text-center mt-4">Secure payment • 7-day free trial • Cancel anytime</p>
       </div>
     </div>
   );
 
-  // ---- Render: Subject Card (Mock) ----
-  const renderSubjectCard = (subject) => {
-    const isLocked = subject.locked || false;
-    const progress = subject.progress || 0;
-
-    return (
-      <div className={`bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all ${isLocked ? 'opacity-75' : ''}`}>
-        <div className="flex items-center gap-3 mb-3">
-          <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${subject.color} flex items-center justify-center text-2xl text-white`}>
-            {subject.icon}
-          </div>
-          <div className="flex-1">
-            <h4 className="font-semibold text-slate-800 text-sm">{subject.name}</h4>
-            <p className="text-xs text-slate-500">{subject.completedLessons}/{subject.totalLessons} lessons</p>
-          </div>
-          {isLocked ? (
-            <Lock className="w-4 h-4 text-slate-400" />
-          ) : (
-            <span className="text-xs font-semibold text-emerald-600">{progress}%</span>
-          )}
-        </div>
-        <p className="text-xs text-slate-600 mb-3 line-clamp-2">{subject.description}</p>
-        <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-          <div
-            className={`h-full bg-gradient-to-r ${subject.color} rounded-full transition-all`}
-            style={{ width: `${isLocked ? 0 : progress}%` }}
-          />
-        </div>
-        {isLocked && (
-          <button
-            onClick={() => setIsUpgradeModalOpen(true)}
-            className="mt-3 w-full text-xs bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-1.5 rounded-lg font-medium hover:scale-105 transition-transform flex items-center justify-center gap-1"
-          >
-            <Crown className="w-3 h-3" />
-            Unlock Subject
-          </button>
-        )}
-      </div>
-    );
-  };
-
   // ---- Main Render ----
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-white">
-      {/* ----- TOP BANNER – Upgrade CTA ----- */}
+      {/* ----- TOP BANNER ----- */}
       <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-4 py-2.5 text-center">
         <p className="text-sm font-medium flex items-center justify-center gap-2 flex-wrap">
           <Crown className="w-4 h-4" />
-          🎯 You're viewing a demo. 
+          Start your spoken English journey today.
           <button
-            onClick={() => setIsUpgradeModalOpen(true)}
+            onClick={() => navigate(`/payment?plan=${encodeURIComponent('spoken-english')}`)}
             className="bg-white text-emerald-600 px-4 py-0.5 rounded-full font-semibold text-xs hover:bg-emerald-50 transition shadow-md flex items-center gap-1"
           >
             Unlock Full Access <ArrowRight className="w-3 h-3" />
@@ -460,172 +390,142 @@ export default function SpokenEnglishPrePurchase() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* ----- HEADER (matches your dashboard) ----- */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        {/* ----- HEADER ----- */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-800">
+            <h1 className="text-3xl md:text-4xl font-bold text-slate-800">
               <span className="bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
                 Spoken
               </span>{' '}
               English
             </h1>
-            <p className="text-muted mb-0 text-sm text-slate-500">Select your spoken-language preference and follow the instructions.</p>
+            <p className="text-slate-500 text-sm mt-1">Practice. Speak. Excel. Powered by BentureAI.</p>
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-            <label htmlFor="spoken-language-select-demo" className="mb-0 fw-semibold text-sm text-slate-600">Language:</label>
-            <select
-              id="spoken-language-select-demo"
-              className="form-select bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition"
-              value={languagePreference}
-              onChange={(e) => setLanguagePreference(e.target.value)}
-            >
-              <option value="english">English</option>
-              <option value="odia">Odia</option>
-              <option value="hindi">Hindi</option>
-            </select>
-          </div>
-        </div>
-
-        {/* ----- STATS ROW ----- */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          {[
-            { icon: Mic2, label: 'Speaking Sessions', value: MOCK_STATS.sessions },
-            { icon: TrendingUp, label: 'Fluency Score', value: `${MOCK_STATS.fluencyScore}%` },
-            { icon: BookOpen, label: 'Words Learned', value: MOCK_STATS.wordsLearned },
-            { icon: Flame, label: 'Day Streak', value: `${MOCK_STATS.streak} days` },
-          ].map((stat, idx) => (
-            <div key={idx} className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600">
-                  <stat.icon className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-slate-800">{stat.value}</p>
-                  <p className="text-xs text-slate-500">{stat.label}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* ----- ACTION BUTTONS (matches your dashboard) ----- */}
-        <div className="flex flex-wrap items-center gap-3 mb-6">
           <button
-            onClick={() => setIsUpgradeModalOpen(true)}
+            onClick={() => navigate(`/payment?plan=${encodeURIComponent('spoken-english')}`)}
             className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md shadow-emerald-200 hover:scale-105 transition-all flex items-center gap-2"
           >
-            <Play className="w-4 h-4" />
-            Continue Learning
+            Buy Now
           </button>
-          <button
-            onClick={() => setIsUpgradeModalOpen(true)}
-            className="bg-white border border-slate-200 text-slate-600 px-6 py-2.5 rounded-xl font-semibold hover:bg-slate-50 transition flex items-center gap-2"
-          >
-            <RotateCw className="w-4 h-4" />
-            Reset Progress
-          </button>
-          <span className="text-xs text-slate-400 ml-2">⚡ Features locked – upgrade to access</span>
         </div>
 
-        {/* ----- PROGRESS SUMMARY (Locked) ----- */}
-        <LockedWidget featureName="Progress Summary">
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mb-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-slate-800">88%</div>
-                <div className="text-xs text-slate-500">Overall Progress</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-slate-800">5/6</div>
-                <div className="text-xs text-slate-500">Subjects Completed</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-emerald-600">92%</div>
-                <div className="text-xs text-slate-500">Avg. Lesson Score</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-slate-800">8</div>
-                <div className="text-xs text-slate-500">Day Streak</div>
-              </div>
+        {/* ----- HERO / VALUE PROP ----- */}
+        <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-3xl p-8 md:p-12 text-white shadow-2xl shadow-emerald-200 mb-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+          <div className="relative z-10 text-center">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Mic2 className="w-8 h-8" />
+              <span className="bg-white/20 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold">AI-Powered</span>
             </div>
-          </div>
-        </LockedWidget>
-
-        {/* ----- SUBJECT GRID (matches your dashboard) ----- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {MOCK_SUBJECTS.map((subject) => (
-            <div key={subject.id}>
-              {subject.locked ? (
-                <LockedWidget featureName={`${subject.name} Subject`}>
-                  {renderSubjectCard(subject)}
-                </LockedWidget>
-              ) : (
-                <div className="relative">
-                  {renderSubjectCard(subject)}
-                  <div className="absolute inset-0 bg-emerald-600/5 backdrop-blur-[1px] rounded-2xl flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => setIsUpgradeModalOpen(true)}
-                      className="bg-white/90 backdrop-blur-md text-slate-800 px-4 py-2 rounded-xl font-semibold shadow-lg flex items-center gap-2 text-sm"
-                    >
-                      <Play className="w-4 h-4" />
-                      Start Learning
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* ----- RECENT ACTIVITY ----- */}
-        <div className="mt-6 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-slate-500" />
-              <h3 className="font-semibold text-slate-800">Recent Activity</h3>
-            </div>
-            <button className="text-xs text-emerald-600 font-medium hover:text-emerald-800 flex items-center gap-1">
-              View All <ChevronRight className="w-3 h-3" />
+            <h2 className="text-2xl md:text-4xl font-bold mb-4">
+              Speak English with <span className="bg-gradient-to-r from-yellow-200 to-amber-200 bg-clip-text text-transparent">Confidence</span>
+            </h2>
+            <p className="text-emerald-100 text-base md:text-lg max-w-2xl mx-auto">
+              Practice spoken English and learn effortlessly. From basic sentences to fluent conversations — 
+              BentureAI guides you every step of the way.
+            </p>
+            <button
+              onClick={() => navigate(`/payment?plan=${encodeURIComponent('spoken-english')}`)}
+              className="mt-6 bg-white text-emerald-600 hover:bg-emerald-50 px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-500/30 transition-all hover:scale-105 inline-flex items-center gap-2"
+            >
+              <Play className="w-5 h-5" />
+              Proceed to Buy
             </button>
+            {/* <p className="text-emerald-200 text-sm mt-3">No credit card required • 7-day free trial</p> */}
           </div>
-          <div className="space-y-3">
-            {MOCK_RECENT_ACTIVITY.map((activity, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <div>
-                  <p className="font-semibold text-slate-800 text-sm">
-                    {activity.type === 'lesson' ? '📚' : '🎯'} {activity.title}
-                  </p>
-                  <p className="text-xs text-slate-500">{activity.date}</p>
+        </div>
+
+        {/* ----- FEATURES GRID ----- */}
+        <div className="mb-10">
+          <div className="text-center mb-8">
+            <span className="text-emerald-600 font-semibold text-sm uppercase tracking-wider">Why BentureAI</span>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mt-2">
+              Everything you need to <span className="text-emerald-600">master spoken English</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {FEATURES.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <div
+                  key={feature.id}
+                  className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-lg transition-all group"
+                >
+                  <div className={`p-3 rounded-xl ${feature.bgColor} w-fit mb-4 group-hover:scale-110 transition-transform`}>
+                    <Icon className={`w-6 h-6 ${feature.textColor}`} />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800 mb-2">{feature.title}</h3>
+                  <p className="text-sm text-slate-600">{feature.description}</p>
                 </div>
-                <span className="text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
-                  {activity.score}
-                </span>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ----- LEARNING PATH ----- */}
+        <div className="mb-10">
+          <div className="text-center mb-8">
+            <span className="text-emerald-600 font-semibold text-sm uppercase tracking-wider">Learning Path</span>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mt-2">
+              From <span className="text-emerald-600">Beginner</span> to <span className="text-emerald-600">Fluent</span>
+            </h2>
+            <p className="text-slate-500 text-sm mt-1">Progressive levels designed to raise the bar gradually</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+            {LEARNING_PATH.map((step, idx) => (
+              <div key={idx} className="bg-white rounded-2xl border border-slate-200 p-4 text-center shadow-sm hover:shadow-md transition-all">
+                <div className="text-3xl mb-2">{step.icon}</div>
+                <div className="text-xs font-bold text-emerald-600 mb-1">{step.level}</div>
+                <div className="text-sm font-semibold text-slate-800">{step.label}</div>
+                <div className="text-xs text-slate-500 mt-1">{step.description}</div>
+                {idx < LEARNING_PATH.length - 1 && (
+                  <div className="hidden md:block text-slate-300 text-xs mt-2">→</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ----- SCENARIOS ----- */}
+        <div className="mb-10">
+          <div className="text-center mb-8">
+            <span className="text-emerald-600 font-semibold text-sm uppercase tracking-wider">Scenarios</span>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mt-2">
+              Practice for <span className="text-emerald-600">Every Situation</span>
+            </h2>
+            <p className="text-slate-500 text-sm mt-1">Build confidence in any context</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {SCENARIOS.map((scenario, idx) => (
+              <div key={idx} className="bg-white rounded-2xl border border-slate-200 p-4 text-center shadow-sm hover:shadow-md transition-all">
+                <div className="text-2xl mb-1">{scenario.icon}</div>
+                <div className="text-xs font-semibold text-slate-800">{scenario.name}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* ----- CALL TO ACTION ----- */}
-        <div className="mt-8 text-center">
-          <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-3xl p-8 md:p-12 text-white shadow-2xl shadow-emerald-200 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-2xl"></div>
-            <div className="relative z-10">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Ready to <span className="bg-gradient-to-r from-yellow-200 to-amber-200 bg-clip-text text-transparent">Master</span> Spoken English?
-              </h2>
-              <p className="text-emerald-100 text-lg max-w-2xl mx-auto mb-8">
-                Get unlimited speaking practice, real-time feedback, and personalized learning paths.
-              </p>
-              <button
-                className="bg-white text-emerald-600 hover:bg-emerald-50 px-10 py-4 rounded-xl font-bold text-lg shadow-lg shadow-emerald-500/30 transition-all hover:scale-105 inline-flex items-center gap-3"
-                onClick={() => setIsUpgradeModalOpen(true)}
-              >
-                <Crown className="w-5 h-5" />
-                Start Free Trial
-              </button>
-              <p className="text-emerald-200 text-sm mt-4">No credit card required • 7‑day free trial</p>
-            </div>
+        <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-3xl p-8 md:p-12 text-white text-center shadow-2xl shadow-emerald-200 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl"></div>
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-2xl"></div>
+          <div className="relative z-10">
+            <h2 className="text-2xl md:text-4xl font-bold mb-4">
+              Start Speaking <span className="bg-gradient-to-r from-yellow-200 to-amber-200 bg-clip-text text-transparent">Today</span>
+            </h2>
+            <p className="text-emerald-100 text-base max-w-2xl mx-auto mb-6">
+              Join thousands of learners who have transformed their spoken English with BentureAI.
+              From basic sentences to fluent conversations — your journey starts here.
+            </p>
+            <button
+              className="bg-white text-emerald-600 hover:bg-emerald-50 px-10 py-4 rounded-xl font-bold shadow-lg shadow-emerald-500/30 transition-all hover:scale-105 inline-flex items-center gap-3"
+              onClick={() => navigate(`/payment?plan=${encodeURIComponent('spoken-english')}`)}
+            >
+              <Rocket className="w-5 h-5" />
+             Get It Now
+            </button>
+            {/* <p className="text-emerald-200 text-sm mt-3">No credit card required • 7-day free trial • Cancel anytime</p> */}
           </div>
         </div>
       </div>

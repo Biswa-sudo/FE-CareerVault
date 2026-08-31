@@ -1,6 +1,7 @@
 import React from 'react';
 import './AboutUs.css';
 import MainNavbar from '../components/Layout/MainNavbar';
+import Footer from '../components/Layout/Footer';
 
 
 const AboutUs = () => {
@@ -376,6 +377,7 @@ const AboutUs = () => {
         </div>
       </section>
     </div>
+    <Footer />
     </>
   );
 };

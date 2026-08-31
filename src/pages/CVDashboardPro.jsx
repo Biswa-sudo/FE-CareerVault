@@ -4,6 +4,7 @@
 // ============================================================
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 // import { useEffect, useState } from 'react'
@@ -144,6 +145,7 @@ const MOCK_ATS_CONTENT = {
 // ============================================================
 export default function CareerVaultPro() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
@@ -250,20 +252,19 @@ export default function CareerVaultPro() {
             create portfolio‑worthy descriptions, and coach you to interview success.
           </p>
           <div className="flex flex-wrap gap-4">
-            <button
-              className="bg-white text-indigo-600 hover:bg-indigo-50 px-8 py-3 rounded-xl font-semibold shadow-lg shadow-indigo-500/30 transition-all hover:scale-105 flex items-center gap-2"
-              onClick={handleUploadModalOpen}
-            >
-              <Upload className="w-5 h-5" />
-              Upload CV & Get Started
-            </button>
-            <button
-              className="bg-white/10 backdrop-blur text-white hover:bg-white/20 px-8 py-3 rounded-xl font-semibold border border-white/20 transition-all flex items-center gap-2"
-              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              <Play className="w-5 h-5" />  {/* <-- Play is now defined */}
-              See How It Works
-            </button>
+              <button
+                className="bg-white text-indigo-600 hover:bg-indigo-50 px-8 py-3 rounded-xl font-semibold shadow-lg shadow-indigo-500/30 transition-all hover:scale-105 flex items-center gap-2"
+                onClick={() => navigate(`/payment?plan=${encodeURIComponent('career-vault-pro')}`)}
+              >
+                <Upload className="w-5 h-5" />
+                Upload Your CV Now
+              </button>
+              {/* <button
+                className="bg-white/10 backdrop-blur text-white hover:bg-white/20 px-8 py-3 rounded-xl font-semibold border border-white/20 transition-all flex items-center gap-2"
+                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                See How It Works
+              </button> */}
           </div>
         </div>
       </div>
@@ -371,12 +372,12 @@ export default function CareerVaultPro() {
           </p>
           <button
             className="bg-white text-indigo-600 hover:bg-indigo-50 px-10 py-4 rounded-xl font-bold text-lg shadow-lg shadow-indigo-500/30 transition-all hover:scale-105 inline-flex items-center gap-3"
-            onClick={handleUploadModalOpen}
+            onClick={() => navigate(`/payment?plan=${encodeURIComponent('career-vault-pro')}`)}
           >
             <Upload className="w-5 h-5" />
-            Upload CV & Start Free Trial
+            Upload Your CV Now
           </button>
-          <p className="text-indigo-200 text-sm mt-4">No credit card required • 14‑day free trial</p>
+          {/* <p className="text-indigo-200 text-sm mt-4">No credit card required • 14‑day free trial</p> */}
         </div>
       </div>
     </div>

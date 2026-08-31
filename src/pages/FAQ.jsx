@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './FAQ.css';
 import MainNavbar from '../components/Layout/MainNavbar';
+import Footer from '../components/Layout/Footer';
 
 
 const FAQ = () => {
@@ -152,6 +153,7 @@ const FAQ = () => {
   const currentFAQs = faqData[activeCategory] || [];
 
   return (
+    <>
     <div className="faq-page">
         <MainNavbar />
       {/* ===== HERO ===== */}
@@ -275,6 +277,8 @@ const FAQ = () => {
         </div>
       </section>
     </div>
+    <Footer />
+    </>
   );
 };
 

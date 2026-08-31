@@ -1,6 +1,7 @@
 import React from 'react';
 import './PrivacyPolicy.css';
 import MainNavbar from '../components/Layout/MainNavbar';
+import Footer from '../components/Layout/Footer';
 
 
 const PrivacyPolicy = () => {
@@ -91,7 +92,7 @@ const PrivacyPolicy = () => {
       • **Right to Data Portability**: Receive your data in a portable format
       • **Right to Grievance**: Lodge a complaint with a supervisory authority
 
-      To exercise these rights, please contact us at privacy@benture.ai`
+      To exercise these rights, please contact us at support@bentureai.com`
     },
     {
       id: 'cookies',
@@ -133,6 +134,7 @@ const PrivacyPolicy = () => {
   ];
 
   return (
+    <>
     <div className="privacy-page">
         <MainNavbar />
       {/* ===== HERO ===== */}
@@ -179,7 +181,7 @@ const PrivacyPolicy = () => {
                         <div className="privacy-contact">
                           <div className="contact-item">
                             <span>📧</span>
-                            <a href="mailto:privacy@benture.ai">privacy@benture.ai</a>
+                            <a href="mailto:support@bentureai.com">support@bentureai.com</a>
                           </div>
                           <div className="contact-item">
                             <span>📍</span>
@@ -233,6 +235,8 @@ const PrivacyPolicy = () => {
         </div>
       </section>
     </div>
+    <Footer />
+    </>
   );
 };
 

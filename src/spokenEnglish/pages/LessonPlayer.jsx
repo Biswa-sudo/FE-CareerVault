@@ -279,11 +279,11 @@ const LessonPlayer = ({
   // ----- RENDER: Activity -----
   const { subject, lesson, activity, activityIndex, totalActivities } = currentActivity;
 
-  return (
+  return ( 
     <div className="container py-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <button className="btn btn-link" onClick={() => navigateToSubject(subject.id)}>
-          ← Back to Lessonsi 
+          ← Back to Lessons
         </button>
         <span className="badge bg-secondary">
           {retrySkippedMode ? 'Retry Skipped Questions' : `Lesson: ${lesson.title}`}

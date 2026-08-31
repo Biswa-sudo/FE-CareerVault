@@ -7,6 +7,7 @@ import CVPreview from '../components/CVPreview'
 import { getTemplateById } from '../data/templates'
 import { getTemplateDefaults } from '../data/templateDefaults'
 import PortfolioPage from './PortfolioPage'
+import CVPrePurchase from './CVPrePurchase'
 import { 
   FileText, 
   Upload, 
@@ -383,6 +384,7 @@ export default function Dashboard() {
   const [cvs, setCvs] = useState([])
   const [docs, setDocs] = useState([])
   const [paymentDate, setPaymentDate] = useState(null)
+  const [hasCareerVault, setHasCareerVault] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState('overview')
@@ -395,9 +397,17 @@ export default function Dashboard() {
           getDocuments(),
           getPaymentDate(),
         ])
+        // Check if user has an active Career Vault subscription (productId = 1)
+        let careerVaultActive = false
+        try {
+          careerVaultActive = await import('../lib/localStorage').then(mod => mod.getSubscriptionStatus(1))
+        } catch (e) {
+          careerVaultActive = false
+        }
         setCvs(nextCvs || [])
         setDocs(nextDocs || [])
         setPaymentDate(nextPaymentDate)
+        setHasCareerVault(Boolean(careerVaultActive))
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to load dashboard data.')
       } finally {
@@ -457,6 +467,11 @@ export default function Dashboard() {
         </div>
       </div>
     )
+  }
+
+  // If the user does not have Career Vault access, show the pre-purchase page
+  if (!hasCareerVault) {
+    return <CVPrePurchase />
   }
 
   const tabs = [

@@ -5,6 +5,8 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ConsultationModal from '../components/ConsultationModal';
 
 // ============================================================
 // 1. DATA – HRMS Product Details
@@ -107,6 +109,8 @@ const HRMS_DATA = {
 const HRMSLandingPage = () => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [consultModalOpen, setConsultModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handlePurchase = (plan) => {
     setSelectedPlan(plan);
@@ -131,9 +135,9 @@ const HRMSLandingPage = () => {
           <div style={styles.heroActions}>
             <button
               style={{ ...styles.btn, ...styles.btnPrimary }}
-              onClick={() => handlePurchase(HRMS_DATA.pricing[1])} // Professional plan
+              onClick={() => setConsultModalOpen(true)}
             >
-              <i className="fas fa-rocket"></i> Start Free Trial
+              <i className="fas fa-rocket"></i> Enquire Now
             </button>
             <button
               style={{ ...styles.btn, ...styles.btnOutline }}
@@ -182,6 +186,12 @@ const HRMSLandingPage = () => {
           </div>
         </div>
       </section>
+
+      <ConsultationModal
+        isOpen={consultModalOpen}
+        onClose={() => setConsultModalOpen(false)}
+        initialSubject={HRMS_DATA.name}
+      />
 
       {/* ----- BENEFITS SECTION ----- */}
       <section style={styles.section}>
@@ -259,7 +269,7 @@ const HRMSLandingPage = () => {
                 }}
                 onClick={() => handlePurchase(plan)}
               >
-                {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
+                {plan.name === 'Enterprise' ? 'Contact Sales' : 'Enquire Now'}
               </button>
             </div>
           ))}
@@ -273,9 +283,9 @@ const HRMSLandingPage = () => {
           <p>Join thousands of companies that trust BentureAI HRMS to manage their workforce.</p>
           <button
             style={{ ...styles.btn, ...styles.btnWhite }}
-            onClick={() => handlePurchase(HRMS_DATA.pricing[1])}
+            onClick={() => setConsultModalOpen(true)}
           >
-            <i className="fas fa-rocket"></i> Start Your Free Trial
+            <i className="fas fa-rocket"></i> Enquire Now
           </button>
         </div>
       </section>

@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AccountSettings.css';
 import MainNavbar from '../components/Layout/MainNavbar';
+import { useAuth } from '../context/AuthContext';
+import { getAllSubscriptions } from '../lib/localStorage';
+import AccountPage from './Account';
+import Footer from '../components/Layout/Footer';
     
 
 const AccountSettings = () => {
@@ -9,12 +13,14 @@ const AccountSettings = () => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   
   // User data state
+  const { user } = useAuth();
+
   const [userData, setUserData] = useState({
-    name: 'Biswaranjan Pradhan',
-    email: 'biswa@email.com',
-    phone: '+91 98765 43210',
-    location: 'Odisha, India',
-    bio: 'Full Stack Developer passionate about building impactful products.'
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    bio: ''
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -32,10 +38,10 @@ const AccountSettings = () => {
   });
 
   const [planData, setPlanData] = useState({
-    plan: 'Pro',
-    price: '₹249/month',
-    nextBilling: 'August 18, 2026',
-    status: 'Active'
+    plan: 'Free',
+    price: '₹0',
+    nextBilling: null,
+    status: 'Inactive'
   });
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -45,6 +51,46 @@ const AccountSettings = () => {
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
   };
+
+  useEffect(() => {
+    if (user) {
+      setUserData(prev => ({
+        ...prev,
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        location: user.location || '',
+        bio: user.bio || ''
+      }));
+
+      // load subscription info
+      (async () => {
+        try {
+          const subs = await getAllSubscriptions();
+          if (Array.isArray(subs) && subs.length > 0) {
+            // prefer an active subscription
+            const active = subs.find(s => s.status === 'active') || subs[0];
+            setPlanData({
+              plan: active.plan || active.planId || 'Unknown',
+              price: active.price ? `₹${(active.price / 100).toFixed(0)}` : active.amount ? `₹${(active.amount / 100).toFixed(0)}` : '₹0',
+              nextBilling: active.nextBilling || active.expiresAt || active.paymentDate || null,
+              status: active.status || 'inactive'
+            });
+          }
+        } catch (err) {
+          // ignore — keep default free plan
+        }
+      })();
+    }
+  }, [user]);
+
+  const planDisplay = (() => {
+    const p = planData?.plan;
+    if (!p) return 'Free';
+    if (typeof p === 'string') return p;
+    if (typeof p === 'object') return p.name || p.slug || p.id || 'Unknown';
+    return String(p);
+  })();
 
   const handlePasswordChange = (e) => {
     e.preventDefault();
@@ -73,21 +119,18 @@ const AccountSettings = () => {
   return (
     <>
     <MainNavbar />
-    <div className="account-settings">
-      {/* ===== MAIN CONTENT ===== */}
+    {/* <div className="account-settings">
       <main className="main-content">
-        {/* Header */}
         <header className="page-header">
           <div className="header-left">
             <h1 className="page-title">⚙️ Account Settings</h1>
             <p className="page-subtitle">Manage your profile, security, and preferences</p>
           </div>
           <div className="header-right">
-            <span className="badge">🔵 {planData.plan} Plan</span>
+            <span className="badge">🔵 {planDisplay} Plan</span>
           </div>
         </header>
 
-        {/* ===== TABS ===== */}
         <div className="settings-tabs">
           <button 
             className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
@@ -113,15 +156,9 @@ const AccountSettings = () => {
           >
             💳 Subscription
           </button>
-          <button 
-            className={`tab-btn ${activeTab === 'danger' ? 'active' : ''}`}
-            onClick={() => setActiveTab('danger')}
-          >
-            ⚠️ Danger Zone
-          </button>
+     
         </div>
 
-        {/* ===== TAB: PROFILE ===== */}
         {activeTab === 'profile' && (
           <div className="tab-content">
             <div className="settings-card">
@@ -208,7 +245,6 @@ const AccountSettings = () => {
           </div>
         )}
 
-        {/* ===== TAB: SECURITY ===== */}
         {activeTab === 'security' && (
           <div className="tab-content">
             <div className="settings-card">
@@ -283,7 +319,6 @@ const AccountSettings = () => {
           </div>
         )}
 
-        {/* ===== TAB: NOTIFICATIONS ===== */}
         {activeTab === 'notifications' && (
           <div className="tab-content">
             <div className="settings-card">
@@ -387,7 +422,6 @@ const AccountSettings = () => {
           </div>
         )}
 
-        {/* ===== TAB: SUBSCRIPTION ===== */}
         {activeTab === 'subscription' && (
           <div className="tab-content">
             <div className="settings-card">
@@ -399,7 +433,7 @@ const AccountSettings = () => {
               <div className="subscription-details">
                 <div className="sub-info">
                   <span className="sub-label">Plan</span>
-                  <span className="sub-value">{planData.plan}</span>
+                  <span className="sub-value">{planDisplay}</span>
                 </div>
                 <div className="sub-info">
                   <span className="sub-label">Price</span>
@@ -454,80 +488,11 @@ const AccountSettings = () => {
             </div>
           </div>
         )}
-
-        {/* ===== TAB: DANGER ZONE ===== */}
-        {activeTab === 'danger' && (
-          <div className="tab-content">
-            <div className="danger-zone">
-              <div className="danger-card">
-                <div className="danger-icon">⚠️</div>
-                <div className="danger-content">
-                  <h3>Delete Account</h3>
-                  <p>
-                    Permanently delete your account and all associated data. 
-                    This action cannot be undone.
-                  </p>
-                </div>
-                <button 
-                  className="btn btn-danger"
-                  onClick={() => setShowDeleteModal(true)}
-                >
-                  Delete Account
-                </button>
-              </div>
-
-              <div className="danger-card">
-                <div className="danger-icon">📤</div>
-                <div className="danger-content">
-                  <h3>Export Data</h3>
-                  <p>
-                    Download all your data including resumes, documents, and profile information.
-                  </p>
-                </div>
-                <button className="btn btn-outline">📥 Export Data</button>
-              </div>
-
-              <div className="danger-card">
-                <div className="danger-icon">🚪</div>
-                <div className="danger-content">
-                  <h3>Log Out All Devices</h3>
-                  <p>
-                    Sign out from all active sessions on all devices.
-                  </p>
-                </div>
-                <button className="btn btn-outline">🚪 Log Out All</button>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
 
-      {/* ===== DELETE ACCOUNT MODAL ===== */}
-      {showDeleteModal && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
-          <div className="modal modal-danger" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-danger-icon">⚠️</div>
-            <h2>Delete Account</h2>
-            <p className="modal-danger-text">
-              Are you sure you want to delete your account? This action is <strong>permanent</strong> 
-              and cannot be undone. All your data, including resumes, documents, and profile 
-              information, will be permanently removed.
-            </p>
-            <div className="modal-danger-confirm">
-              <input type="text" placeholder='Type "DELETE" to confirm' />
-            </div>
-            <div className="modal-actions">
-              <button className="btn btn-outline" onClick={() => setShowDeleteModal(false)}>
-                Cancel
-              </button>
-              <button className="btn btn-danger" onClick={handleDeleteAccount}>
-                🗑️ Yes, Delete My Account
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </div> */}
+< AccountPage />
+<Footer />
     </>
   );
 };

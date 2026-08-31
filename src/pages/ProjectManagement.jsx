@@ -5,13 +5,15 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ConsultationModal from '../components/ConsultationModal';
 
 // ============================================================
 // 1. DATA – Projects Product Details
 // ============================================================
 const PROJECTS_DATA = {
   id: 'projects',
-  name: 'Projects',
+  name: 'Project Management Software',
   category: 'Work & Project Management',
   tagline: 'Plan, track, and deliver projects with confidence',
   description:
@@ -109,6 +111,8 @@ const PROJECTS_DATA = {
 // ============================================================
 const ProjectsLandingPage = () => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const [consultModalOpen, setConsultModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
 
   const handlePurchase = (plan) => {
@@ -134,12 +138,12 @@ const ProjectsLandingPage = () => {
           <div style={styles.heroActions}>
             <button
               style={{ ...styles.btn, ...styles.btnPrimary }}
-              onClick={() => handlePurchase(PROJECTS_DATA.pricing[1])} // Professional plan
+              onClick={() => setConsultModalOpen(true)}
             >
-              <i className="fas fa-rocket"></i> Start Free Trial
+              <i className="fas fa-rocket"></i> Enquire Now
             </button>
             <button
-              style={{ ...styles.btn, ...styles.btnOutline }}
+              style={{ ...styles.btn, ...styles.btnWhite }}
               onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
             >
               <i className="fas fa-chevron-down"></i> Explore Features
@@ -147,19 +151,17 @@ const ProjectsLandingPage = () => {
           </div>
           <div style={styles.heroStats}>
             <div>
-              <strong>₹{PROJECTS_DATA.pricing[1].price}</strong>
-              <span>/ month (Professional)</span>
-            </div>
-            <div>
               <strong>4.8★</strong>
-              <span>User rating</span>
+              <span style={{ marginLeft: 8 }}>User rating</span>
             </div>
             <div>
               <strong>97%</strong>
-              <span>Satisfaction</span>
+              <span style={{ marginLeft: 8 }}>Satisfaction</span>
             </div>
           </div>
+          {/* ✅ FIXED: removed extra closing </div> tags */}
         </div>
+
         <div style={styles.heroVisual}>
           <div style={styles.mockCard}>
             <div style={styles.mockRow}>
@@ -185,6 +187,12 @@ const ProjectsLandingPage = () => {
           </div>
         </div>
       </section>
+
+      <ConsultationModal
+        isOpen={consultModalOpen}
+        onClose={() => setConsultModalOpen(false)}
+        initialSubject={PROJECTS_DATA.name}
+      />
 
       {/* ----- BENEFITS SECTION ----- */}
       <section style={styles.section}>
@@ -262,7 +270,7 @@ const ProjectsLandingPage = () => {
                 }}
                 onClick={() => handlePurchase(plan)}
               >
-                {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
+                {plan.name === 'Enterprise' ? 'Contact Sales' : 'Enquire Now'}
               </button>
             </div>
           ))}
@@ -276,9 +284,9 @@ const ProjectsLandingPage = () => {
           <p>Join thousands of teams that trust BentureAI Projects to deliver on time.</p>
           <button
             style={{ ...styles.btn, ...styles.btnWhite }}
-            onClick={() => handlePurchase(PROJECTS_DATA.pricing[1])}
+            onClick={() => setConsultModalOpen(true)}
           >
-            <i className="fas fa-rocket"></i> Start Your Free Trial
+            <i className="fas fa-rocket"></i> Enquire Now
           </button>
         </div>
       </section>
@@ -329,7 +337,7 @@ const ProjectsLandingPage = () => {
 };
 
 // ============================================================
-// 3. STYLES (inline for portability)
+// 3. STYLES (inline for portability) + Responsive tweaks
 // ============================================================
 const styles = {
   container: {
@@ -350,10 +358,9 @@ const styles = {
     gap: 60,
     alignItems: 'center',
     maxWidth: 1200,
-    margin: '0 auto',
+    margin: '32px auto 0',
     borderRadius: 24,
     border: '1px solid #e2e8f0',
-    marginTop: 32,
   },
   heroContent: {},
   categoryBadge: {

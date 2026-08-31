@@ -5,6 +5,8 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ConsultationModal from '../components/ConsultationModal';
 
 // ============================================================
 // 1. DATA – E-commerce Products
@@ -80,6 +82,8 @@ const ECOMMERCE_DATA = {
 // ============================================================
 const EcommerceLandingPage = () => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const [consultModalOpen, setConsultModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
 
   const handlePurchase = (plan) => {
@@ -110,9 +114,9 @@ const EcommerceLandingPage = () => {
           <div style={styles.heroActions}>
             <button
               style={{ ...styles.btn, ...styles.btnPrimary }}
-              onClick={() => handlePurchase(ECOMMERCE_DATA.pricing[1])}
+              onClick={() => setConsultModalOpen(true)}
             >
-              <i className="fas fa-rocket"></i> Start Free Trial
+              <i className="fas fa-rocket"></i> Enquire Now
             </button>
             <button
               style={{ ...styles.btn, ...styles.btnOutlineLight }}
@@ -171,6 +175,12 @@ const EcommerceLandingPage = () => {
           </div>
         </div>
       </section>
+
+      <ConsultationModal
+        isOpen={consultModalOpen}
+        onClose={() => setConsultModalOpen(false)}
+        initialSubject={ECOMMERCE_DATA.name}
+      />
 
       {/* ----- PRODUCTS SHOWCASE (9 Products Grid) ----- */}
       <section id="products" style={styles.section}>
@@ -300,7 +310,7 @@ const EcommerceLandingPage = () => {
                 }}
                 onClick={() => handlePurchase(plan)}
               >
-                {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
+                {plan.name === 'Enterprise' ? 'Contact Sales' : 'Enquire Now'}
               </button>
             </div>
           ))}
@@ -318,9 +328,9 @@ const EcommerceLandingPage = () => {
           </p>
           <button
             style={{ ...styles.btn, ...styles.btnWhite }}
-            onClick={() => handlePurchase(ECOMMERCE_DATA.pricing[1])}
+            onClick={() => setConsultModalOpen(true)}
           >
-            <i className="fas fa-rocket"></i> Start Your Free Trial
+            <i className="fas fa-rocket"></i> Enquire Now
           </button>
         </div>
       </section>

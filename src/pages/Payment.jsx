@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import Navbar from '../components/Layout/Navbar';
 import MainNavbar from '../components/Layout/MainNavbar';
+import Footer from '../components/Layout/Footer';
 
 // Define all available services
 const SERVICES = [
@@ -716,10 +717,10 @@ export default function UnifiedPayment() {
             <Link to="/contact" className="hover:text-slate-700 transition-colors">Contact</Link>
             <Link to="/terms" className="hover:text-slate-700 transition-colors">Terms</Link>
           </div>
-          <p>© 2026 Hyper. All rights reserved.</p>
         </div>
       </div>
     </div>
+           <Footer />
     </>
   );
 }

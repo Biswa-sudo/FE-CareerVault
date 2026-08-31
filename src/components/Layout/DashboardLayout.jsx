@@ -27,6 +27,7 @@ export default function DashboardLayout({ children }) {
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
           {children || <Outlet />}
         </main>
+      
       </div>
     </div>
   )

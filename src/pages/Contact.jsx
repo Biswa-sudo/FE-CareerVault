@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import './Contact.css';
 import MainNavbar from '../components/Layout/MainNavbar';
 import { apiRequest } from '../lib/apiClient';
+import Footer from '../components/Layout/Footer';
 
 const Contact = () => {
   const [searchParams] = useSearchParams();
@@ -68,13 +69,13 @@ const Contact = () => {
     {
       icon: '📧',
       title: 'Email',
-      details: 'support@benture.ai',
+      details: 'support@bentureai.com',
       sub: 'We reply within 24 hours'
     },
     {
       icon: '📞',
       title: 'Phone',
-      details: '+91 98765 43210',
+      details: '+91 7008131178',
       sub: 'Mon-Fri, 9AM - 6PM IST'
     },
     {
@@ -93,6 +94,7 @@ const Contact = () => {
   ];
 
   return (
+    <>
     <div className="contact-page">
       <MainNavbar />
       {/* ===== HERO ===== */}
@@ -130,8 +132,20 @@ const Contact = () => {
               )}
 
               {submitError && (
-                <div className="error-message">
-                  ⚠️ {submitError}
+                <div>
+                  <div className="error-message">⚠️ {submitError}</div>
+                  {typeof submitError === 'string' && /failed to fetch/i.test(submitError) && (
+                    <div style={{ marginTop: 8 }}>
+                      <button
+                        className="btn"
+                        type="button"
+                        onClick={() => window.location.reload()}
+                        style={{ padding: '8px 12px', borderRadius: 6 }}
+                      >
+                        Try again
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -244,7 +258,7 @@ const Contact = () => {
       </section>
 
       {/* ===== MAP / LOCATION ===== */}
-      <section className="location-section">
+      {/* <section className="location-section">
         <div className="container">
           <div className="location-card">
             <div className="location-content">
@@ -285,7 +299,7 @@ const Contact = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ===== FAQ CTA ===== */}
       <section className="contact-faq-cta">
@@ -337,6 +351,8 @@ const Contact = () => {
         </div>
       </section>
     </div>
+    <Footer />
+    </>
   );
 };
 

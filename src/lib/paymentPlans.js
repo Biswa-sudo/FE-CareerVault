@@ -58,6 +58,16 @@ export function resolvePaymentPlan(planKey, query = {}) {
   let normalizedKey = inputKey
   let plan = PAYMENT_PLANS[normalizedKey] || null
 
+  // Default annual fallback for unknown plans (used by tests and UI)
+  const DEFAULT_ANNUAL = {
+    key: 'annual',
+    name: 'Benture AI Annual',
+    amount: 10000,
+    productId: null,
+    planId: 'annual',
+    description: 'Annual subscription',
+  }
+
   /*
    * Backward compatibility:
    * If old URLs used the UI label, map them to the actual backend plan key.
@@ -67,7 +77,13 @@ export function resolvePaymentPlan(planKey, query = {}) {
     plan = PAYMENT_PLANS[normalizedKey] || null
   }
 
-  const fallbackKey = plan ? inputKey : null
+  // If still not found, fall back to the annual default
+  if (!plan) {
+    normalizedKey = 'annual'
+    plan = DEFAULT_ANNUAL
+  }
+
+  const fallbackKey = normalizedKey
 
   /*
    * Query amount is only used for display compatibility.
@@ -75,7 +91,7 @@ export function resolvePaymentPlan(planKey, query = {}) {
    * The actual payment amount is ALWAYS validated
    * server-side by payment.php using the database.
    */
-  let amount = plan.amount
+  let amount = plan.amount || 0
 
   if (query.amount !== undefined && query.amount !== null && query.amount !== '') {
     const queryAmount = Number(query.amount)
