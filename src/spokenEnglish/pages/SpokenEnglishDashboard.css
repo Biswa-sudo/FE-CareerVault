@@ -1,0 +1,1005 @@
+/* =========================================================
+   BENTUREAI â€” SPOKEN ENGLISH DASHBOARD
+   Refactored responsive styles
+   ========================================================= */
+
+:root {
+  --se-primary: #1475ff;
+  --se-primary-dark: #2868e8;
+  --se-title: #153365;
+  --se-text: #172b4d;
+  --se-muted: #667085;
+  --se-border: #dbe8f7;
+  --se-card-border: #e4e9f1;
+  --se-surface: #ffffff;
+  --se-radius-sm: 8px;
+  --se-radius-md: 12px;
+  --se-radius-lg: 16px;
+  --se-shadow-card: 0 3px 10px rgba(31, 48, 80, 0.06);
+  --se-shadow-card-hover: 0 8px 22px rgba(31, 48, 80, 0.10);
+}
+
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+.spoken-dashboard {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 28px 35px;
+  box-sizing: border-box;
+  color: var(--se-text);
+  overflow-x: hidden;
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.spoken-loading {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--se-muted);
+}
+
+.spoken-loading .spinner-border {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.spoken-loading p {
+  margin: 0;
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.spoken-hero {
+  position: relative;
+  min-height: 165px;
+  padding: 28px 26px;
+  margin-bottom: 20px;
+  border: 1px solid var(--se-border);
+  border-radius: 18px;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: linear-gradient(
+    115deg,
+    #edf5ff 0%,
+    #e7f1ff 48%,
+    #dcecff 100%
+  );
+}
+
+.spoken-hero::after {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 220px;
+  right: -90px;
+  bottom: -155px;
+  border: 24px solid rgba(65, 137, 239, 0.12);
+  border-radius: 50%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+}
+
+.spoken-hero-content {
+  position: relative;
+  z-index: 3;
+}
+
+.spoken-title-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.spoken-title-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  background: var(--se-primary);
+  color: #fff;
+  font-size: 20px;
+
+  box-shadow: 0 5px 15px rgba(22, 119, 255, 0.25);
+}
+
+.spoken-title-row h1 {
+  margin: 0;
+  color: var(--se-title);
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.spoken-title-row p {
+  margin: 5px 0 0;
+  color: #5d6b82;
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   HERO ACTIONS
+   ========================================================= */
+
+.spoken-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.spoken-btn {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.spoken-btn:hover {
+  transform: translateY(-1px);
+}
+
+.spoken-btn-primary {
+  color: #fff;
+  background: linear-gradient(135deg, var(--se-primary), var(--se-primary-dark));
+  box-shadow: 0 6px 15px rgba(20, 117, 255, 0.22);
+}
+
+.spoken-btn-primary:hover {
+  box-shadow: 0 8px 20px rgba(20, 117, 255, 0.30);
+}
+
+.spoken-btn-secondary {
+  color: #4054ff;
+  background: #fff;
+  border-color: #d6dff0;
+}
+
+.spoken-btn-secondary:hover {
+  background: #f8faff;
+}
+
+
+/* =========================================================
+   LANGUAGE
+   ========================================================= */
+
+.spoken-language {
+  position: relative;
+  z-index: 5;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  align-self: flex-start;
+  margin-top: -9px;
+}
+
+.spoken-language label {
+  color: var(--se-text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.spoken-language select {
+  min-width: 105px;
+  height: 39px;
+  padding: 0 32px 0 12px;
+
+  border: 1px solid #d7dfeb;
+  border-radius: var(--se-radius-sm);
+
+  background: #fff;
+  color: #27364d;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+}
+
+.spoken-language select:focus {
+  border-color: #4c8dff;
+  box-shadow: 0 0 0 3px rgba(76, 141, 255, 0.10);
+}
+
+
+/* =========================================================
+   HERO DECORATION
+   ========================================================= */
+
+.spoken-hero-decoration {
+  position: absolute;
+  top: 20px;
+  right: 180px;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.speech-bubble {
+  position: relative;
+  width: 74px;
+  height: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2c8eff, #1475e8);
+  box-shadow: 0 8px 20px rgba(34, 119, 235, 0.25);
+}
+
+.speech-bubble::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  bottom: -8px;
+  width: 16px;
+  height: 16px;
+  background: #1475e8;
+  transform: rotate(45deg);
+}
+
+.speech-bubble span {
+  width: 13px;
+  height: 6px;
+  border-radius: 5px;
+  background: #fff;
+}
+
+.headphones {
+  font-size: 64px;
+  transform: rotate(-7deg);
+  filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.12));
+}
+
+.sparkle {
+  color: #ffbd19;
+  font-size: 30px;
+}
+
+
+/* =========================================================
+   PROGRESS SUMMARY
+   ========================================================= */
+
+.spoken-summary {
+  width: 100%;
+  margin-bottom: 22px;
+}
+
+.spoken-summary .row {
+  --bs-gutter-x: 18px;
+  --bs-gutter-y: 18px;
+}
+
+.spoken-summary .card,
+.spoken-summary > div > div {
+  border-radius: 13px;
+}
+
+
+/* =========================================================
+   SUBJECT HEADER
+   ========================================================= */
+
+.subjects-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0 15px;
+}
+
+.subjects-heading h2 {
+  margin: 0;
+  color: #18335f;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.subjects-heading p {
+  margin: 4px 0 0;
+  color: var(--se-muted);
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   SUBJECT GRID
+   ========================================================= */
+
+.subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.subject-wrapper {
+  min-width: 0;
+  transition: transform 0.2s ease;
+}
+
+.subject-wrapper:hover {
+  transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   SUBJECT CARDS
+   ========================================================= */
+
+.subject-wrapper .card {
+  width: 100%;
+  height: 100%;
+  min-height: 185px;
+
+  border: 1px solid var(--se-card-border) !important;
+  border-radius: 15px !important;
+
+  background: var(--se-surface);
+  box-shadow: var(--se-shadow-card) !important;
+
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.subject-wrapper .card:hover {
+  border-color: #cbd9ee !important;
+  box-shadow: var(--se-shadow-card-hover) !important;
+}
+
+.subject-wrapper .card-body {
+  padding: 18px !important;
+}
+
+.subject-is-locked {
+  opacity: 0.78;
+}
+
+.subject-is-locked .card {
+  background: #fbfcfe;
+}
+
+
+/* =========================================================
+   MOTIVATIONAL FOOTER
+   ========================================================= */
+
+.spoken-motivation {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+
+  margin-top: 15px;
+  padding: 8px 12px 8px 18px;
+
+  border: 1px solid #d6e6fa;
+  border-radius: 10px;
+
+  background: linear-gradient(90deg, #f1f8ff, #f7fbff);
+}
+
+.motivation-icon {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 22px;
+}
+
+.motivation-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: 7px;
+}
+
+.motivation-content strong {
+  color: #21437a;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.motivation-content span {
+  margin-top: 2px;
+  color: #687993;
+  font-size: 12px;
+}
+
+.motivation-button {
+  min-height: 38px;
+  margin-left: auto;
+  padding: 0 18px;
+
+  border: 1px solid #dbe5f2;
+  border-radius: 9px;
+
+  background: #fff;
+  color: #2167d8;
+
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+
+  box-shadow: 0 2px 5px rgba(30, 55, 90, 0.05);
+  transition: all 0.2s ease;
+}
+
+.motivation-button:hover {
+  background: #f6faff;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   TABLET â€” 768px to 1100px
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+  .spoken-dashboard {
+    padding: 20px;
+  }
+
+  .spoken-hero-decoration {
+    right: 100px;
+    transform: scale(0.8);
+  }
+
+  .subjects-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* =========================================================
+   MOBILE â€” <= 767px
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+  .spoken-dashboard {
+    max-width: 100%;
+    padding: 12px 12px 24px;
+  }
+
+
+  /* ---------- Hero ---------- */
+
+  .spoken-hero {
+    min-height: auto;
+    display: block;
+
+    padding: 17px;
+    margin-bottom: 12px;
+
+    border-radius: var(--se-radius-lg);
+
+    background: linear-gradient(
+      145deg,
+      #eef6ff 0%,
+      #e7f1ff 100%
+    );
+  }
+
+  .spoken-hero::after {
+    width: 300px;
+    height: 130px;
+    right: -120px;
+    bottom: -90px;
+    border-width: 15px;
+  }
+
+  .spoken-hero-content {
+    width: 100%;
+  }
+
+  .spoken-hero-decoration {
+    display: none;
+  }
+
+
+  /* ---------- Hero title ---------- */
+
+  .spoken-title-row {
+    gap: 10px;
+  }
+
+  .spoken-title-icon {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+    font-size: 17px;
+  }
+
+  .spoken-title-row h1 {
+    font-size: 19px;
+  }
+
+  .spoken-title-row p {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+
+  /* ---------- Hero actions ---------- */
+
+  .spoken-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 15px;
+  }
+
+  .spoken-btn {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 8px;
+    border-radius: var(--se-radius-sm);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .spoken-btn span {
+    font-size: 11px;
+  }
+
+
+  /* ---------- Language ---------- */
+
+  .spoken-language {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 13px;
+  }
+
+  .spoken-language label {
+    font-size: 11px;
+  }
+
+  .spoken-language select {
+    width: 125px;
+    min-width: 0;
+    height: 34px;
+    padding: 0 26px 0 9px;
+    border-radius: 7px;
+    font-size: 11px;
+  }
+
+
+  /* ---------- Progress ---------- */
+
+  .spoken-summary {
+    margin-bottom: 16px;
+  }
+
+  .spoken-summary .row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin: 0 !important;
+  }
+
+  .spoken-summary .row > * {
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .spoken-summary .row > *:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .spoken-summary .card {
+    min-height: 76px !important;
+    border-radius: 10px !important;
+    overflow: hidden;
+  }
+
+  .spoken-summary .card-body {
+    padding: 10px !important;
+  }
+
+  .spoken-summary h1,
+  .spoken-summary h2,
+  .spoken-summary h3,
+  .spoken-summary h4,
+  .spoken-summary h5 {
+    font-size: 12px !important;
+  }
+
+  .spoken-summary .display-4,
+  .spoken-summary .display-5 {
+    font-size: 22px !important;
+  }
+
+  .spoken-summary .progress {
+    height: 6px !important;
+    border-radius: 20px;
+  }
+
+
+  /* ---------- Subjects heading ---------- */
+
+  .subjects-heading {
+    display: block;
+    margin: 0 0 10px;
+  }
+
+  .subjects-heading h2 {
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  .subjects-heading p {
+    margin-top: 3px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+
+  /* ---------- Subject grid ---------- */
+
+  .subjects-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .subject-wrapper {
+    width: 100%;
+  }
+
+
+  /* ---------- Subject cards ---------- */
+
+  .subject-wrapper .card {
+    min-height: 0 !important;
+    border-radius: var(--se-radius-md) !important;
+    box-shadow: 0 2px 8px rgba(31, 48, 80, 0.055) !important;
+  }
+
+  .subject-wrapper .card-body {
+    padding: 13px !important;
+  }
+
+  .subject-wrapper h1,
+  .subject-wrapper h2,
+  .subject-wrapper h3,
+  .subject-wrapper h4,
+  .subject-wrapper h5,
+  .subject-wrapper h6 {
+    margin-bottom: 4px !important;
+    font-size: 13px !important;
+    line-height: 1.3 !important;
+  }
+
+  .subject-wrapper p {
+    margin-bottom: 7px !important;
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+  }
+
+  .subject-wrapper .progress {
+    height: 5px !important;
+    margin-top: 3px;
+    border-radius: 20px;
+  }
+
+  .subject-wrapper small {
+    font-size: 9px !important;
+  }
+
+  .subject-wrapper button {
+    min-height: 31px;
+    padding: 4px 10px;
+    border-radius: 7px;
+    font-size: 10px !important;
+  }
+
+  .subject-is-locked {
+    opacity: 0.68;
+  }
+
+
+  /* ---------- Motivation ---------- */
+
+  .spoken-motivation {
+    min-height: 0;
+    align-items: center;
+    margin-top: 12px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .motivation-icon {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+    font-size: 16px;
+  }
+
+  .motivation-content {
+    margin-left: 5px;
+    margin-right: 8px;
+  }
+
+  .motivation-content strong {
+    display: block;
+    font-size: 10px;
+    line-height: 1.3;
+  }
+
+  .motivation-content span {
+    display: block;
+    font-size: 8px;
+    line-height: 1.3;
+  }
+
+  .motivation-button {
+    display: none;
+  }
+}
+
+
+/* =========================================================
+   SMALL PHONES â€” <= 480px
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .spoken-dashboard {
+    padding: 10px 9px 20px;
+  }
+
+  .spoken-hero {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .spoken-title-icon {
+    width: 33px;
+    height: 33px;
+    flex-basis: 33px;
+  }
+
+  .spoken-title-row h1 {
+    font-size: 17px;
+  }
+
+  .spoken-title-row p {
+    font-size: 11px;
+  }
+
+  .spoken-actions {
+    gap: 7px;
+  }
+
+  .spoken-btn {
+    min-height: 37px;
+    font-size: 10px;
+  }
+
+  .spoken-language label {
+    font-size: 10px;
+  }
+
+  .spoken-language select {
+    width: 115px;
+    height: 32px;
+    font-size: 10px;
+  }
+
+
+  /* Progress */
+
+  .spoken-summary .row {
+    gap: 7px;
+  }
+
+  .spoken-summary .card {
+    min-height: 70px !important;
+  }
+
+  .spoken-summary .card-body {
+    padding: 8px !important;
+  }
+
+  .spoken-summary .display-4,
+  .spoken-summary .display-5 {
+    font-size: 20px !important;
+  }
+
+
+  /* Subjects */
+
+  .subjects-heading h2 {
+    font-size: 16px;
+  }
+
+  .subjects-heading p {
+    font-size: 10px;
+  }
+
+  .subjects-grid {
+    gap: 8px;
+  }
+
+  .subject-wrapper .card-body {
+    padding: 11px !important;
+  }
+
+  .subject-wrapper h1,
+  .subject-wrapper h2,
+  .subject-wrapper h3,
+  .subject-wrapper h4,
+  .subject-wrapper h5,
+  .subject-wrapper h6 {
+    font-size: 12px !important;
+  }
+
+  .subject-wrapper p {
+    font-size: 9px !important;
+  }
+
+  .subject-wrapper button {
+    min-height: 29px;
+    font-size: 9px !important;
+  }
+
+
+  /* Motivation */
+
+  .motivation-content strong {
+    font-size: 9px;
+  }
+
+  .motivation-content span {
+    font-size: 8px;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL DEVICES â€” <= 300px
+   ========================================================= */
+
+@media (max-width: 300px) {
+
+  .spoken-dashboard {
+    padding: 7px;
+  }
+
+  .spoken-hero {
+    padding: 11px;
+  }
+
+  .spoken-title-row {
+    gap: 7px;
+  }
+
+  .spoken-title-icon {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+    font-size: 13px;
+  }
+
+  .spoken-title-row h1 {
+    font-size: 14px;
+  }
+
+  .spoken-title-row p {
+    font-size: 9px;
+  }
+
+  .spoken-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .spoken-btn {
+    min-height: 34px;
+  }
+
+  .spoken-language select {
+    width: 95px;
+  }
+
+  .spoken-summary .row {
+    grid-template-columns: 1fr;
+  }
+
+  .spoken-summary .row > *:last-child {
+    grid-column: auto;
+  }
+
+  .spoken-summary .card {
+    min-height: 62px !important;
+  }
+
+  .subjects-heading h2 {
+    font-size: 14px;
+  }
+
+  .subjects-heading p {
+    font-size: 9px;
+  }
+
+  .subject-wrapper .card-body {
+    padding: 9px !important;
+  }
+
+  .subject-wrapper h1,
+  .subject-wrapper h2,
+  .subject-wrapper h3,
+  .subject-wrapper h4,
+  .subject-wrapper h5,
+  .subject-wrapper h6 {
+    font-size: 11px !important;
+  }
+
+  .subject-wrapper p {
+    font-size: 8px !important;
+  }
+
+  .subject-wrapper button {
+    min-height: 26px;
+    font-size: 8px !important;
+  }
+
+  .motivation-content strong {
+    font-size: 8px;
+  }
+
+  .motivation-content span {
+    font-size: 7px;
+  }
+}

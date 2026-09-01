@@ -491,7 +491,7 @@ const AccountSettings = () => {
       </main>
 
     </div> */}
-< AccountPage />
+<AccountPage onEdit={() => { setActiveTab('profile'); setIsEditing(true); }} />
 <Footer />
     </>
   );

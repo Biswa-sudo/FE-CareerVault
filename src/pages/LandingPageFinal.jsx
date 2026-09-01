@@ -126,9 +126,9 @@ const LandingPageFinal = () => {
               <p>Peer accountability, live study rooms, group competitions.</p>
             </div>
           </div>
-          <div className="ecosystem-flow">
+          {/* <div className="ecosystem-flow">
             <span>🔄 All Modules Work Together</span>
-          </div>
+          </div> */}
         </div>
       </section>
 
@@ -159,7 +159,7 @@ const LandingPageFinal = () => {
           </div>
           <div className="social-cta">
             <p>Students who study in groups are 3x more likely to stay consistent.</p>
-            <a href="/study-groups" className="btn btn-primary">Join a Study Group →</a>
+            {/* <a href="/study-groups" className="btn btn-primary">Join a Study Group →</a> */}
           </div>
         </div>
       </section>

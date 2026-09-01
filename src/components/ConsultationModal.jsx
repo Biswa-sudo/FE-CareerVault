@@ -28,8 +28,11 @@ const ConsultationModal = ({ isOpen, onClose, initialSubject = '', onSuccess }) 
     setIsSubmitting(true);
     setSubmitError('');
     try {
-      await apiRequest('/contact.php', { method: 'POST', body: formData });
+      const res = await apiRequest('/contact.php', { method: 'POST', body: formData });
       setSubmitSuccess(true);
+      if (res && res.mail && res.mail.ok === false) {
+        setSubmitError('Message saved but notification email could not be sent.');
+      }
       setFormData({ name: '', email: '', phone: '', subject: initialSubject || '', message: '' });
       if (onSuccess) onSuccess();
       setTimeout(() => {

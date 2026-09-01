@@ -8,8 +8,20 @@ import LessonPlayer from '../pages/LessonPlayer';
 import ChallengePlayer from '../pages/ChallengePlayer';
 import WelcomeBentureAI from '../components/WelcomeBentureAI';
 
+import './SpokenEnglishDashboard.css';
+
 const SpokenEnglishDashboard = () => {
-  const { unlockedSubjectIds, progress, loading, getNextIncompleteActivity, resetProgress, languagePreference, setLanguagePreference, courseData } = useSpokenEnglish();
+  const {
+    unlockedSubjectIds,
+    progress,
+    loading,
+    getNextIncompleteActivity,
+    resetProgress,
+    languagePreference,
+    setLanguagePreference,
+    courseData
+  } = useSpokenEnglish();
+
   const {
     currentView,
     selectedSubjectId,
@@ -19,10 +31,12 @@ const SpokenEnglishDashboard = () => {
     navigateToChallenge,
     navigateToDashboard
   } = useNavigation();
+
   const [showWelcome, setShowWelcome] = useState(false);
 
   const hasStartedProgress = useMemo(() => {
     if (!progress) return false;
+
     return (
       (progress.completedLessons?.length || 0) > 0 ||
       (progress.completedSubjects?.length || 0) > 0 ||
@@ -40,14 +54,29 @@ const SpokenEnglishDashboard = () => {
   }, [loading, hasStartedProgress]);
 
   if (loading) {
-    return <div className="text-center mt-5"><div className="spinner-border" role="status"><span className="visually-hidden">Loading...</span></div></div>;
+    return (
+      <div className="spoken-loading">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p>Loading your learning journey...</p>
+      </div>
+    );
   }
 
   if (showWelcome) {
     return (
       <WelcomeBentureAI
-        selectedLanguage={languagePreference === 'english' ? 'en' : languagePreference === 'hindi' ? 'hi' : 'or'}
-        onLanguageChange={(nextLanguage) => setLanguagePreference(nextLanguage)}
+        selectedLanguage={
+          languagePreference === 'english'
+            ? 'en'
+            : languagePreference === 'hindi'
+              ? 'hi'
+              : 'or'
+        }
+        onLanguageChange={(nextLanguage) =>
+          setLanguagePreference(nextLanguage)
+        }
         onContinue={() => {
           setShowWelcome(false);
         }}
@@ -57,10 +86,12 @@ const SpokenEnglishDashboard = () => {
 
   const handleContinue = () => {
     const next = getNextIncompleteActivity();
+
     if (!next) {
       alert('🎉 You have completed all subjects!');
       return;
     }
+
     if (next.isChallenge) {
       navigateToChallenge(next.subject.id);
     } else if (next.lesson) {
@@ -70,11 +101,14 @@ const SpokenEnglishDashboard = () => {
     }
   };
 
-  // Render child views with shared navigation props
+  // ---------------------------------------------------------
+  // CHILD VIEWS
+  // ---------------------------------------------------------
+
   if (currentView === NAV_VIEWS.SUBJECT_DETAIL) {
     return (
       <SubjectDetail
-        key={selectedSubjectId}  // 🔑 forces remount on subject change
+        key={selectedSubjectId}
         selectedSubjectId={selectedSubjectId}
         navigateToDashboard={navigateToDashboard}
         navigateToLesson={navigateToLesson}
@@ -104,46 +138,132 @@ const SpokenEnglishDashboard = () => {
     );
   }
 
-  // Default: Dashboard view
+  // ---------------------------------------------------------
+  // DASHBOARD
+  // ---------------------------------------------------------
+
   return (
-    <div className="container py-4">
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-        <div>
-          <h1>🗣️ Spoken English</h1>
-          <p className="text-muted mb-0">Select your spoken-language preference and follow the instructions.</p>
+    <div className="spoken-dashboard">
+
+      {/* ================= HERO ================= */}
+      <section className="spoken-hero">
+
+        <div className="spoken-hero-content">
+
+          <div className="spoken-title-row">
+            <div className="spoken-title-icon">
+              💬
+            </div>
+
+            <div>
+              <h1>Spoken English</h1>
+              <p>
+                Build your confidence and fluency step by step.
+              </p>
+            </div>
+          </div>
+
+          <div className="spoken-actions">
+
+            <button
+              type="button"
+              className="spoken-btn spoken-btn-primary"
+              onClick={handleContinue}
+            >
+              <span>▶</span>
+              Continue Learning
+            </button>
+
+            <button
+              type="button"
+              className="spoken-btn spoken-btn-secondary"
+              onClick={resetProgress}
+            >
+              <span>↻</span>
+              Reset Progress
+            </button>
+
+          </div>
+
         </div>
-        <div className="d-flex flex-column flex-sm-row align-items-sm-center gap-2">
-          <label htmlFor="spoken-language-select" className="mb-0 fw-semibold">Language:</label>
+
+        {/* Language */}
+        <div className="spoken-language">
+
+          <label htmlFor="spoken-language-select">
+            Language:
+          </label>
+
           <select
             id="spoken-language-select"
-            className="form-select"
             value={languagePreference}
-            onChange={(e) => setLanguagePreference(e.target.value)}
+            onChange={(e) =>
+              setLanguagePreference(e.target.value)
+            }
           >
             <option value="english">English</option>
             <option value="odia">Odia</option>
             <option value="hindi">Hindi</option>
           </select>
-        </div>
-      </div>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <button className="btn btn-primary me-2" onClick={handleContinue}>
-            ▶ Continue Learning
-          </button>
-          <button className="btn btn-outline-danger" onClick={resetProgress}>
-            🔄 Reset Progress
-          </button>
-        </div>
-      </div>
 
-      <ProgressSummary />
-      
-      <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {courseData.subjects.map(subject => {
+        </div>
+
+        {/* Decorative illustration */}
+        <div className="spoken-hero-decoration">
+
+          <div className="speech-bubble">
+            <span>▰</span>
+            <span>▰</span>
+            <span>▰</span>
+          </div>
+
+          <div className="headphones">
+            🎧
+          </div>
+
+          <div className="sparkle">
+            ✦
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* ================= PROGRESS SUMMARY ================= */}
+      <section className="spoken-summary">
+        <ProgressSummary />
+      </section>
+
+
+      {/* ================= SUBJECT HEADER ================= */}
+      <section className="subjects-heading">
+
+        <div>
+          <h2>Subjects</h2>
+          <p>
+            Learn step by step and improve your spoken English skills.
+          </p>
+        </div>
+
+      </section>
+
+
+      {/* ================= SUBJECT GRID ================= */}
+      <section className="subjects-grid">
+
+        {courseData.subjects.map((subject, index) => {
+
           const isUnlocked = unlockedSubjectIds.includes(subject.id);
+
           return (
-            <div key={subject.id} className="col">
+            <div
+              key={subject.id}
+              className={`subject-wrapper ${
+                !isUnlocked ? 'subject-is-locked' : ''
+              }`}
+            >
+
               <SubjectCard
                 subject={subject}
                 isUnlocked={isUnlocked}
@@ -153,10 +273,41 @@ const SpokenEnglishDashboard = () => {
                   }
                 }}
               />
+
             </div>
           );
         })}
-      </div>
+
+      </section>
+
+
+      {/* ================= MOTIVATIONAL FOOTER ================= */}
+      <section className="spoken-motivation">
+
+        <div className="motivation-icon">
+          🏆
+        </div>
+
+        <div className="motivation-content">
+          <strong>
+            Stay consistent and keep learning every day!
+          </strong>
+
+          <span>
+            Small progress every day leads to big results.
+          </span>
+        </div>
+
+        <button
+          type="button"
+          className="motivation-button"
+          onClick={handleContinue}
+        >
+          Keep Going! 🚀
+        </button>
+
+      </section>
+
     </div>
   );
 };

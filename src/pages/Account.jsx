@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 
-export default function Account() {
+export default function Account({ onEdit }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
@@ -59,7 +59,7 @@ export default function Account() {
           <h2 className="text-base font-semibold text-gray-900 mb-0">Account Actions</h2>
           <Button
             variant="primary"
-            onClick={() => navigate('/account-settings')}
+            onClick={() => (onEdit ? onEdit() : navigate('/account-settings'))}
             className="mt-0"
           >
             Edit Profile

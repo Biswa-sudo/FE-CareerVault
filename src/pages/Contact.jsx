@@ -51,13 +51,18 @@ const Contact = () => {
     setSubmitSuccess(false);
 
     try {
-      await apiRequest('/contact.php', {
+      const res = await apiRequest('/contact.php', {
         method: 'POST',
         body: formData,
       });
 
       setSubmitSuccess(true);
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+
+      // If mail failed, surface a warning but keep success state
+      if (res && res.mail && res.mail.ok === false) {
+        setSubmitError('Message saved but notification email could not be sent.');
+      }
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Unable to send message right now.');
     } finally {
