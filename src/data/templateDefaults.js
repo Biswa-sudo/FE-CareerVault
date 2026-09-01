@@ -1,17 +1,17 @@
-import classicProfessionalDefaults from '../components/templates/ClassicProfessional/defaultFormData'
-import executiveBlueDefaults from '../components/templates/ExecutiveBlue/defaultFormData'
-import executiveProDefaults from '../components/templates/ExecutivePro/defaultFormData'
-import simpleAndElegantDefaults from '../components/templates/SimpleAndElegant/defaultFormData' // NEW
-import templateExecutiveAssistantDefaults from '../components/templates/TemplateExecutiveAssistant/defaultFormData' // NEW
-import creativeBlueDefaults from '../components/templates/CreativeBlue/defaultFormData'
-import modernDarkSidebarDefaults from '../components/templates/ModernDarkSidebar/defaultFormData' 
-import centeredProfileDefaults from '../components/templates/CenteredProfile/defaultFormData'
-import timelineProfessionalDefaults from '../components/templates/TimelineProfessional/defaultFormData' // NEW // NEW// NEW // NEW
-import elegantSplitDefaults from '../components/templates/ElegantSplit/defaultFormData'
-import cleanSidebarTimelineDefaults from '../components/templates/CleanSidebarTimeline/defaultFormData'
-import modernAccentDefaults from '../components/templates/ModernAccent/defaultFormData'
-import minimalistTechDefaults from '../components/templates/MinimalistTech/defaultFormData' // NEW // NEW // NEW // NEW
-import professionalDarkDefaults from '../components/templates/ProfessionalDark/defaultFormData' // NEW
+import classicProfessionalDefaults from '../components/templates/ClassicProfessional/defaultFormData.js'
+import executiveBlueDefaults from '../components/templates/ExecutiveBlue/defaultFormData.js'
+import executiveProDefaults from '../components/templates/ExecutivePro/defaultFormData.js'
+import simpleAndElegantDefaults from '../components/templates/SimpleAndElegant/defaultFormData.js' // NEW
+import templateExecutiveAssistantDefaults from '../components/templates/TemplateExecutiveAssistant/defaultFormData.js' // NEW
+import creativeBlueDefaults from '../components/templates/CreativeBlue/defaultFormData.js'
+import modernDarkSidebarDefaults from '../components/templates/ModernDarkSidebar/defaultFormData.js' 
+import centeredProfileDefaults from '../components/templates/CenteredProfile/defaultFormData.js'
+import timelineProfessionalDefaults from '../components/templates/TimelineProfessional/defaultFormData.js' // NEW // NEW// NEW // NEW
+import elegantSplitDefaults from '../components/templates/ElegantSplit/defaultFormData.js'
+import cleanSidebarTimelineDefaults from '../components/templates/CleanSidebarTimeline/defaultFormData.js'
+import modernAccentDefaults from '../components/templates/ModernAccent/defaultFormData.js'
+import minimalistTechDefaults from '../components/templates/MinimalistTech/defaultFormData.js' // NEW // NEW // NEW // NEW
+import professionalDarkDefaults from '../components/templates/ProfessionalDark/defaultFormData.js' // NEW
 
 const templateDefaults = {
  'classic-professional': classicProfessionalDefaults,

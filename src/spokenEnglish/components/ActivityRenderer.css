@@ -1,0 +1,946 @@
+/* =========================================================
+   ActivityRenderer.css
+   UI ONLY â€” speech/validation functionality is untouched.
+   ========================================================= */
+
+.activity-ui {
+  --navy: #122b63;
+  --purple: #5146e5;
+  --purple-light: #f0edff;
+  --blue: #1769e8;
+  --green: #08aa62;
+  --green-dark: #079a58;
+  --border: #e4e9f2;
+  --muted: #64738d;
+
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 28px 30px 26px;
+
+  box-sizing: border-box;
+  color: var(--navy);
+
+  background: #fff;
+  border: 1px solid #edf0f5;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(25, 48, 86, 0.07);
+
+  font-family: inherit;
+}
+
+.activity-ui *,
+.activity-ui *::before,
+.activity-ui *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   INSTRUCTION
+   ========================================================= */
+
+.activity-ui-header {
+  margin: 0 0 22px;
+}
+
+.activity-ui-instruction {
+  margin: 0;
+  color: #263b66;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+/* =========================================================
+   HINT / SCENARIO
+   ========================================================= */
+
+.activity-ui-prompt {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  width: 100%;
+  margin: 0 0 30px;
+  padding: 18px 20px;
+
+  border: 1.5px solid #cfe0ff;
+  border-radius: 18px;
+
+  background: linear-gradient(135deg, #f8fbff 0%, #eff5ff 100%);
+}
+
+.activity-ui-prompt-icon {
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+  background: #e8f1ff;
+  color: var(--blue);
+  font-size: 23px;
+}
+
+.activity-ui-prompt-text {
+  min-width: 0;
+  color: #155dcc;
+  font-size: 21px;
+  line-height: 1.3;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   SPEECH CONTENT
+   ========================================================= */
+
+.activity-ui-speech {
+  width: 100%;
+}
+
+.activity-ui-read-section {
+  width: 100%;
+}
+
+.activity-ui-read-label {
+  margin: 0 0 8px;
+  color: #5a42dd;
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 800;
+}
+
+.activity-ui-speaker-small {
+  margin-left: 6px;
+  font-size: 17px;
+}
+
+.activity-ui-read-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.activity-ui-read-text {
+  min-width: 0;
+  flex: 1;
+  margin: 0;
+  color: var(--navy);
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.2;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+/* Speaker beside the phrase */
+.activity-ui-listen-circle {
+  flex: 0 0 76px;
+  width: 76px;
+  height: 76px;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+
+  background: #f0edff;
+  color: #543ee8;
+  font-size: 32px;
+  cursor: pointer;
+
+  transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+}
+
+.activity-ui-listen-circle:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #e9e5ff;
+  box-shadow: 0 7px 18px rgba(81, 70, 229, .12);
+}
+
+.activity-ui-listen-circle:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* The old standalone Listen link is intentionally hidden.
+   The speaker circle above is the single listen action. */
+.activity-ui-listen-link {
+  display: none !important;
+}
+
+/* =========================================================
+   THREE PRIMARY CONTROLS
+   Auto Speak | Speak | Refresh
+   ========================================================= */
+
+.activity-ui-actions {
+  width: 100%;
+  margin-top: 24px;
+  padding: 5px;
+
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1fr;
+  align-items: stretch;
+
+  border: 1px solid #e8ebf2;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(23, 42, 75, .035);
+  overflow: hidden;
+}
+
+.activity-ui-action {
+  position: relative;
+  min-width: 0;
+  min-height: 62px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 9px 15px;
+  border: 0;
+  border-radius: 15px;
+
+  font-size: 17px;
+  line-height: 1.2;
+  font-weight: 800;
+  white-space: nowrap;
+
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.activity-ui-action + .activity-ui-action::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 16px;
+  bottom: 16px;
+  width: 1px;
+  background: #e5e8ef;
+}
+
+.activity-ui-action:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.activity-ui-action:disabled {
+  opacity: .58;
+  cursor: not-allowed;
+}
+
+/* Auto Speak */
+.activity-ui-auto {
+  text-align: left;
+}
+
+.activity-ui-auto-on {
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+  color: #fff;
+  box-shadow: 0 7px 18px rgba(8, 166, 93, .16);
+}
+
+.activity-ui-auto-off {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.activity-ui-auto-left {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.activity-ui-mic-circle {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .92);
+  color: #078f50;
+  font-size: 21px;
+}
+
+.activity-ui-auto-off .activity-ui-mic-circle {
+  background: #e9eef5;
+  color: #64748b;
+}
+
+.activity-ui-auto-title {
+  font-size: 16px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+/* Waveform */
+.activity-ui-wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 34px;
+  margin-left: auto;
+  color: rgba(255, 255, 255, .6);
+  flex: 0 0 auto;
+}
+
+.activity-ui-wave span {
+  width: 3px;
+  border-radius: 99px;
+  background: currentColor;
+}
+
+.activity-ui-wave span:nth-child(1)  { height: 9px; }
+.activity-ui-wave span:nth-child(2)  { height: 15px; }
+.activity-ui-wave span:nth-child(3)  { height: 11px; }
+.activity-ui-wave span:nth-child(4)  { height: 21px; }
+.activity-ui-wave span:nth-child(5)  { height: 14px; }
+.activity-ui-wave span:nth-child(6)  { height: 28px; }
+.activity-ui-wave span:nth-child(7)  { height: 18px; }
+.activity-ui-wave span:nth-child(8)  { height: 24px; }
+.activity-ui-wave span:nth-child(9)  { height: 14px; }
+.activity-ui-wave span:nth-child(10) { height: 21px; }
+.activity-ui-wave span:nth-child(11) { height: 11px; }
+.activity-ui-wave span:nth-child(12) { height: 17px; }
+.activity-ui-wave span:nth-child(13) { height: 9px; }
+.activity-ui-wave span:nth-child(14) { height: 14px; }
+.activity-ui-wave span:nth-child(15) { height: 8px; }
+
+/* Speak */
+.activity-ui-speak {
+  background: #fff;
+  color: #543ee8;
+}
+
+/* Refresh */
+.activity-ui-refresh {
+  background: #fff;
+  color: #40506e;
+}
+
+.activity-ui-refresh-icon {
+  font-size: 27px;
+  line-height: 1;
+}
+
+/* =========================================================
+   PROGRESS CARDS
+   ========================================================= */
+
+.activity-ui-status-card {
+  margin-top: 12px;
+  padding: 13px 16px 14px;
+
+  border: 1px solid #e5e9f0;
+  border-radius: 16px;
+  background: #fafbfe;
+}
+
+.activity-ui-listening-card {
+  margin-top: 9px;
+}
+
+.activity-ui-status-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 7px;
+
+  color: #61718d;
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+.activity-ui-status-top strong {
+  color: #4f46e5;
+  font-size: 15px;
+}
+
+.activity-ui-progress {
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5e8f1;
+}
+
+.activity-ui-progress-bar {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6258f4, #4f46e5);
+  transition: width .2s ease;
+}
+
+/* =========================================================
+   TYPING FALLBACK
+   ========================================================= */
+
+.activity-ui-typing {
+  margin-top: 16px;
+}
+
+.activity-ui-typing-title {
+  margin: 0 0 8px;
+  color: var(--navy);
+  font-size: 15px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.activity-ui-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 9px;
+}
+
+.activity-ui-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 13px;
+  border: 1px solid #dce2eb;
+  border-radius: 11px;
+  outline: none;
+  background: #fff;
+  color: var(--navy);
+  font-size: 14px;
+}
+
+.activity-ui-input:focus {
+  border-color: #8ca6fa;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, .08);
+}
+
+.activity-ui-submit {
+  min-width: 90px;
+  min-height: 48px;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #625af5, #4f46e5);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.activity-ui-submit:disabled {
+  opacity: .58;
+  cursor: not-allowed;
+}
+
+.activity-ui-typing-toggle,
+.activity-ui-or-speak {
+  min-height: 38px;
+  margin-top: 8px;
+  padding: 7px 11px;
+  border: 1px solid #d9ddff;
+  border-radius: 10px;
+  background: #fff;
+  color: #4f46e5;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* =========================================================
+   OTHER ACTIVITY TYPES
+   ========================================================= */
+
+.activity-ui-simple {
+  width: 100%;
+}
+
+.activity-ui-simple-title {
+  margin: 0 0 9px;
+  color: var(--navy);
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.activity-ui-simple-content {
+  margin: 0 0 15px;
+  color: var(--navy);
+  font-size: 23px;
+  line-height: 1.35;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+.activity-ui-choice-list {
+  display: grid;
+  gap: 8px;
+}
+
+.activity-ui-choice {
+  width: 100%;
+  min-height: 48px;
+  padding: 9px 13px;
+  border: 1px solid #dce3ef;
+  border-radius: 11px;
+  background: #fff;
+  color: #26385d;
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+
+.activity-ui-choice:hover:not(:disabled),
+.activity-ui-choice.active {
+  border-color: #7168f6;
+  background: #f5f3ff;
+  color: #4f46e5;
+}
+
+.activity-ui-choice:disabled {
+  opacity: .62;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   IMAGE
+   ========================================================= */
+
+.activity-ui-image {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.activity-ui-image img {
+  max-width: 100%;
+  max-height: 150px;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+/* =========================================================
+   FEEDBACK
+   ========================================================= */
+
+.activity-ui-feedback {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 12px;
+  padding: 10px 12px;
+
+  border-radius: 12px;
+  background: #fff8eb;
+  color: var(--navy);
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.activity-ui-feedback.success {
+  background: #eefbf4;
+}
+
+.activity-ui-feedback.warning {
+  background: #fff8eb;
+}
+
+.activity-ui-feedback-icon {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+  background: #fff0cb;
+  font-size: 16px;
+}
+
+/* =========================================================
+   CORRECT ANSWER OVERLAY
+   ========================================================= */
+
+.activity-ui-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .90);
+  pointer-events: none;
+}
+
+.activity-ui-overlay img {
+  max-width: 60%;
+  max-height: 220px;
+  width: auto;
+  filter: drop-shadow(0 0 20px rgba(25, 135, 84, .30));
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 800px) {
+  .activity-ui {
+    padding: 22px 20px 20px;
+    border-radius: 20px;
+  }
+
+  .activity-ui-prompt {
+    padding: 15px 16px;
+    margin-bottom: 22px;
+  }
+
+  .activity-ui-prompt-icon {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .activity-ui-prompt-text {
+    font-size: 18px;
+  }
+
+  .activity-ui-read-text {
+    font-size: 30px;
+  }
+
+  .activity-ui-listen-circle {
+    flex-basis: 60px;
+    width: 60px;
+    height: 60px;
+    font-size: 26px;
+  }
+
+  .activity-ui-action {
+    min-height: 55px;
+    padding: 7px 9px;
+    font-size: 14px;
+  }
+
+  .activity-ui-auto-title {
+    font-size: 13px;
+  }
+
+  .activity-ui-mic-circle {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 560px) {
+  .activity-ui {
+    padding: 13px 12px 12px;
+    border-radius: 15px;
+    box-shadow: 0 5px 18px rgba(25, 48, 86, .055);
+  }
+
+  /* One-line instruction */
+  .activity-ui-header {
+    margin-bottom: 9px;
+  }
+
+  .activity-ui-instruction {
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Compact hint */
+  .activity-ui-prompt {
+    gap: 8px;
+    margin-bottom: 11px;
+    padding: 8px 9px;
+    border-radius: 10px;
+  }
+
+  .activity-ui-prompt-icon {
+    flex-basis: 31px;
+    width: 31px;
+    height: 31px;
+    font-size: 15px;
+  }
+
+  .activity-ui-prompt-text {
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  /* Listen & repeat */
+  .activity-ui-read-label {
+    margin-bottom: 3px;
+    font-size: 12px;
+  }
+
+  .activity-ui-speaker-small {
+    margin-left: 3px;
+    font-size: 11px;
+  }
+
+  .activity-ui-read-row {
+    gap: 7px;
+  }
+
+  .activity-ui-read-text {
+    font-size: 21px;
+    line-height: 1.1;
+  }
+
+  .activity-ui-listen-circle {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  /* Three controls ALWAYS remain in one row */
+  .activity-ui-actions {
+    grid-template-columns: 1.12fr 1fr 1fr;
+    gap: 2px;
+    margin-top: 10px;
+    padding: 3px;
+    border-radius: 11px;
+  }
+
+  .activity-ui-action {
+    min-height: 39px;
+    gap: 3px;
+    padding: 4px 3px;
+    border-radius: 8px;
+    font-size: 9px;
+  }
+
+  .activity-ui-action + .activity-ui-action::before {
+    top: 9px;
+    bottom: 9px;
+  }
+
+  .activity-ui-auto-left {
+    gap: 3px;
+  }
+
+  .activity-ui-mic-circle {
+    flex-basis: 24px;
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  .activity-ui-auto-title {
+    font-size: 8px;
+  }
+
+  .activity-ui-wave {
+    display: none;
+  }
+
+  .activity-ui-refresh-icon {
+    font-size: 15px;
+  }
+
+  /* Progress */
+  .activity-ui-status-card {
+    margin-top: 6px;
+    padding: 7px 9px 8px;
+    border-radius: 9px;
+  }
+
+  .activity-ui-status-top {
+    margin-bottom: 4px;
+    font-size: 9px;
+  }
+
+  .activity-ui-status-top strong {
+    font-size: 10px;
+  }
+
+  .activity-ui-progress {
+    height: 5px;
+  }
+
+  /* Feedback */
+  .activity-ui-feedback {
+    gap: 6px;
+    margin-top: 7px;
+    padding: 7px 8px;
+    border-radius: 9px;
+    font-size: 9px;
+  }
+
+  .activity-ui-feedback-icon {
+    flex-basis: 25px;
+    width: 25px;
+    height: 25px;
+    font-size: 12px;
+  }
+
+  /* Fallback */
+  .activity-ui-typing {
+    margin-top: 9px;
+  }
+
+  .activity-ui-typing-title {
+    margin-bottom: 5px;
+    font-size: 11px;
+  }
+
+  .activity-ui-input-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .activity-ui-input,
+  .activity-ui-submit {
+    min-height: 39px;
+    border-radius: 8px;
+    font-size: 11px;
+  }
+
+  .activity-ui-submit {
+    width: 100%;
+  }
+
+  .activity-ui-typing-toggle,
+  .activity-ui-or-speak {
+    min-height: 31px;
+    margin-top: 6px;
+    padding: 5px 8px;
+    border-radius: 8px;
+    font-size: 9px;
+  }
+
+  .activity-ui-image img {
+    max-height: 80px;
+  }
+}
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+  .activity-ui {
+    padding: 10px 9px;
+  }
+
+  .activity-ui-instruction {
+    font-size: 10px;
+  }
+
+  .activity-ui-prompt {
+    padding: 7px 8px;
+  }
+
+  .activity-ui-prompt-icon {
+    flex-basis: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .activity-ui-prompt-text {
+    font-size: 10px;
+  }
+
+  .activity-ui-read-text {
+    font-size: 19px;
+  }
+
+  .activity-ui-listen-circle {
+    flex-basis: 37px;
+    width: 37px;
+    height: 37px;
+    font-size: 16px;
+  }
+
+  .activity-ui-action {
+    min-height: 37px;
+    font-size: 8px;
+  }
+
+  .activity-ui-auto-title {
+    font-size: 7px;
+  }
+
+  .activity-ui-mic-circle {
+    flex-basis: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL DEVICES
+   ========================================================= */
+
+@media (max-width: 300px) {
+  .activity-ui {
+    padding: 8px 7px;
+    border-radius: 11px;
+  }
+
+  .activity-ui-instruction {
+    font-size: 9px;
+  }
+
+  .activity-ui-read-label {
+    font-size: 10px;
+  }
+
+  .activity-ui-read-text {
+    font-size: 17px;
+  }
+
+  .activity-ui-listen-circle {
+    flex-basis: 34px;
+    width: 34px;
+    height: 34px;
+  }
+
+  .activity-ui-actions {
+    grid-template-columns: 1.08fr 1fr 1fr;
+  }
+
+  .activity-ui-action {
+    min-height: 35px;
+    font-size: 7px;
+  }
+
+  .activity-ui-auto-title {
+    font-size: 6px;
+  }
+
+  .activity-ui-mic-circle {
+    flex-basis: 20px;
+    width: 20px;
+    height: 20px;
+    font-size: 9px;
+  }
+}

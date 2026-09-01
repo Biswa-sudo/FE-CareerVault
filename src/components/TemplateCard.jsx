@@ -4,7 +4,7 @@ export default function TemplateCard({ template, onSelect }) {
   const previewImage = getTemplatePreviewImage(template.id)
 
   return (
-    <div className="relative group rounded-xl overflow-hidden border shadow-sm hover:shadow-lg transition-shadow cursor-pointer" onClick={() => onSelect(template.id)}>
+    <div className="relative group rounded-xl overflow-hidden border shadow-sm hover:shadow-lg transition-shadow cursor-pointer" onClick={() => onSelect(template)}>
       <div className="w-full aspect-[210/297] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
         {previewImage ? (
           <img

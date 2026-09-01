@@ -191,7 +191,39 @@ export default function Editor() {
             setCvName(existing.name || 'Untitled CV')
           }
         } else {
-          const defaults = getTemplateDefaults(templateId)
+          const defaults = getTemplateDefaults(templateId) || {}
+
+          // If AI data exists for this template, prefer it over raw defaults
+          try {
+            const stored = localStorage.getItem('aiGeneratedData')
+            if (stored) {
+              const parsed = JSON.parse(stored)
+              console.debug('Editor load: aiGeneratedData found during new CV load', parsed)
+              if (parsed && parsed.templateId === templateId) {
+                const response = parsed.gptResponse
+
+                const isEmptyObject = response && typeof response === 'object' && Object.keys(response).length === 0
+                const isEmptyString = typeof response === 'string' && response.trim() === ''
+
+                if (isEmptyObject || isEmptyString || response == null) {
+                  reset(normalizeLoadedData(defaults))
+                } else if (typeof response === 'object') {
+                  const merged = { ...defaults, ...response }
+                  reset(normalizeLoadedData(merged))
+                } else if (typeof response === 'string') {
+                  // Use defaults then set summary field
+                  reset(normalizeLoadedData(defaults))
+                  setValue('personalInfo.summary', response, { shouldDirty: true })
+                }
+
+                setEditorLoading(false)
+                return
+              }
+            }
+          } catch (e) {
+            // ignore malformed AI data and fall back to defaults
+          }
+
           if (defaults) reset(normalizeLoadedData(defaults))
         }
       } catch (e) {
@@ -203,6 +235,39 @@ export default function Editor() {
 
     loadEditorData()
   }, [cvId, templateId, reset])
+
+  // Auto-populate form from AI-generated data stored in localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('aiGeneratedData')
+      if (!stored) return
+      const parsed = JSON.parse(stored)
+      console.debug('Editor: found aiGeneratedData', parsed)
+      if (!parsed || parsed.templateId !== templateId) return
+
+      const response = parsed.gptResponse
+
+      const isEmptyObject = response && typeof response === 'object' && Object.keys(response).length === 0
+      const isEmptyString = typeof response === 'string' && response.trim() === ''
+
+      if (isEmptyObject || isEmptyString || response == null) {
+        // Fallback to template defaults when AI data is empty
+        const defaults = getTemplateDefaults(templateId) || {}
+        reset(normalizeLoadedData(defaults))
+      } else if (typeof response === 'object') {
+        // Merge into current form values and normalize shape
+        const merged = { ...getValues(), ...response }
+        reset(normalizeLoadedData(merged))
+      } else if (typeof response === 'string') {
+        // If AI returned plain text, place it into the summary field
+        setValue('personalInfo.summary', response, { shouldDirty: true })
+      }
+
+      // preserve aiGeneratedData in localStorage for reuse
+    } catch (e) {
+      console.warn('Invalid AI data in localStorage')
+    }
+  }, [templateId, reset, getValues, setValue])
 
   useEffect(() => {
     const shouldPrint = searchParams.get('print') === 'true'
