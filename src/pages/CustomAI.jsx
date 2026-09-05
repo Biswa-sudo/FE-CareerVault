@@ -976,28 +976,19 @@ const styles = {
     textAlign: 'center',
     padding: '20px 0',
   },
-  successIcon: {
+  successMessageIcon: {
     fontSize: '3rem',
     color: '#34D399',
     marginBottom: 12,
   },
-successMessage: {
-  textAlign: 'center',
-  padding: '20px 0',
-},
-successMessageIcon: {
-  fontSize: '3rem',
-  color: '#34D399',
-  marginBottom: 12,
-},
-successMessageTitle: {
-  color: '#F1F5F9',
-  fontSize: '1.2rem',
-  marginBottom: 4,
-},
-successMessageSubtext: {
-  color: '#94A3B8',
-},
+  successMessageTitle: {
+    color: '#F1F5F9',
+    fontSize: '1.2rem',
+    marginBottom: 4,
+  },
+  successMessageSubtext: {
+    color: '#94A3B8',
+  },
 };
 
 // ============================================================

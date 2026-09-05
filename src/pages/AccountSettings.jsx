@@ -12,7 +12,7 @@ const AccountSettings = () => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   
   // User data state
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
 
   const [userData, setUserData] = useState({
     name: '',
@@ -45,10 +45,22 @@ const AccountSettings = () => {
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const handleProfileSave = () => {
-    setIsEditing(false);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+  const handleProfileSave = async () => {
+    try {
+      await updateProfile({
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone,
+        location: userData.location,
+        bio: userData.bio,
+      });
+
+      setIsEditing(false);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Unable to save profile.');
+    }
   };
 
   useEffect(() => {

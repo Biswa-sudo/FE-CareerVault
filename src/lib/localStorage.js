@@ -181,6 +181,27 @@ export async function getPaymentDate(productId = null, plan = null) {
   return null;
 }
 
+export async function updateUserProfile(profileData = {}) {
+  const payload = {
+    name: String(profileData.name ?? '').trim(),
+    email: String(profileData.email ?? '').trim(),
+    phone: String(profileData.phone ?? '').trim(),
+    location: String(profileData.location ?? '').trim(),
+    bio: String(profileData.bio ?? '').trim(),
+  };
+
+  if (!payload.name || !payload.email) {
+    throw new Error('Name and email are required.');
+  }
+
+  const response = await apiRequest('/auth.php?action=update-profile', {
+    method: 'POST',
+    body: payload,
+  });
+
+  return response.user || null;
+}
+
 export async function logout() {
   await apiRequest('/auth.php?action=logout', { method: 'POST' });
 }

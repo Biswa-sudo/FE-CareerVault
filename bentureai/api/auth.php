@@ -8,15 +8,54 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $action = $_GET['action'] ?? 'session';
 $pdo = db();
 
+$ensureProfileColumns = function () use ($pdo): void {
+    $columns = [];
+    $result = $pdo->query('SHOW COLUMNS FROM users');
+    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        $columns[] = $row['Field'];
+    }
+
+    $additions = [
+        'phone' => 'ALTER TABLE users ADD COLUMN phone VARCHAR(30) NULL AFTER email',
+        'location' => 'ALTER TABLE users ADD COLUMN location VARCHAR(255) NULL AFTER phone',
+        'bio' => 'ALTER TABLE users ADD COLUMN bio TEXT NULL AFTER location',
+    ];
+
+    foreach ($additions as $field => $sql) {
+        if (!in_array($field, $columns, true)) {
+            $pdo->exec($sql);
+        }
+    }
+};
+
+$fetchCurrentUser = function (int $userId) use ($pdo): ?array {
+    $columns = [];
+    $result = $pdo->query('SHOW COLUMNS FROM users');
+    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        $columns[] = $row['Field'];
+    }
+
+    $selected = ['id', 'name', 'email'];
+    foreach (['phone', 'location', 'bio'] as $field) {
+        if (in_array($field, $columns, true)) {
+            $selected[] = $field;
+        }
+    }
+    $selected[] = 'created_at';
+
+    $columnsSql = implode(', ', array_map(static fn (string $column) => '`' . str_replace('`', '``', $column) . '`', $selected));
+    $stmt = $pdo->prepare("SELECT {$columnsSql} FROM users WHERE id = :id LIMIT 1");
+    $stmt->execute(['id' => $userId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+};
+
 if ($method === 'GET' && $action === 'session') {
     $userId = currentUserId();
     if ($userId === null) {
         respond(['authenticated' => false, 'user' => null]);
     }
 
-    $stmt = $pdo->prepare('SELECT id, name, email, created_at FROM users WHERE id = :id LIMIT 1');
-    $stmt->execute(['id' => $userId]);
-    $user = $stmt->fetch();
+    $user = $fetchCurrentUser($userId);
 
     if (!$user) {
         session_unset();
@@ -89,6 +128,63 @@ if ($method === 'POST' && $action === 'login') {
             'email' => $user['email'],
         ],
     ]);
+}
+
+if ($method === 'POST' && $action === 'update-profile') {
+    $userId = currentUserId();
+    if ($userId === null) {
+        respond(['error' => 'Unauthorized.'], 401);
+    }
+
+    $ensureProfileColumns();
+
+    $body = jsonInput();
+    $name = trim((string) ($body['name'] ?? ''));
+    $email = strtolower(trim((string) ($body['email'] ?? '')));
+    $phone = trim((string) ($body['phone'] ?? ''));
+    $location = trim((string) ($body['location'] ?? ''));
+    $bio = trim((string) ($body['bio'] ?? ''));
+
+    if ($name === '' || $email === '') {
+        respond(['error' => 'Name and email are required.'], 422);
+    }
+
+    $check = $pdo->prepare('SELECT id FROM users WHERE LOWER(email) = LOWER(:email) AND id != :id LIMIT 1');
+    $check->execute(['email' => $email, 'id' => $userId]);
+    if ($check->fetch()) {
+        respond(['error' => 'Email already exists.'], 409);
+    }
+
+    $columns = [];
+    $result = $pdo->query('SHOW COLUMNS FROM users');
+    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        $columns[] = $row['Field'];
+    }
+
+    $updateData = [
+        'id' => $userId,
+        'name' => $name,
+        'email' => $email,
+    ];
+    $updateFields = ['name', 'email'];
+
+    foreach (['phone', 'location', 'bio'] as $field) {
+        if (in_array($field, $columns, true)) {
+            $updateData[$field] = ${$field};
+            $updateFields[] = $field;
+        }
+    }
+
+    $sql = 'UPDATE users SET ' . implode(', ', array_map(static fn (string $field) => '`' . str_replace('`', '``', $field) . '` = :' . $field, $updateFields)) . ' WHERE id = :id';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($updateData);
+
+    $updatedUser = $fetchCurrentUser($userId);
+    if (!$updatedUser) {
+        respond(['error' => 'Failed to load updated profile.'], 500);
+    }
+
+    respond(['user' => $updatedUser]);
 }
 
 if ($method === 'POST' && $action === 'logout') {

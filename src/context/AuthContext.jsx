@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
-import { getSession, loginUser, logout as removeAuth, signUpUser } from '../lib/localStorage'
+import { getSession, loginUser, logout as removeAuth, signUpUser, updateUserProfile } from '../lib/localStorage'
 
 const AuthContext = createContext(null)
 
@@ -48,8 +48,16 @@ export function AuthProvider({ children }) {
     setAuthenticated(false)
   }, [])
 
+  const updateProfile = useCallback(async (profileData) => {
+    const nextUser = await updateUserProfile(profileData)
+    setUser(nextUser)
+    setAuthenticated(true)
+    setAuthError('')
+    return nextUser
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ user, authenticated, signUp, login, logout: logoutUser, authLoading, authError }}>
+    <AuthContext.Provider value={{ user, authenticated, signUp, login, logout: logoutUser, updateProfile, authLoading, authError }}>
       {children}
     </AuthContext.Provider>
   )

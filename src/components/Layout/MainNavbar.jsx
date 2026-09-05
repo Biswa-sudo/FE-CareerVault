@@ -98,8 +98,8 @@ const MainNavbar = () => {
 
           {!authLoading && !authenticated ? (
             <>
-              <NavLink to="/login" className="main-navbar__btn main-navbar__btn--outline">Login</NavLink>
-              <NavLink to="/signup" className="main-navbar__btn main-navbar__btn--primary">Get Started</NavLink>
+              <NavLink to="/login" className="main-navbar__btn main-navbar__btn--outline px-4 py-1">Login</NavLink>
+              <NavLink to="/signup" className="main-navbar__btn main-navbar__btn--primary px-4 py-1">Get Started</NavLink>
             </>
           ) : null}
         </div>

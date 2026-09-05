@@ -226,6 +226,7 @@ display: flex;
   display: block;
   opacity: 1;
   transform: translateY(0);
+  padding: 0.5rem;
 }
 
 .main-navbar__dropdown-item {
