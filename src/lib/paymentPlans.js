@@ -61,11 +61,11 @@ export function resolvePaymentPlan(planKey, query = {}) {
   // Default annual fallback for unknown plans (used by tests and UI)
   const DEFAULT_ANNUAL = {
     key: 'annual',
-    name: 'Benture AI Annual',
-    amount: 10000,
+    name: 'Choose Your Plan',
+    amount: 0,
     productId: null,
     planId: 'annual',
-    description: 'Annual subscription',
+    description: 'Choose A Plan To Continue',
   }
 
   /*

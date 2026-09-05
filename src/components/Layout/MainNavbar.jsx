@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { hasAnyActiveSubscription } from '../../lib/localStorage';
 
 const MainNavbar = () => {
-  const { authenticated, authLoading, logout } = useAuth();
+  const { authenticated, authLoading, logout, user } = useAuth();
   const navigate = useNavigate();
   const [checking, setChecking] = useState(false);
   const navLinks = [
@@ -66,15 +66,33 @@ const MainNavbar = () => {
               >
                 {checking ? 'Please wait...' : 'My Dashboard'}
               </button>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="main-navbar__btn main-navbar__btn--outline navbar_logout p-2"
-                aria-label="Logout"
-                title="Logout"
-              >
-                <span aria-hidden="true">⎋</span>
-              </button>
+
+              <div className="main-navbar__dropdown relative">
+                <button
+                  type="button"
+                  className="main-navbar__avatar"
+                  aria-label="User menu"
+                  title="User menu"
+                >
+                  {(user?.name || 'U').charAt(0).toUpperCase()}
+                </button>
+
+                <div className="main-navbar__dropdown-menu">
+                  <NavLink to="/account" className="main-navbar__dropdown-item">
+                    Account
+                  </NavLink>
+                  <NavLink to="/dashboard" className="main-navbar__dropdown-item">
+                    Dashboard
+                  </NavLink>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="main-navbar__dropdown-item main-navbar__dropdown-item--danger w-full text-left border-0 bg-transparent"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
             </>
           ) : null}
 

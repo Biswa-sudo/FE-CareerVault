@@ -19,11 +19,11 @@ export default function Footer() {
           <div className="footer-links">
             <h4 className="font-semibold mb-2">Product</h4>
             <ul className="text-sm text-slate-100 space-y-1">
-              <li><Link to="/signup">Resume Builder</Link></li>
-              <li><Link to="/ai-interview">AI Interview</Link></li>
+              <li><Link to="/career-vault">Career Vault</Link></li>
+              <li><Link to="/career-vault-pro-info">Career Vault Pro</Link></li>
               <li><Link to="/spoken-english">Spoken English</Link></li>
-              <li><Link to="/spoken-english">Spoken English Landing</Link></li>
-              <li><Link to="/study-groups">Study Groups</Link></li>
+                            {/* <li><Link to="/study-groups">Study Groups</Link></li> */}
+
             </ul>
           </div>
 

@@ -39,6 +39,8 @@ import AllProducts from './pages/AllProducts'
 import CustomAILandingPage from './pages/CustomAI'
 import EcommerceLandingPage from './pages/Ecommerce'
 import AllGames from './pages/AllGames'
+import CareerVaultLandingPage from './pages/CareerVaultLandingPage'
+import CareerVaultProInfoPage from './pages/CareerVaultProInfoPage'
 
 export default function App() {
   return (
@@ -97,6 +99,10 @@ export default function App() {
               Product ID: 1
               Default Plan: career-vault
           ===================================================== */}
+
+          <Route path="/career-vault" element={<CareerVaultLandingPage />} />
+          <Route path="/career-vault-info" element={<CareerVaultLandingPage />} />
+          <Route path="/career-vault-pro-info" element={<CareerVaultProInfoPage />} />
 
           <Route
             path="/dashboard"

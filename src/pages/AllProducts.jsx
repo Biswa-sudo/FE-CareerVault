@@ -68,7 +68,7 @@ const SERVICES = [
     title: "Website Development",
     category: "Digital Design & Web",
     price: 1999,
-    unit: "starting at",
+    unit: "starting from",
     description: "Modern, high-performance responsive web pages optimized for fast load times, core web vitals, and immediate lead conversion.",
     icon: Code2,
     features: [
@@ -83,7 +83,7 @@ const SERVICES = [
     title: "Custom Full-Stack Web App",
     category: "Digital Design & Web",
     price: 24999,
-    unit: "starting at",
+    unit: "starting from",
     description: "Bespoke full-stack applications engineered with React/Next.js, robust database architectures, secure authentication, and payment integration.",
     icon: Layers,
     features: [
@@ -98,7 +98,7 @@ const SERVICES = [
     title: "Mobile App Development",
     category: "Digital Design & Web",
     price: 34999,
-    unit: "starting at",
+    unit: "starting from",
     description: "Cross-platform iOS and Android applications delivering native performance, smooth animations, and cloud API synchronization.",
     icon: Smartphone,
     features: [
@@ -113,7 +113,7 @@ const SERVICES = [
     title: "UI/UX & Brand Identity",
     category: "Digital Design & Web",
     price: 4999,
-    unit: "flat",
+    unit: "starting from",
     description: "Comprehensive product design encompassing user research, Figma interactive prototypes, scalable design systems, and brand assets.",
     icon: Palette,
     features: [
