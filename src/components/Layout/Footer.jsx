@@ -22,6 +22,7 @@ export default function Footer() {
               <li><Link to="/signup">Resume Builder</Link></li>
               <li><Link to="/ai-interview">AI Interview</Link></li>
               <li><Link to="/spoken-english">Spoken English</Link></li>
+              <li><Link to="/spoken-english">Spoken English Landing</Link></li>
               <li><Link to="/study-groups">Study Groups</Link></li>
             </ul>
           </div>

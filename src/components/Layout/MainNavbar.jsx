@@ -48,7 +48,7 @@ const MainNavbar = () => {
             <>
               <button
                 type="button"
-                className="main-navbar__btn main-navbar__btn--primary"
+                className="main-navbar__btn main-navbar__btn--primary p-2"
                 onClick={async () => {
                   try {
                     setChecking(true);
@@ -69,12 +69,11 @@ const MainNavbar = () => {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="main-navbar__btn main-navbar__btn--outline navbar_logout"
+                className="main-navbar__btn main-navbar__btn--outline navbar_logout p-2"
                 aria-label="Logout"
                 title="Logout"
-                style={{color:'red',borderColor:'red',borderWidth:'1px'}}
               >
-                <span aria-hidden="true" style={{color:'red'}}>⎋</span>
+                <span aria-hidden="true">⎋</span>
               </button>
             </>
           ) : null}

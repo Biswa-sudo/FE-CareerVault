@@ -285,7 +285,7 @@ export default function Dashboard() {
 
                                 // If subscription corresponds to Spoken English
                                 if (planStr.includes('spoken-english') || planStr.includes('spoken')) {
-                                  navigate('/spoken-english')
+                                  navigate('/spoken-english-dashboard')
                                   return
                                 }
 

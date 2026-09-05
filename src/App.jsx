@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import StudyGroups from './pages/StudyGroups'
 import SpokenEnglish from './pages/SpokenEnglish'
+import SpokenEnglishLandingPage from './pages/SpokenEnglishLandingPage'
 import { AuthProvider } from './context/AuthContext'
 import SkillAnalysis from './pages/SkillAnalysis'
 import Landing from './pages/Landing'
@@ -181,8 +182,10 @@ export default function App() {
               Plan: spoken-english
           ===================================================== */}
 
+          <Route path="/spoken-english" element={<SpokenEnglishLandingPage />} />
+
           <Route
-            path="/spoken-english"
+            path="/spoken-english-dashboard"
             element={
               <ProtectedRoute
                 productId={2}

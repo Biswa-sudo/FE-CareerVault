@@ -64,7 +64,6 @@ const SERVICES = [
       "Skill Progression Tracking"
     ],
     productId: 2,
-    badge: "Best Value"
   },
   {
     id: "spoken-english",
@@ -80,7 +79,8 @@ const SERVICES = [
       "Pronunciation & Tone Guidance",
       "Confidence Milestones"
     ],
-    productId: 3
+    productId: 3,
+    badge: "Best Value"
   },
   {
     id: "web-starter",

@@ -5,6 +5,10 @@
   top: 0;
   z-index: 100;
   border-bottom: 1px solid rgba(16, 42, 86, 0.05);
+
+display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .main-navbar__container {
@@ -157,11 +161,14 @@
   color: #667085;
   border: 1px solid #e4e9f2;
   padding: 0.5rem 1rem;
-  border-radius: 999px;
+  border-radius: 50%;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.25s ease;
+  width:2.5rem;
+  border-color: rgb(255, 100, 100);
+  /* height:2rem; */
 }
 
 .navbar_logout:hover {
