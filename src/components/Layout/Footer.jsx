@@ -8,9 +8,9 @@ export default function Footer() {
     <footer className="footer border-t" style={{backgroundColor: '#0F2852'}}>
       <div className="container max-w-7xl mx-auto px-4 py-8">
         <div className="footer-grid grid grid-cols-1 md:grid-cols-5 gap-6">
-          <div className="footer-brand">
-              <div className="logo flex items-center gap-2 mb-2">
-                <img style={{backgroundColor: '#ffffff',borderRadius: '5%'}} src={BentureAILogo} alt="Benture AI Logo" className="main-navbar__logo-image cursor-pointer" onClick={() => navigate('/')} />
+          <div className="footer-brand flex flex-col items-center text-center md:items-start md:text-left">
+              <div className="logo flex items-center justify-center gap-2 mb-2 w-full md:w-auto">
+                <img style={{backgroundColor: '#ffffff',borderRadius: '5%'}} src={BentureAILogo} alt="Benture AI Logo" className="main-navbar__logo-image cursor-pointer mx-auto md:mx-0" onClick={() => navigate('/')} />
             </div>
             <p className="text-sm text-slate-100">Built in Odisha, India. 🇮🇳</p>
             <p className="footer-tagline text-xs text-slate-100 mt-1">Your AI Career Mentor</p>
@@ -50,10 +50,8 @@ export default function Footer() {
           <div className="footer-social">
             <h4 className="font-semibold mb-2">Follow Us</h4>
             <div className="social-icons flex items-center gap-3 text-xl">
-              <Link to="/contact" aria-label="Facebook">📘</Link>
-              <Link to="/contact" aria-label="Twitter">🐦</Link>
-              <Link to="/contact" aria-label="Instagram">📸</Link>
-              <Link to="/contact" aria-label="YouTube">▶️</Link>
+              <a href="https://www.facebook.com/people/BentureAi/61593600022443/" target="_blank" rel="noreferrer" aria-label="Facebook">📘</a>
+              <a href="https://www.instagram.com/bentureaiofficial/" target="_blank" rel="noreferrer" aria-label="Instagram">📸</a>
             </div>
           </div>
         </div>

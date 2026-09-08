@@ -56,7 +56,7 @@ const ChallengePlayer = ({
     return (
       <div className="container py-4">
         <button className="btn btn-link mb-3" onClick={() => navigateToSubject(null)}>
-          ← Back to All Subjects
+          🢀 Back to All Subjects
         </button>
         <div className="alert alert-danger">Subject not found.</div>
       </div>
@@ -104,7 +104,7 @@ const ChallengePlayer = ({
     <div className="container py-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <button className="btn btn-link" onClick={() => navigateToSubject(subject.id)}>
-          ← Back to Subject
+          🢀 Back to Subject
         </button>
         <span className="badge bg-warning text-dark">Challenge Test</span>
         <span className="badge bg-info">Question {currentIndex+1}/{activities.length}</span>

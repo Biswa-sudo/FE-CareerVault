@@ -1,8 +1,11 @@
 "use client";
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const CareerVaultSection = () => {
+  const navigate = useNavigate();
+
   const handleSubscribe = (plan) => {
     // Determine amount and plan key based on selection
     const isPro = String(plan || '').toLowerCase().includes('pro') || String(plan).toLowerCase().includes('+ ai');
@@ -216,13 +219,22 @@ const CareerVaultSection = () => {
                   ))}
                 </div>
 
-                <button
-                  className="plan-button secondary-button"
-                  onClick={() => handleSubscribe("Career Vault")}
-                >
-                  Get Career Vault for ₹99
-                  <span>→</span>
-                </button>
+                <div className="plan-cta-stack">
+                  <button
+                    className="plan-button secondary-button"
+                    onClick={() => handleSubscribe("Career Vault")}
+                  >
+                    Get Career Vault for ₹99
+                    <span>→</span>
+                  </button>
+
+                  <button
+                    className="plan-know-more secondary-know-more"
+                    onClick={() => navigate('/career-vault')}
+                  >
+                    Know more
+                  </button>
+                </div>
 
                 <div className="plan-note">
                   🔒 Secure payment • 1-year access
@@ -283,13 +295,22 @@ const CareerVaultSection = () => {
                   ))}
                 </div>
 
-                <button
-                  className="plan-button primary-button"
-                  onClick={() => handleSubscribe("Career Vault Pro")}
-                >
-                  Get Career Vault + AI for ₹199
-                  <span>→</span>
-                </button>
+                <div className="plan-cta-stack">
+                  <button
+                    className="plan-button primary-button"
+                    onClick={() => handleSubscribe("Career Vault Pro")}
+                  >
+                    Get Career Vault + AI for ₹199
+                    <span>→</span>
+                  </button>
+
+                  <button
+                    className="plan-know-more primary-know-more"
+                    onClick={() => navigate('/career-vault-pro-info')}
+                  >
+                    Know more
+                  </button>
+                </div>
 
                 <div className="plan-note">
                   🔒 Secure payment • 1-year access
@@ -726,6 +747,12 @@ const CareerVaultSection = () => {
           color: #e09b00;
         }
 
+        .plan-cta-stack {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
         .plan-button {
           display: flex;
           align-items: center;
@@ -741,9 +768,25 @@ const CareerVaultSection = () => {
           transition: all 0.25s ease;
         }
 
+        .plan-know-more {
+          width: 100%;
+          padding: 12px 18px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.25s ease;
+        }
+
         .secondary-button {
           background: #102a56;
           color: #ffffff;
+        }
+
+        .secondary-know-more {
+          border: 1px solid #102a56;
+          background: transparent;
+          color: #102a56;
         }
 
         .primary-button {
@@ -751,9 +794,19 @@ const CareerVaultSection = () => {
           color: #102a56;
         }
 
+        .primary-know-more {
+          border: 1px solid #102a56;
+          background: transparent;
+          color: #102a56;
+        }
+
         .plan-button:hover {
           transform: translateY(-2px);
           box-shadow: 0 10px 25px rgba(16, 42, 86, 0.15);
+        }
+
+        .plan-know-more:hover {
+          transform: translateY(-2px);
         }
 
         .primary-button:hover {

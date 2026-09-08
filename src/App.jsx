@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import ScrollToTop from './components/Layout/ScrollToTop'
 import StudyGroups from './pages/StudyGroups'
 import SpokenEnglish from './pages/SpokenEnglish'
 import SpokenEnglishLandingPage from './pages/SpokenEnglishLandingPage'
@@ -45,6 +46,7 @@ import CareerVaultProInfoPage from './pages/CareerVaultProInfoPage'
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AuthProvider>
         <Routes>
 

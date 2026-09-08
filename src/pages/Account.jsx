@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 
-export default function Account({ onEdit }) {
+export default function Account() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
@@ -55,11 +55,11 @@ export default function Account({ onEdit }) {
           </div>
         </div>
 
-        {user?.name && (<div className="pt-2 border-t border-gray-200 flex flex-wrap items-center gap-3">
+        <div className="pt-2 border-t border-gray-200 flex flex-wrap items-center gap-3">
           <h2 className="text-base font-semibold text-gray-900 mb-0">Account Actions</h2>
           <Button
             variant="primary"
-            onClick={() => (onEdit ? onEdit() : navigate('/account-settings'))}
+            onClick={() => navigate('/account-settings')}
             className="mt-0"
           >
             Edit Profile
@@ -67,7 +67,7 @@ export default function Account({ onEdit }) {
           <Button variant="danger" onClick={logout} className="mt-0">
             Logout
           </Button>
-        </div>)}
+        </div>
       </div>
     </div>
   );

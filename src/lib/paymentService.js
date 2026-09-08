@@ -62,6 +62,7 @@ export async function startUpiPayment({
   plan = '',
   productId = null,
   planId = null,
+  attribution = null,
   onSuccess,
   onDismiss,
 }) {
@@ -72,6 +73,7 @@ export async function startUpiPayment({
     plan,
     productId,
     planId,
+    attribution,
   });
 
   const [order] = await Promise.all([
@@ -82,6 +84,7 @@ export async function startUpiPayment({
       plan,
       productId,
       planId,
+      attribution,
     }),
     loadRazorpayScript(),
   ]);
@@ -91,6 +94,7 @@ export async function startUpiPayment({
     amount: order.amount,
     productId,
     planId,
+    attribution,
   });
 
   return new Promise((resolve, reject) => {

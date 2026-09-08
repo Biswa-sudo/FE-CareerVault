@@ -24,7 +24,7 @@ const SubjectDetail = ({
     return (
       <div className="container py-4">
         <button className="btn btn-link mb-3" onClick={navigateToDashboard}>
-          ← Back to Lessons
+          🢀 Back to Lessons
         </button>
         <button className="btn btn-outline-danger btn-sm mb-3" onClick={() => resetSubject(subject.id)}>
   🔄 Reset Subject
@@ -62,7 +62,7 @@ const SubjectDetail = ({
   return (
     <div className="container py-4">
       <button className="btn btn-link mb-3" onClick={navigateToDashboard}>
-        ← Back to Subjects
+        🢀 Back to Subjects
               </button>
       <h2>{subject.title}</h2>
       <p className="text-muted">{subject.description}</p>

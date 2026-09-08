@@ -1193,7 +1193,7 @@ const LessonPlayer = ({
           >
 
             <span aria-hidden="true">
-              ←
+              🢀
             </span>
 
             <span className="lesson-back-text">

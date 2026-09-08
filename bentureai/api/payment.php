@@ -30,6 +30,43 @@ function razorpayCredentials(): array
     ];
 }
 
+function getAttribution(array $payload): array
+{
+    $input = $payload['attribution'] ?? [];
+
+    if (!is_array($input)) {
+        return [];
+    }
+
+    $allowedKeys = [
+        'utm_source',
+        'utm_medium',
+        'utm_campaign',
+        'utm_content',
+        'utm_term',
+        'fbclid',
+    ];
+
+    $attribution = [];
+
+    foreach ($allowedKeys as $key) {
+        if (!isset($input[$key])) {
+            continue;
+        }
+
+        $value = trim((string) $input[$key]);
+
+        if ($value === '') {
+            continue;
+        }
+
+        // Keep Razorpay note values reasonably short.
+        $attribution[$key] = substr($value, 0, 200);
+    }
+
+    return $attribution;
+}
+
 
 function razorpayRequest(
     string $method,
@@ -360,12 +397,15 @@ if (
                 'currency' => $currency,
                 'receipt' => $receipt,
 
-                'notes' => [
-                    'user_id' => (string) $userId,
-                    'product_id' => (string) $productId,
-                    'plan_id' => (string) $planId,
-                    'plan' => (string) $plan['slug'],
-                ],
+              'notes' => array_merge(
+    [
+        'user_id' => (string) $userId,
+        'product_id' => (string) $productId,
+        'plan_id' => (string) $planId,
+        'plan' => (string) $plan['slug'],
+    ],
+    getAttribution($payload)
+),
             ],
             $credentials['keyId'],
             $credentials['keySecret']

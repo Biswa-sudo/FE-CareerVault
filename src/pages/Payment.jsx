@@ -166,6 +166,19 @@ export default function UnifiedPayment() {
   const rawPlan = searchParams.get('plan');
   const rawProductId = searchParams.get('product_id');
 
+useEffect(() => {
+  if (window.fbq && rawPlan?.trim().toLowerCase() === "spoken-english") {
+    window.fbq("track", "InitiateCheckout", {
+      content_name: "BentureAI Spoken English",
+      content_category: "Education",
+      content_ids: ["3"],
+      content_type: "product",
+      value: 99,
+      currency: "INR",
+    });
+  }
+}, [rawPlan]);
+
   useEffect(() => {
     if (!rawPlan && !rawProductId) {
       return;
@@ -295,17 +308,50 @@ export default function UnifiedPayment() {
     }
 
     try {
-      await startUpiPayment({
-        amount: amountToPay,
-        currency: 'INR',
-        description: descriptionToUse,
-        plan: planToUse,
-        productId: productIdToUse,
+      const attribution = (() => {
+  try {
+    const stored = localStorage.getItem('bentureai_attribution');
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+})();
+     await startUpiPayment({
+  amount: amountToPay,
+  currency: 'INR',
+  description: descriptionToUse,
+  plan: planToUse,
+  productId: productIdToUse,
+  attribution,
 
-        onDismiss: () => {
-          setLoading(false);
-        },
-      });
+onSuccess: (result) => {
+  if (
+    result?.verified &&
+    !result?.alreadyProcessed &&
+    productIdToUse === 3 &&
+    window.fbq
+  ) {
+    window.fbq('track', 'Purchase', {
+      content_name: 'BentureAI Spoken English',
+      content_category: 'Education',
+      content_ids: ['3'],
+      content_type: 'product',
+      value: amountToPay / 100,
+      currency: 'INR',
+    });
+
+    console.log('[Meta] Purchase event sent', {
+      productId: productIdToUse,
+      value: amountToPay / 100,
+      currency: 'INR',
+    });
+  }
+},
+
+  onDismiss: () => {
+    setLoading(false);
+  },
+});
 
       navigate('/payment/success', {
         replace: true,

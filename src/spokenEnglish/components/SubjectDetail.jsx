@@ -34,7 +34,7 @@ const SubjectDetail = ({
       <div className="subject-detail-page">
         <div className="subject-detail-container">
           <button className="subject-back-link" onClick={navigateToDashboard}>
-            ← Back to Lessons
+            🢀 Back to Lessons
           </button>
 
           <button
@@ -97,7 +97,7 @@ const SubjectDetail = ({
     <div className="subject-detail-page">
       <div className="subject-detail-container">
         <button className="subject-back-link" onClick={navigateToDashboard}>
-          â† Back to Subjects
+          🢀 Back to Subjects
         </button>
 
         <section className="subject-overview-card">
@@ -210,9 +210,13 @@ const SubjectDetail = ({
                     )}
 
                     {!completed && !locked && (
-                      <span className="subject-status-badge continue">
-                          Continue →
-                      </span>
+                      <button
+                        type="button"
+                        className="subject-status-badge continue"
+                        onClick={() => navigateToLesson(subject.id, lesson.id)}
+                      >
+                        Continue →
+                      </button>
                     )}
                   </div>
                 </div>

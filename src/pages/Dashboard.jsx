@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { getCVs, getDocuments, getPaymentDate, getAllSubscriptions } from '../lib/localStorage'
 import { useAuth } from '../context/AuthContext'
 import Button from '../components/ui/Button'
@@ -102,6 +102,18 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState('overview')
+  const [isMobile, setIsMobile] = useState(false)
+
+  useLayoutEffect(() => {
+    const updateDevice = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    updateDevice()
+    window.addEventListener('resize', updateDevice)
+
+    return () => window.removeEventListener('resize', updateDevice)
+  }, [])
 
   useEffect(() => {
     const loadData = async () => {
@@ -197,16 +209,16 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-white">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3 py-4' : 'px-4 py-8'}`}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800">
+        <div className={`flex ${isMobile ? 'flex-col items-start gap-3' : 'items-center justify-between'} mb-8`}>
+          <div className={isMobile ? 'w-full' : ''}>
+            <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-slate-800`}>
               Welcome back, <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{user?.name}</span>
             </h1>
             <p className="text-slate-600 mt-1">Manage your CVs, documents, and subscription</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-3 ${isMobile ? 'w-full justify-start' : ''}`}>
             <span className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full border border-indigo-200">
               🇮🇳 Built for Bharat
             </span>
@@ -255,7 +267,7 @@ export default function Dashboard() {
               <div className="p-6 border-t border-slate-200">
                 <h3 className="text-lg font-semibold text-slate-800 mb-3">Your Active Subscriptions</h3>
                 {activeSubscriptions.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-3`}>
                     {activeSubscriptions.map((s, idx) => {
                         const prod = s.product_id || s.productId || s.product || 'unknown'
                         const prodName = PLAN_TYPES[prod]?.name || safeString(prod)
@@ -265,13 +277,13 @@ export default function Dashboard() {
                         const expiresDate = parseDate(s && (s.expires_at || s.expiresAt || s.expiry_date || s.expires_at_date))
 
                         return (
-                          <div key={idx} className="bg-white p-4 rounded-lg border border-slate-100">
-                            <div className="flex items-start justify-between">
+                          <div key={idx} className={`bg-white rounded-lg border border-slate-100 ${isMobile ? 'p-3' : 'p-4'}`}>
+                            <div className={`${isMobile ? 'flex flex-col gap-3' : 'flex items-start justify-between'}`}>
                               <div>
                                 {/* <p className="text-sm text-slate-500">{prodName || 'Subscription'}</p> */}
                                 <p className="font-medium text-slate-800">{safeString(planLabel)}</p>
                               </div>
-                              <div className="text-sm text-slate-500 text-right">
+                              <div className={`text-sm text-slate-500 ${isMobile ? 'text-left' : 'text-right'}`}>
                                 <p>Started: {startedDate ? startedDate.toLocaleDateString() : '—'}</p>
                                 <p>Expires: {expiresDate ? expiresDate.toLocaleDateString() : '—'}</p>
                               </div>
@@ -321,8 +333,8 @@ export default function Dashboard() {
               </div>
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
               {hasActiveSubscription && planDetails ? (
-                <div className="p-6">
-                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
+                <div className={isMobile ? 'p-4' : 'p-6'}>
+                  <div className={`flex ${isMobile ? 'flex-col items-start' : 'flex-col md:flex-row items-start md:items-center'} gap-4 mb-4`}>
                     <div className={`p-3 rounded-xl bg-gradient-to-r ${planDetails.color} text-white`}>
                       <planDetails.icon className="w-6 h-6" />
                     </div>
@@ -341,8 +353,8 @@ export default function Dashboard() {
                   </div>
                 </div>
               ) : (
-                <div className="p-6">
-                  <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
+                <div className={isMobile ? 'p-4' : 'p-6'}>
+                  <div className={`bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100 ${isMobile ? 'p-4' : 'p-6'}`}>
                     <div className="flex items-start gap-4">
                       <div className="p-2 bg-indigo-100 rounded-lg">
                         <Zap className="w-5 h-5 text-indigo-600" />
