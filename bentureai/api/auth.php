@@ -1,8 +1,8 @@
-    <?php
+<?php
 
-    declare(strict_types=1);
+declare(strict_types=1);
 
-    require __DIR__ . '/config.php';
+require __DIR__ . '/config.php';
 
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     $action = $_GET['action'] ?? 'session';
