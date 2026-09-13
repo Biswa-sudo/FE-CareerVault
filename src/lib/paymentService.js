@@ -1,7 +1,29 @@
-import { apiRequest } from './apiClient';
+import { apiRequest } from './apiClient.js';
 
 const RAZORPAY_SCRIPT_URL = 'https://checkout.razorpay.com/v1/checkout.js';
 let razorpayScriptPromise = null;
+
+export function buildPaymentOrderPayload({
+  amount = 10000,
+  currency = 'INR',
+  description = 'Benture AI product subscription',
+  plan = '',
+  productId = null,
+  planId = null,
+  attribution = null,
+  customer = null,
+} = {}) {
+  return {
+    amount,
+    currency,
+    description,
+    plan,
+    productId,
+    planId,
+    attribution,
+    customer,
+  };
+}
 
 function loadRazorpayScript() {
   if (window.Razorpay) {
@@ -63,6 +85,7 @@ export async function startUpiPayment({
   productId = null,
   planId = null,
   attribution = null,
+  customer = null,
   onSuccess,
   onDismiss,
 }) {
@@ -74,10 +97,11 @@ export async function startUpiPayment({
     productId,
     planId,
     attribution,
+    customer,
   });
 
   const [order] = await Promise.all([
-    createPaymentOrder({
+    createPaymentOrder(buildPaymentOrderPayload({
       amount,
       currency,
       description,
@@ -85,7 +109,8 @@ export async function startUpiPayment({
       productId,
       planId,
       attribution,
-    }),
+      customer,
+    })),
     loadRazorpayScript(),
   ]);
 

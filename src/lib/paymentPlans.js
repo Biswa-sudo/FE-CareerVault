@@ -62,7 +62,7 @@ export function resolvePaymentPlan(planKey, query = {}) {
   const DEFAULT_ANNUAL = {
     key: 'annual',
     name: 'Choose Your Plan',
-    amount: 0,
+    amount: 10000,
     productId: null,
     planId: 'annual',
     description: 'Choose A Plan To Continue',

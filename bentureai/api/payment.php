@@ -209,6 +209,74 @@ function getActiveSubscription(
     return $row ?: null;
 }
 
+function getGuestCustomerData(array $payload): array
+{
+    $customer = $payload['customer'] ?? [];
+    $customer = is_array($customer) ? $customer : [];
+
+    $name = trim((string) ($customer['name'] ?? $payload['name'] ?? 'Guest Customer'));
+    $email = strtolower(trim((string) ($customer['email'] ?? $payload['email'] ?? '')));
+    $phone = trim((string) ($customer['phone'] ?? $payload['phone'] ?? ''));
+
+    if ($name === '') {
+        $name = 'Guest Customer';
+    }
+
+    if ($email === '') {
+        $email = 'guest.' . bin2hex(random_bytes(8)) . '@bentureai.app';
+    }
+
+    return [
+        'name' => $name,
+        'email' => $email,
+        'phone' => $phone,
+    ];
+}
+
+function resolvePaymentUserId(PDO $pdo, array $payload): int
+{
+    $userId = currentUserId();
+    if ($userId !== null) {
+        return $userId;
+    }
+
+    $customer = getGuestCustomerData($payload);
+    $email = strtolower(trim((string) $customer['email']));
+    $name = trim((string) $customer['name']) ?: 'Guest Customer';
+    $phone = trim((string) $customer['phone']);
+
+    if ($email === '') {
+        $email = 'guest.' . bin2hex(random_bytes(8)) . '@bentureai.app';
+    }
+
+    $stmt = $pdo->prepare(
+        'SELECT id FROM users WHERE email = :email LIMIT 1'
+    );
+    $stmt->execute(['email' => $email]);
+    $existing = $stmt->fetch();
+
+    if ($existing) {
+        $_SESSION['user_id'] = (int) $existing['id'];
+        return (int) $existing['id'];
+    }
+
+    $randomPassword = bin2hex(random_bytes(16));
+    $insert = $pdo->prepare(
+        'INSERT INTO users (name, email, phone, password_hash)
+         VALUES (:name, :email, :phone, :password_hash)'
+    );
+    $insert->execute([
+        'name' => $name,
+        'email' => $email,
+        'phone' => $phone !== '' ? $phone : null,
+        'password_hash' => password_hash($randomPassword, PASSWORD_DEFAULT),
+    ]);
+
+    $newUserId = (int) $pdo->lastInsertId();
+    $_SESSION['user_id'] = $newUserId;
+
+    return $newUserId;
+}
 
 /**
  * Activate or update a product subscription.
@@ -319,7 +387,8 @@ if (
 ) {
     try {
         $pdo = db();
-        $userId = requireAuth();
+        $payload = jsonInput();
+        $userId = resolvePaymentUserId($pdo, $payload);
 
         $credentials = razorpayCredentials();
 
@@ -330,7 +399,7 @@ if (
             ], 503);
         }
 
-        $payload = jsonInput();
+        $customer = getGuestCustomerData($payload);
 
         $planKey = trim(
             (string) ($payload['plan'] ?? '')
@@ -403,6 +472,9 @@ if (
         'product_id' => (string) $productId,
         'plan_id' => (string) $planId,
         'plan' => (string) $plan['slug'],
+        'customer_name' => $customer['name'],
+        'customer_email' => $customer['email'],
+        'customer_phone' => $customer['phone'],
     ],
     getAttribution($payload)
 ),
@@ -426,34 +498,43 @@ if (
          */
         $insert = $pdo->prepare(
             'INSERT INTO payments (
-                order_id,
+                razorpay_order_id,
                 user_id,
-                amount,
+                amount_paise,
                 currency,
-                status
+                status,
+                customer_name,
+                customer_email,
+                customer_phone
             )
             VALUES (
-                :order_id,
+                :razorpay_order_id,
                 :user_id,
-                :amount,
+                :amount_paise,
                 :currency,
-                :status
+                :status,
+                :customer_name,
+                :customer_email,
+                :customer_phone
             )'
         );
 
         $insert->execute([
-            'order_id' => $orderId,
+            'razorpay_order_id' => $orderId,
             'user_id' => $userId,
-            'amount' => $amount,
+            'amount_paise' => $amount,
             'currency' => $currency,
             'status' => 'created',
+            'customer_name' => $customer['name'],
+            'customer_email' => $customer['email'],
+            'customer_phone' => $customer['phone'] !== '' ? $customer['phone'] : null,
         ]);
 
         /*
          * Get user details for Razorpay prefill.
          */
         $userStmt = $pdo->prepare(
-            'SELECT name, email
+            'SELECT name, email, phone
              FROM users
              WHERE id = :id
              LIMIT 1'
@@ -480,8 +561,9 @@ if (
             'durationDays' => (int) $plan['duration_days'],
 
             'prefill' => [
-                'name' => $user['name'] ?? '',
-                'email' => $user['email'] ?? '',
+                'name' => $user['name'] ?? $customer['name'],
+                'email' => $user['email'] ?? $customer['email'],
+                'contact' => $user['phone'] ?? $customer['phone'],
             ],
         ]);
 
@@ -511,7 +593,8 @@ if (
 ) {
     try {
         $pdo = db();
-        $userId = requireAuth();
+        $body = jsonInput();
+        $userId = resolvePaymentUserId($pdo, $body);
 
         $credentials = razorpayCredentials();
 
@@ -520,8 +603,6 @@ if (
                 'error' => 'Payment gateway is not configured.'
             ], 503);
         }
-
-        $body = jsonInput();
 
         $orderId = trim(
             (string) ($body['razorpay_order_id'] ?? '')
@@ -575,14 +656,14 @@ if (
                 id,
                 user_id,
                 status,
-                amount
+                amount_paise
              FROM payments
-             WHERE order_id = :order_id
+             WHERE razorpay_order_id = :razorpay_order_id
              LIMIT 1'
         );
 
         $paymentStmt->execute([
-            'order_id' => $orderId
+            'razorpay_order_id' => $orderId
         ]);
 
         $payment = $paymentStmt->fetch();
@@ -593,12 +674,21 @@ if (
             ], 404);
         }
 
-        if ((int) $payment['user_id'] !== $userId) {
+        $paymentOwnerUserId = (int) $payment['user_id'];
+        $currentSessionUserId = currentUserId();
+
+        if ($currentSessionUserId !== null && $currentSessionUserId !== $paymentOwnerUserId) {
             respond([
                 'error' =>
                     'Payment order does not belong to this account.'
             ], 403);
         }
+
+        if ($currentSessionUserId === null) {
+            $_SESSION['user_id'] = $paymentOwnerUserId;
+        }
+
+        $userId = $paymentOwnerUserId;
 
         /*
          * Retrieve the Razorpay order.
@@ -698,7 +788,7 @@ if (
             ((float) $plan['price']) * 100
         );
 
-        if ((int) $payment['amount'] !== $expectedAmount) {
+        if ((int) $payment['amount_paise'] !== $expectedAmount) {
             respond([
                 'error' =>
                     'Payment amount does not match the selected subscription plan.'
@@ -713,13 +803,16 @@ if (
         try {
             $updatePayment = $pdo->prepare(
                 'UPDATE payments
-                 SET status = :status
+                 SET status = :status,
+                     razorpay_payment_id = :razorpay_payment_id,
+                     paid_at = CURRENT_TIMESTAMP
                  WHERE id = :id
                    AND status = :current_status'
             );
 
             $updatePayment->execute([
                 'status' => 'paid',
+                'razorpay_payment_id' => $paymentId,
                 'id' => $payment['id'],
                 'current_status' => 'created',
             ]);

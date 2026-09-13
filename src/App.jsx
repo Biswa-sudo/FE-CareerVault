@@ -42,6 +42,7 @@ import EcommerceLandingPage from './pages/Ecommerce'
 import AllGames from './pages/AllGames'
 import CareerVaultLandingPage from './pages/CareerVaultLandingPage'
 import CareerVaultProInfoPage from './pages/CareerVaultProInfoPage'
+import SpokenEnglishAdLanding from './pages/spokenEnglishAdLanding'
 
 export default function App() {
   return (
@@ -191,6 +192,7 @@ export default function App() {
           ===================================================== */}
 
           <Route path="/spoken-english" element={<SpokenEnglishLandingPage />} />
+          <Route path="/spoken-english-ad-landing" element={<SpokenEnglishAdLanding />} />
 
           <Route
             path="/spoken-english-dashboard"

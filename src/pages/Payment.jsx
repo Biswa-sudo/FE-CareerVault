@@ -478,8 +478,7 @@ onSuccess: (result) => {
                           onClick={() => setSelectedService(null)}
                           className="inline-flex items-center gap-1.5 text-xs text-rose-600 hover:text-rose-700 mt-3 transition-colors font-medium"
                         >
-                          <X className="w-3.5 h-3.5" />
-                          Change selection
+                          
                         </button>
                       )}
                     </>
