@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -338,6 +338,7 @@ export default function SpokenEnglishAdLanding() {
   });
   const [customerError, setCustomerError] = useState('');
   const [guestCredentials, setGuestCredentials] = useState(null);
+  const nameInputRef = useRef(null);
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -347,6 +348,39 @@ export default function SpokenEnglishAdLanding() {
   const rawProductId = searchParams.get('product_id');
 
   const countdown = useLaunchCountdown();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    const utmData = {
+      utm_source: params.get('utm_source'),
+      utm_medium: params.get('utm_medium'),
+      utm_campaign: params.get('utm_campaign'),
+      utm_content: params.get('utm_content'),
+      utm_term: params.get('utm_term'),
+      fbclid: params.get('fbclid'),
+    };
+
+    if (
+      utmData.utm_source ||
+      utmData.utm_medium ||
+      utmData.utm_campaign ||
+      utmData.utm_content ||
+      utmData.utm_term ||
+      utmData.fbclid
+    ) {
+      localStorage.setItem('bentureai_attribution', JSON.stringify(utmData));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (window.fbq) {
+      window.fbq('track', 'ViewContent', {
+        content_name: 'BentureAI Spoken English',
+        content_category: 'Education',
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (window.fbq && rawPlan?.trim().toLowerCase() === 'spoken-english') {
@@ -454,6 +488,31 @@ export default function SpokenEnglishAdLanding() {
       cancelled = true;
     };
   }, []);
+
+  // Lock background scroll when modal is open and restore on close
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    if (showCustomerModal) {
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [showCustomerModal]);
+
+  // Autofocus name input when modal opens (helps mobile keyboard behavior)
+  useEffect(() => {
+    if (showCustomerModal && nameInputRef.current) {
+      // small delay to ensure element is visible before focusing
+      setTimeout(() => {
+        try {
+          nameInputRef.current.focus();
+        } catch (e) {
+          // ignore
+        }
+      }, 80);
+    }
+  }, [showCustomerModal]);
 
   useEffect(() => {
     let cancelled = false;
@@ -689,7 +748,7 @@ export default function SpokenEnglishAdLanding() {
 
   return (
     <>
-      <MainNavbar />
+      {!showCustomerModal && <MainNavbar />}
 
       <div className="min-h-screen bg-white">
         {/* ------------------------------ OFFER STRIP ------------------------------ */}
@@ -1309,43 +1368,45 @@ export default function SpokenEnglishAdLanding() {
       </div>
 
       {/* --------------------------- MOBILE STICKY CTA --------------------------- */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3 shadow-[0_-4px_20px_rgba(15,23,42,0.08)]">
-        <div className="flex items-center gap-3">
-          <div className="min-w-0">
-            <p className="text-[10px] text-slate-400 line-through leading-none">
-              ₹99/month later
-            </p>
-            <p className="text-lg font-extrabold text-slate-900 leading-tight">
-              ₹{displayAmount.toLocaleString('en-IN')}
-              <span className="text-[11px] font-semibold text-slate-500"> /year</span>
-            </p>
-          </div>
+      {!showCustomerModal && (
+        <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3 shadow-[0_-4px_20px_rgba(15,23,42,0.08)]">
+          <div className="flex items-center gap-3">
+            <div className="min-w-0">
+              <p className="text-[10px] text-slate-400 line-through leading-none">
+                ₹99/month later
+              </p>
+              <p className="text-lg font-extrabold text-slate-900 leading-tight">
+                ₹{displayAmount.toLocaleString('en-IN')}
+                <span className="text-[11px] font-semibold text-slate-500"> /year</span>
+              </p>
+            </div>
 
-          {selectedService && !canPurchaseCurrentSelection ? (
-            <button
-              type="button"
-              onClick={() => handleEnquireNow(selectedService)}
-              className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-3 text-sm shadow-lg"
-            >
-              Enquire Now
-            </button>
-          ) : (
-            <button
-              type="button"
-              disabled={payDisabled}
-              onClick={() => setShowCustomerModal(true)}
-              className="flex-1 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-3 text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Opening...' : 'Book Now'}
-            </button>
-          )}
+            {selectedService && !canPurchaseCurrentSelection ? (
+              <button
+                type="button"
+                onClick={() => handleEnquireNow(selectedService)}
+                className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-3 text-sm shadow-lg"
+              >
+                Enquire Now
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled={payDisabled}
+                onClick={() => setShowCustomerModal(true)}
+                className="flex-1 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-3 text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Opening...' : 'Book Now'}
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ------------------------------- CHECKOUT MODAL ------------------------------ */}
       {showCustomerModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 py-6 overflow-y-auto">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 my-auto">
+        <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-slate-950/70 px-4 py-6 overflow-y-auto">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-auto">
             <div className="flex items-start justify-between gap-3 mb-5">
               <div className="min-w-0">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 border border-amber-200 text-amber-700 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em]">
@@ -1400,6 +1461,7 @@ export default function SpokenEnglishAdLanding() {
                   name="name"
                   value={customerForm.name}
                   onChange={handleCustomerFormChange}
+                  ref={nameInputRef}
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100 transition-all"
                   placeholder="Enter your full name"
                 />

@@ -191,7 +191,8 @@ export default function App() {
               Plan: spoken-english
           ===================================================== */}
 
-          <Route path="/spoken-english" element={<SpokenEnglishLandingPage />} />
+          {/* <Route path="/spoken-english" element={<SpokenEnglishLandingPage />} /> */}
+          <Route path="/spoken-english" element={<SpokenEnglishAdLanding />} />
           <Route path="/spoken-english-ad-landing" element={<SpokenEnglishAdLanding />} />
 
           <Route
