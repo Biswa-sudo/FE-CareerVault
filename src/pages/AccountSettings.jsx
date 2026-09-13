@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './AccountSettings.css';
 import MainNavbar from '../components/Layout/MainNavbar';
 import { useAuth } from '../context/AuthContext';
-import { getAllSubscriptions } from '../lib/localStorage';
+import { getAllSubscriptions, updateUserPassword } from '../lib/localStorage';
 import Footer from '../components/Layout/Footer';
     
 
@@ -103,10 +103,31 @@ const AccountSettings = () => {
     return String(p);
   })();
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
-    alert('✅ Password changed successfully!');
-    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      alert('Please fill in all password fields.');
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert('New password and confirm password do not match.');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      alert('Password must be at least 6 characters long.');
+      return;
+    }
+
+    try {
+      await updateUserPassword(passwordData.currentPassword, passwordData.newPassword);
+      alert('✅ Password changed successfully!');
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Unable to update password.');
+    }
   };
 
   const handleNotificationChange = (key) => {
@@ -226,6 +247,54 @@ const AccountSettings = () => {
                     )}
                   </div>
                 </div>
+              </div>
+
+              <div className="settings-card" style={{ marginTop: '24px' }}>
+                <div className="settings-card-header">
+                  <h3>🔒 Change Password</h3>
+                  <p>Update your account password securely</p>
+                </div>
+
+                <form onSubmit={handlePasswordChange} className="settings-form">
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Current Password</label>
+                      <input
+                        type="password"
+                        value={passwordData.currentPassword}
+                        onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                        placeholder="Enter current password"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>New Password</label>
+                      <input
+                        type="password"
+                        value={passwordData.newPassword}
+                        onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                        placeholder="Enter new password"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Confirm New Password</label>
+                      <input
+                        type="password"
+                        value={passwordData.confirmPassword}
+                        onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                        placeholder="Confirm new password"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-actions">
+                    <button className="btn btn-primary" type="submit">
+                      🔐 Update Password
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           )}

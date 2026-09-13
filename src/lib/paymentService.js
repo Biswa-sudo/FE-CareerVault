@@ -25,6 +25,19 @@ export function buildPaymentOrderPayload({
   };
 }
 
+export function generateGuestPassword(name = '', email = '') {
+  const rawName = String(name || '').trim().toLowerCase();
+  const rawEmail = String(email || '').split('@')[0].trim().toLowerCase();
+
+  const normalized = (rawEmail || rawName || 'guest')
+    .replace(/[^a-z0-9]/g, '')
+    .slice(0, 20);
+
+  const safeBase = normalized || 'guest';
+
+  return `${safeBase}@12`;
+}
+
 function loadRazorpayScript() {
   if (window.Razorpay) {
     return Promise.resolve();

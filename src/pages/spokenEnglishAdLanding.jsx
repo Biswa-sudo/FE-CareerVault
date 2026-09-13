@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getPaymentConfig, startUpiPayment } from '../lib/paymentService';
-import { getSubscriptionStatus } from '../lib/localStorage';
+import {
+  generateGuestPassword,
+  getPaymentConfig,
+  startUpiPayment,
+} from '../lib/paymentService';
+import {
+  getSubscriptionStatus,
+  loginUser,
+  signUpUser,
+} from '../lib/localStorage';
 import Button from '../components/ui/Button';
 import { resolvePaymentPlan } from '../lib/paymentPlans';
 import { isPurchaseService, getEnquiryServiceSubject } from '../lib/serviceAccess';
@@ -161,6 +169,7 @@ export default function SpokenEnglishAdLanding() {
     phone: ''
   });
   const [customerError, setCustomerError] = useState('');
+  const [guestCredentials, setGuestCredentials] = useState(null);
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -181,6 +190,22 @@ export default function SpokenEnglishAdLanding() {
       });
     }
   }, [rawPlan]);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem('bentureai_guest_credentials');
+    if (!stored) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(stored);
+      if (parsed?.email) {
+        setGuestCredentials(parsed);
+      }
+    } catch (e) {
+      console.warn('[GuestCheckout] Failed to restore saved credentials.', e);
+    }
+  }, []);
 
   useEffect(() => {
     if (!rawPlan && !rawProductId) {
@@ -296,6 +321,49 @@ export default function SpokenEnglishAdLanding() {
     }
   };
 
+  const persistGuestCredentials = (data) => {
+    const next = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      userId: data.userId ?? user?.id ?? null,
+    };
+
+    setGuestCredentials(next);
+    sessionStorage.setItem('bentureai_guest_credentials', JSON.stringify(next));
+  };
+
+  const autoCreateGuestAccount = async ({ name, email, phone = '' }) => {
+    const password = generateGuestPassword(name, email);
+    const payload = { name, email, phone, password };
+
+    try {
+      const createdUser = await signUpUser(payload);
+      persistGuestCredentials({
+        name,
+        email,
+        password,
+        userId: createdUser?.id ?? null,
+      });
+      return { ...payload, userId: createdUser?.id ?? null };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err || '');
+
+      if (/already exists|409/i.test(message)) {
+        const loggedUser = await loginUser(email, password);
+        persistGuestCredentials({
+          name,
+          email,
+          password,
+          userId: loggedUser?.id ?? null,
+        });
+        return { ...payload, userId: loggedUser?.id ?? null };
+      }
+
+      throw err;
+    }
+  };
+
   const handlePay = async (customerData = null) => {
     const finalCustomerData = customerData || {
       name: customerForm.name,
@@ -371,7 +439,7 @@ export default function SpokenEnglishAdLanding() {
         }
       });
 
-      navigate('/payment/success', { replace: true });
+      navigate('/spoken-english-ad-landing?checkout=success', { replace: true });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Payment failed. Please try again.';
 
@@ -383,7 +451,7 @@ export default function SpokenEnglishAdLanding() {
     }
   };
 
-  const submitCustomerDetails = () => {
+  const submitCustomerDetails = async () => {
     const trimmedName = customerForm.name.trim();
     const trimmedEmail = customerForm.email.trim();
     const trimmedPhone = customerForm.phone.trim();
@@ -399,14 +467,28 @@ export default function SpokenEnglishAdLanding() {
       return;
     }
 
-    setCustomerError('');
-    setShowCustomerModal(false);
-    handlePay({
-      name: trimmedName,
-      email: trimmedEmail,
-      phone: trimmedPhone,
-    });
+    try {
+      setCustomerError('');
+      setShowCustomerModal(false);
+      await autoCreateGuestAccount({
+        name: trimmedName,
+        email: trimmedEmail,
+        phone: trimmedPhone,
+      });
+
+      await handlePay({
+        name: trimmedName,
+        email: trimmedEmail,
+        phone: trimmedPhone,
+      });
+    } catch (err) {
+      setCustomerError(err instanceof Error ? err.message : 'Unable to create your account. Please try again.');
+      setShowCustomerModal(true);
+    }
   };
+
+  const checkoutSuccess = searchParams.get('checkout') === 'success';
+  const canShowGuestCredentials = checkoutSuccess && (guestCredentials || (authenticated && user));
 
   const displayService = selectedService || (selectedPlan.name ? {
     title: selectedPlan.name,
@@ -435,6 +517,38 @@ export default function SpokenEnglishAdLanding() {
       <MainNavbar />
       <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-white">
         <div className="max-w-5xl mx-auto px-4 py-8 md:py-12">
+          {canShowGuestCredentials && (
+            <div className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-700 font-semibold">Account created</p>
+                  <h2 className="mt-1 text-2xl font-bold text-slate-800">Welcome aboard</h2>
+                </div>
+                <a
+                  href="/account-settings"
+                  className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                >
+                  Update password
+                </a>
+              </div>
+
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <div className="rounded-xl border border-emerald-200 bg-white px-3 py-2">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">User ID</p>
+                  <p className="mt-1 text-base font-bold text-slate-800">{guestCredentials?.userId ?? user?.id ?? '—'}</p>
+                </div>
+                <div className="rounded-xl border border-emerald-200 bg-white px-3 py-2">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Email</p>
+                  <p className="mt-1 text-base font-bold text-slate-800 break-all">{guestCredentials?.email ?? user?.email ?? '—'}</p>
+                </div>
+                <div className="rounded-xl border border-emerald-200 bg-white px-3 py-2">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Password</p>
+                  <p className="mt-1 text-base font-bold text-slate-800">{guestCredentials?.password ?? '—'}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 px-4 py-2 rounded-full border border-amber-200 text-sm font-medium mb-4">
               <Star className="w-4 h-4 fill-amber-500" />
@@ -610,6 +724,7 @@ export default function SpokenEnglishAdLanding() {
               <div>
                 <p className="text-xs uppercase tracking-wider text-slate-500">Checkout</p>
                 <h3 className="text-xl font-bold text-slate-800">Book your Spoken English plan</h3>
+                <p>You are just 20 days away from speaking English confidently.</p>
               </div>
               <button
                 type="button"

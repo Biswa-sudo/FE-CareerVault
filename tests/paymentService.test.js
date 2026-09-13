@@ -1,7 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { buildPaymentOrderPayload } from '../src/lib/paymentService.js';
+import { buildPaymentOrderPayload, generateGuestPassword } from '../src/lib/paymentService.js';
+
+test('guest password uses the email-based default pattern', () => {
+  const password = generateGuestPassword('Asha Verma', 'asha.verma@example.com');
+
+  assert.equal(password, 'ashaverma@12');
+});
 
 test('guest checkout includes customer details in the create-order payload', () => {
   const payload = buildPaymentOrderPayload({

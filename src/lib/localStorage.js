@@ -18,6 +18,14 @@ export async function loginUser(email, password) {
   return response.user || null;
 }
 
+export async function updateUserPassword(currentPassword, newPassword) {
+  const response = await apiRequest('/auth.php?action=update-password', {
+    method: 'POST',
+    body: { currentPassword, newPassword },
+  });
+  return response.user || null;
+}
+
 export async function getSession() {
   try {
     const response = await apiRequest('/auth.php?action=session');
